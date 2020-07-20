@@ -1,4 +1,3 @@
-const config = require('./config');
 const tape = require('tape');
 const { Hypercore } = require('..');
 
