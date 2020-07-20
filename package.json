@@ -1,0 +1,28 @@
+{
+  "name": "telios-sdk",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape tests/*.test.js | tap-spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Telios-org/telios-sdk.git"
+  },
+  "author": "Hexadecibal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Telios-org/telios-sdk/issues"
+  },
+  "homepage": "https://github.com/Telios-org/telios-sdk#readme",
+  "dependencies": {
+    "dat-sdk": "^2.5.0",
+    "sodium-native": "^3.2.0",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {
+    "tap-spec": "^5.0.0",
+    "tape": "^5.0.1"
+  }
+}
