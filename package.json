@@ -1,10 +1,10 @@
 {
-  "name": "telios-sdk",
+  "name": "@telios/telios-sdk",
   "version": "0.0.1",
-  "description": "",
+  "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
-    "test": "tape tests/*.test.js | tap-spec"
+    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Telios-org/telios-sdk#readme",
   "dependencies": {
+    "axios": "^0.19.2",
     "dat-sdk": "^2.5.0",
     "sodium-native": "^3.2.0",
     "uuid": "^8.2.0"
@@ -24,5 +25,15 @@
   "devDependencies": {
     "tap-spec": "^5.0.0",
     "tape": "^5.0.1"
-  }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "keywords": [
+    "telios-sdk",
+    "telios",
+    "private",
+    "email"
+  ]
 }
