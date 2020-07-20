@@ -1,11 +1,11 @@
 const config = require('./config');
 const tape = require('tape');
 const { Hypercore } = require('..');
-const hypercore = new Hypercore('Account - Test Core', { persist: false });
 
 tape('Hypercore - create and get core', async t => {
   t.plan(3);
-
+  
+  const hypercore = new Hypercore('Account - Test Core', { persist: false });
   const core = await hypercore.createCore();
   const key = core.key.toString('hex');
   core.close();

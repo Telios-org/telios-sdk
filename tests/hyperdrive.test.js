@@ -1,7 +1,6 @@
 const config = require('./config');
 const tape = require('tape');
 const { Hyperdrive } = require('..');
-const hyperdrive = new Hyperdrive('Account - Test Drive', { persist: false });
 
 tape('Hyperdrive - create drive', async t => {
   t.plan(1);
