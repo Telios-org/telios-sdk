@@ -7,7 +7,7 @@ This SDK can be used to build your own client for communicating with the Telios 
 
 ## What does this SDK do?
 
-This SDK provides methods around the Telios Client-Server API. This SDK comes with everything needed for sending/receiving encrypted data, registering a new account, and creating mailboxes and aliases.
+This SDK provides for interacting with the Telios Client-Server API. This SDK comes with everything needed for sending/receiving encrypted data, registering a new account, creating mailboxes, and registering aliases.
 
 
 ## Installation
@@ -19,7 +19,7 @@ npm install telios-sdk
 ## Usage
 
 ``` js
-const { Account, Mailbox, Hyperdrive, Hypercore } = require('telios-sdk');
+const { Account, Mailbox } = require('telios-sdk');
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
 const account = new Account({
@@ -35,12 +35,10 @@ const payload = await Account.init({
 const res = await account.register(payload);
 ```
 
-## API
-
-### Account
+## Account
 The Account object handles communication with the Telios server and provides methods for creating request payloads.
 
-#### Create Keypairs
+### Create Keypairs
 Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
 
 ``` js
@@ -53,9 +51,7 @@ const signing_pub_key = signingKeypair.publicKey;
 const signing_priv_key = signingKeypair.privateKey;
 ```
 
----
-
-#### Register a New Account
+### Register a New Account
 After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is would be required in a situation where a client attempts to retrieve an email from a device that is now offline.
 
 ```js
@@ -74,18 +70,16 @@ const payload = await Account.init({
 const res = await account.register(payload);
 ```
 
-##### Example response:
+#### Example response:
 ```js
 {
-  drive: 'cd0979839ee7adc9613ecacfaa1bfad34fb8c76cd23044f5d3b128cd4003fa7e', // The seed drive
-  sig: '4b0963a63a0f3aa22e798db7811043503a13a1088ad75759c22ec254353ae36751a191ec4d50c70a661a7d1d382644ff5bd883e203643b1ae42fd26ebf58a501'
+  drive: <drive>, // The seed drive public key
+  sig: <server_signature>
 }
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
 
----
-
-#### Account Login
+### Account Login
 ```js
 // Instantiate a new Account object
 const account = new Account({
@@ -94,10 +88,10 @@ const account = new Account({
 
 // Create an account payload and then sign with your public signing key
 const account = {
-  spkey: 'ef984b756a51e67ad49f653c90e826468bc931cd3ccf50aebec2fa1d549d864d',
-  sbpkey: '4bd1f102176d62a2f9b4598900e35b23e6a136da53590ba96c3e823f8c1d9c7c',
-  device_id: 'b1926811-860a-423c-ba13-b905d9dc5998',
-  sig: 'abf20e4d0487427e4078df4459f16d9aed18e417e592a950badbe1d1e4038dc629c3b2de62062ea2c687046b2e0a207ff5c3630e07695a8892f0de5d12b46600'
+  spkey: <signing_public_key>,
+  sbpkey: <secret_box_public_key>,
+  device_id: <device_id>,
+  sig: <server_signature>
 };
 
 // Sign account
@@ -107,7 +101,7 @@ const auth_payload = Account.accountSignAuth(account);
 const res = await account.register(auth_payload);
 ```
 
-##### Example response:
+#### Example response:
 
 ```js
 {
@@ -116,4 +110,81 @@ const res = await account.register(auth_payload);
 ```
 The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
 
----
+### Account Logout
+
+```js
+// Instantiate a new Account object
+const account = new Account({
+  provider: 'telios.io'
+});
+
+// the 'all' option will log out all devices
+const payload = { devices: 'all' };
+
+// Pass in current token
+const token = <jwt_token>
+
+// Logout
+const res = await account.logout(token, payload);
+```
+
+## Mailbox
+The Mailbox object provides functionality needed for processing encrypted emails.
+
+### Register a New Mailbox
+
+``` js
+const mailbox = new Mailbox({
+  provider: 'telios.io',
+  token: <jwt_token>
+});
+
+const payload = {
+  sbpkey: <secret_box_public_key>,
+  addr: 'test@telios.io',
+  pwd: <password>
+};
+
+const res = await mailbox.registerMailbox(payload);
+```
+
+#### Example response:
+
+```js
+{
+    "registered": true
+}
+```
+
+### Retrieve a Mailbox's Public Key
+A recipient's public key is required for sending encrypted emails within the Telios network. An separate email will need to be encrypted for each recipient.
+
+``` js
+const mailbox = new Mailbox({
+  provider: 'telios.io',
+  token: <jwt_token>
+});
+
+const addr = {
+  addr: 'user@telios.io'
+};
+
+const res = await mailbox.registerMailbox(addr);
+```
+
+#### Example response:
+
+```js
+{
+    "sbpkey": <secret_box_public_key>
+}
+```
+
+### Encrypting Emails
+
+``` js
+const { Mailbox } = require('telios-sdk');
+
+// Pass in a raw email message
+const encrypted = await Mailbox.encryptMail(email);
+```
