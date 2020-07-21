@@ -51,6 +51,9 @@ const secret_box_priv_key = secretBoxKeypair.privateKey;
 const signing_pub_key = signingKeypair.publicKey;
 const signing_priv_key = signingKeypair.privateKey;
 ```
+
+----
+
 #### Account - Register
 After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is would be required in a situation where a client attempts to retrieve an email from a device that is now offline.
 
@@ -71,13 +74,15 @@ const res = await account.register(payload);
 ```
 
 ##### Example response:
-The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
 ```js
 {
   drive: 'cd0979839ee7adc9613ecacfaa1bfad34fb8c76cd23044f5d3b128cd4003fa7e', // The seed drive
   sig: '4b0963a63a0f3aa22e798db7811043503a13a1088ad75759c22ec254353ae36751a191ec4d50c70a661a7d1d382644ff5bd883e203643b1ae42fd26ebf58a501'
 }
 ```
+The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
+
+----
 
 #### Account - Login
 ```js
@@ -102,10 +107,12 @@ const res = await account.register(auth_payload);
 ```
 
 ##### Example response:
-The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
 
 ```js
 {
     "access_token": <jwt_token>
 }
 ```
+The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
+
+----
