@@ -39,7 +39,7 @@ const res = await account.register(payload);
 ### Account
 The Account object handles communication with the Telios server and provides methods for creating request payloads.
 
-#### Create Keypairs
+#### Account - Create Keypairs
 -----
 Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
 
@@ -52,7 +52,7 @@ const secret_box_priv_key = secretBoxKeypair.privateKey;
 const signing_pub_key = signingKeypair.publicKey;
 const signing_priv_key = signingKeypair.privateKey;
 ```
-#### Register
+#### Account - Register
 -----
 After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is would be required in a situation where a client attempts to retrieve an email from a device that is now offline.
 
@@ -81,7 +81,7 @@ Example response:
 }
 ```
 
-#### Login
+#### Account - Login
 -----
 ```js
 // Instantiate a new Account object
