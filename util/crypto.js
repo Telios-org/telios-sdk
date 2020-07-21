@@ -1,20 +1,4 @@
 const sodium = require('sodium-native');
-  // // Sodium Native Statics
-  // static generateSignatureKeypair() {
-  //   return crypto.generateSigKeypair();
-  // }
-
-  // static generateSecretBoxKeypair() {
-  //   return crypto.generateSBKeypair();
-  // }
-
-  // static accountSign(payload) {
-  //   return crypto.signDetached(payload, payload.spkey);
-  // }
-
-  // static accountAuthSign(account, sig) {
-  //   return crypto.signDetached(account, sig);
-  // }
 
 exports.verifySig = (sig, publicKey, msg) => {
   let m = Buffer.from(JSON.stringify(msg));
@@ -51,7 +35,7 @@ exports.generateSBKeypair = () => {
   }
 }
 
-exports.encryptMessage = (msg, sbpkey, pkey) => {
+exports.encryptMessage = (msg, sbpkey, privKey) => {
   const m = Buffer.from(msg, 'utf-8');
   const c = Buffer.alloc(m.length + sodium.crypto_box_MACBYTES);
   const n = Buffer.alloc(sodium.crypto_box_NONCEBYTES);
@@ -59,19 +43,36 @@ exports.encryptMessage = (msg, sbpkey, pkey) => {
   const sk = Buffer.alloc(sodium.crypto_box_SECRETKEYBYTES);
 
   pk.fill(Buffer.from(sbpkey, 'hex'));
-  sk.fill(Buffer.from(pkey, 'hex'));
+  sk.fill(Buffer.from(privKey, 'hex'));
 
   sodium.crypto_box_easy(c, m, n, pk, sk);
 
   return c.toString('hex');
 }
 
-exports.signDetached = (msg, pkey) => {
+exports.decryptMessage = (msg, sbpkey, privKey) => {
+  const c = Buffer.from(msg, 'hex');
+  const m = Buffer.alloc(c.length - sodium.crypto_box_MACBYTES);
+  const n = Buffer.alloc(sodium.crypto_box_NONCEBYTES);
+  const pk = Buffer.alloc(sodium.crypto_box_PUBLICKEYBYTES);
+  const sk = Buffer.alloc(sodium.crypto_box_SECRETKEYBYTES);
+
+  pk.fill(Buffer.from(sbpkey, 'hex'));
+  sk.fill(Buffer.from(privKey, 'hex'));
+
+  const bool = sodium.crypto_box_open_easy(m, c, n, pk, sk);
+
+  if (!bool) throw new Error('Unable to decrypt message.');
+
+  return m.toString('utf-8');
+}
+
+exports.signDetached = (msg, privKey) => {
   let sig = Buffer.alloc(sodium.crypto_sign_BYTES);
   let m = Buffer.from(JSON.stringify(msg));
   let sk = Buffer.alloc(sodium.crypto_sign_SECRETKEYBYTES);
 
-  sk.fill(Buffer.from(pkey, 'hex'));
+  sk.fill(Buffer.from(privKey, 'hex'));
 
   sodium.crypto_sign_detached(sig, m, sk);
 

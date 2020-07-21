@@ -72,7 +72,7 @@ module.exports = {
       auth: 'Bearer',
       method: 'post',
       url: '/mailbox/alias/register',
-      req: {},
+      req: { addr: 'aliasuser@telios.io' },
       res: {
         registered: true
       }
@@ -81,10 +81,51 @@ module.exports = {
       auth: 'Bearer',
       method: 'delete',
       url: '/mailbox/alias',
-      req: {},
+      req: { addr: 'aliasuser@telios.io' },
       res: {
         removed: true
       }
-    }
+    },
+    get_public_key: {
+      auth: 'Bearer',
+      method: 'get',
+      url: '/mailbox/address/:addr',
+      req: {
+        sbpkey: '4bd1f102176d62a2f9b4598900e35b23e6a136da53590ba96c3e823f8c1d9c7c',
+        addr: 'test@telios.io',
+        pwd: 'password'
+      },
+      res: { sbpkey: 'd0b573a6f9bd0b676277367d31eda6b931e71f0648d8e0d2d4ca39f896d3dd36' }
+    },
+    get_new_mail: {
+      auth: 'Bearer',
+      method: 'get',
+      url: '/mailbox/messages',
+      req: null,
+      res: [{
+        _id: '5f1210b7a29fe6222f199f80',
+        msg: 'eafa21c9ab3d1d9c58db61139670c68ea0e550a52cf230e77d59bf6004323abeb0c5c2701ab73fe8b6a074b9f4fa5c0bf2cbaeee22605adea5fd72f6bb7c425c2a30a1f53873a22b10433ce27da1f26c6bf1f2be6b1854a4e36ff3bfa6a05ef06871bbf5054476c836a6006e126b2cf903514b074136f73634e7383912c734f5339bafb0ae5c39e26174a54b2903f33d9926430940bc72568d258a671613202c6927195736b4d4d61dff64601c00f12ca3bd88e247ebbc00a353d31a2d8a909450b7b3f8c8d763afe537cc3bcb7cac6d91b1185baf09361591960719bed4b92d64c000c9b0d2a44f4afc1a281bb6430379f6e3aa1354601815187581e762b35b164eff9b235cc3fa5a85f5fb0d3bdb24861adbab8139f98c9c7880d2289855c5a4'
+      }]
+    },
+    send_encrypted_mail: {
+      auth: 'Bearer',
+      method: 'post',
+      url: '/mailbox/message',
+      req: {
+        sbpkey: '207a09c53b2c3b9b95c95871a20d3485d3594345dffa8636a7be151ab3821428',
+        addr: 'test@telios.io',
+        msg: 'eafa21c9ab3d1d9c58db61139670c68ea0e550a52cf230e77d59bf6004323abeb0c5c2701ab73fe8b6a074b9f4fa5c0bf2cbaeee22605adea5fd72f6bb7c425c2a30a1f53873a22b10433ce27da1f26c6bf1f2be6b1854a4e36ff3bfa6a05ef06871bbf5054476c836a6006e126b2cf903514b074136f73634e7383912c734f5339bafb0ae5c39e26174a54b2903f33d9926430940bc72568d258a671613202c6927195736b4d4d61dff64601c00f12ca3bd88e247ebbc00a353d31a2d8a909450b7b3f8c8d763afe537cc3bcb7cac6d91b1185baf09361591960719bed4b92d64c000c9b0d2a44f4afc1a281bb6430379f6e3aa1354601815187581e762b35b164eff9b235cc3fa5a85f5fb0d3bdb24861adbab8139f98c9c7880d2289855c5a4'
+      },
+      res: {}
+    },
+    mark_as_read: {
+      auth: 'Bearer',
+      method: 'post',
+      url: '/mailbox/messages/read',
+      req: {
+        "msg_ids": ["5f11e4554e19c8223640f0bc"]
+      },
+      res: {}
+    },
   }
 }

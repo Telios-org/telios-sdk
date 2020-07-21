@@ -1,7 +1,9 @@
 const tape = require('tape');
+const _test = require('tape-promise').default;
+const test = _test(tape);
 const { Hypercore } = require('..');
 
-tape('Hypercore - create and get core', async t => {
+test('Hypercore - create and get core', async t => {
   t.plan(3);
   
   const hypercore = new Hypercore('Account - Test Core', { persist: false });
@@ -20,4 +22,4 @@ tape('Hypercore - create and get core', async t => {
   t.equals(key, key2, 'Core keys match');
 });
 
-tape.onFinish(() => process.exit(0));
+test.onFinish(() => process.exit(0));

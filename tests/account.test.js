@@ -1,7 +1,9 @@
 const tape = require('tape');
+const _test = require('tape-promise').default;
+const test = _test(tape);
 const { Account } = require('..');
 
-tape('Account - Make Keypairs', async t => {
+test('Account - Make Keypairs', async t => {
   t.plan(4);
   const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
@@ -12,17 +14,17 @@ tape('Account - Make Keypairs', async t => {
   t.ok(signingKeypair.publicKey, 'Signing public key');
 });
 
-tape('Account - Init', async t => {
+test('Account - Init', async t => {
   t.plan(1);
 
   const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
   
   try {
     const payload = await Account.init({
-                                        spkey: signingKeypair.publicKey,
-                                        sbpkey: secretBoxKeypair.publicKey,
-                                        recovery_email: 'test@telios.io'
-                                      });
+      spkey: signingKeypair.publicKey,
+      sbpkey: secretBoxKeypair.publicKey,
+      recovery_email: 'test@telios.io'
+    });
     console.log(payload);
     t.ok(payload, 'Account payload signed');
   } catch (err) {
@@ -30,7 +32,7 @@ tape('Account - Init', async t => {
   }
 });
 
-tape('Account - Sign authorization payload', async t => {
+test('Account - Sign authorization payload', async t => {
   t.plan(1)
   const account = {
     spkey: 'ef984b756a51e67ad49f653c90e826468bc931cd3ccf50aebec2fa1d549d864d',
@@ -44,7 +46,7 @@ tape('Account - Sign authorization payload', async t => {
   t.ok(payload, 'Account has authorization payload');
 });
 
-tape('Account - Register', async t => {
+test('Account - Register', async t => {
   t.plan(1)
   const account = new Account({
     provider: 'telios.io'
@@ -65,7 +67,7 @@ tape('Account - Register', async t => {
   t.equals(res.status, 200, 'Account can register');
 });
 
-tape('Account - Login', async t => {
+test('Account - Login', async t => {
   t.plan(1)
   const account = new Account({
     provider: 'telios.io'
@@ -84,21 +86,19 @@ tape('Account - Login', async t => {
   t.equals(res.status, 200, 'Account can login');
 });
 
-tape('Account - Logout', async t => {
-  t.plan(3);
+test('Account - Logout', async t => {
   const account = new Account({
     provider: 'telios.io'
   });
   const payload = { devices: 'all' };
 
   let token = null;
-  let res = await account.logout(token, payload);
-  t.throws(res, null, 'Account login should return 401 status with invalid token');
-  t.equals(res.status, 401);
+  t.rejects(account.logout(token, payload), null, 'Account login should return error when missing token');
 
   token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzcGtleSI6IjlhZjI2ZTM3MjA3MGY4YjYyNDI5NTJkNWE4NDRiZWUwNzQzZWI3MDRiMTA1ZDY0N2QwYjkzNzBiY2QzMWQxODIiLCJzYnBrZXkiOiJkMGI1NzNhNmY5YmQwYjY3NjI3NzM2N2QzMWVkYTZiOTMxZTcxZjA2NDhkOGUwZDJkNGNhMzlmODk2ZDNkZDM2IiwiZGV2aWNlX2lkIjoiZjcwNTQ0MTVhN2NiMDExZjU1NTI5ODQ0Njc2MjU5MmY5ZTQ4OGI4ZDZkM2FlMGY1YTQ4NDgyNjA3MWFhYmFkZSIsImV4cCI6MTU5NTI4MTYyMSwiaWF0IjoxNTk1Mjc4MDIxfQ.BOxQJ5FRVMKKAFAmHHpMJQVlpB-eGEmEWZLBcMtLuH4hsLmJSE3pKxvMz2OqDh75ECLofFHdNh4a1UojfjtxhfQKkSu-hxQkadQxjDhhrfTW_nGsTpBEX94n-HgjRpndzIJfvE_zz4DgqRN901PhIkKo1FFqkJxUkZHUU5afGAr5sAT3M6_RmoCpG7DNl2uLPOH4ZYae-fPMYeje0oiPmJyboxWQ7aolx5dhBWSMpYB4H7hudaueUYi6gkPZz2keAP9RzTGQFaQNRVtoFbFTsfz4XP9WnibqXTfmMBUF1E6RI5u2B43s2mG-wgGg9Ev9UkonGKRyzHEX5a_fCp4dEQ';
   res = await account.logout(token, payload);
   t.equals(res.status, 200, 'Account can logout of all devices');
+  t.end();
 });
 
-tape.onFinish(() => process.exit(0));
+test.onFinish(() => process.exit(0));

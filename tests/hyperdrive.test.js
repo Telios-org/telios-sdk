@@ -1,7 +1,9 @@
 const tape = require('tape');
+const _test = require('tape-promise').default;
+const test = _test(tape);
 const { Hyperdrive } = require('..');
 
-tape('Hyperdrive - create drive', async t => {
+test('Hyperdrive - create drive', async t => {
   t.plan(1);
 
   try {
@@ -15,4 +17,4 @@ tape('Hyperdrive - create drive', async t => {
   }
 });
 
-tape.onFinish(() => process.exit(0));
+test.onFinish(() => process.exit(0));
