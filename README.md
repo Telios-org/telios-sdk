@@ -40,7 +40,6 @@ const res = await account.register(payload);
 The Account object handles communication with the Telios server and provides methods for creating request payloads.
 
 #### Account - Create Keypairs
------
 Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
 
 ``` js
@@ -53,7 +52,6 @@ const signing_pub_key = signingKeypair.publicKey;
 const signing_priv_key = signingKeypair.privateKey;
 ```
 #### Account - Register
------
 After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is would be required in a situation where a client attempts to retrieve an email from a device that is now offline.
 
 ```js
@@ -72,8 +70,8 @@ const payload = await Account.init({
 const res = await account.register(payload);
 ```
 
-Example response:
-> **NOTE**: The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
+##### Example response:
+The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
 ```js
 {
   drive: 'cd0979839ee7adc9613ecacfaa1bfad34fb8c76cd23044f5d3b128cd4003fa7e', // The seed drive
@@ -82,7 +80,6 @@ Example response:
 ```
 
 #### Account - Login
------
 ```js
 // Instantiate a new Account object
 const account = new Account({
@@ -104,8 +101,8 @@ const auth_payload = Account.accountSignAuth(account);
 const res = await account.register(auth_payload);
 ```
 
-Example response:
-> **NOTE**: The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
+##### Example response:
+The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
 
 ```js
 {
