@@ -41,7 +41,7 @@ test('Account - Sign authorization payload', async t => {
     sig: 'abf20e4d0487427e4078df4459f16d9aed18e417e592a950badbe1d1e4038dc629c3b2de62062ea2c687046b2e0a207ff5c3630e07695a8892f0de5d12b46600'
   };
   
-  const payload = Account.accountAuthSign(account);
+  const payload = Account.accountSignAuth(account);
   console.log(payload);
   t.ok(payload, 'Account has authorization payload');
 });
