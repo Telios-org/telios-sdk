@@ -36,5 +36,6 @@
     "telios",
     "private",
     "email"
-  ]
+  ],
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
 }
