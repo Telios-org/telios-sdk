@@ -33,12 +33,37 @@ test('Mailbox - Get Public Key', async t => {
   t.equals(res.status, 200, `Got mailbox public key ${res.data.sbpkey}`);
 });
 
-test('Mailbox - Get unread messages', async t => {
+test('Mailbox - Get new mail metadata', async t => {
   t.plan(2);
   const mailbox = setup();
-  const res = await mailbox.getNewMail();
-  t.equals(res.status, 200, `Retrieved new messages`);
-  t.equals(1, res.data.length, `Message count === ${res.data.length}`);
+  const res = await mailbox._getNewMailMeta();
+  t.equals(res.status, 200, `Retrieved new meta`);
+  t.equals(1, res.data.length, `Mail meta count === ${res.data.length}`);
+});
+
+test('Mailbox - Retrieve unread mail and decrypt', async t => {
+  // t.plan(2);
+  const mailbox = setup();
+  const privKey = '04968601b00541a9a2188b1709b4c11534ad419fd4d8143a67b3622bf924e5ee';
+  const sbpkey = '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725';
+
+  const mail = await mailbox.getNewMail(sbpkey, privKey);
+  console.log(mail);
+  // t.equals(res.status, 200, `Decrypted and retrieved new mail`);
+  // t.equals(1, res.data.length, `Mail count === ${res.data.length}`);
+  t.end();
+});
+
+test('Mailbox - Mark messages as read', async t => {
+  t.plan(1);
+  const mailbox = setup();
+  
+  const payload = {
+    "msg_ids": ["5f11e4554e19c8223640f0bc"]
+  };
+
+  const res = await mailbox.markAsRead(payload);
+  t.equals(res.status, 200, `Marked mail messages as read`);
 });
 
 test('Mailbox - Send mail metadata', async t => {
@@ -53,18 +78,6 @@ test('Mailbox - Send mail metadata', async t => {
 
   const res = await mailbox.sendMailMeta(payload);
   t.equals(res.status, 200, `Sent mail metadata`);
-});
-
-test('Mailbox - Mark messages as read', async t => {
-  t.plan(1);
-  const mailbox = setup();
-  
-  const payload = {
-    "msg_ids": ["5f11e4554e19c8223640f0bc"]
-  };
-
-  const res = await mailbox.markAsRead(payload);
-  t.equals(res.status, 200, `Marked mail messages as read`);
 });
 
 test('Mailbox - Send mail', async t => {
@@ -120,15 +133,16 @@ test('Mailbox - Encrypt mail metadata', async t => {
   t.ok(encoded, `Encrypted mail metadata => ${encoded}`);
 });
 
-test('Mailbox - Decrypt mail metadata', async t => {
-  t.plan(1);
-  const encMeta = '1fad354dc805d2fb322bd3bc3993fd4bdbf2d074b81eb3dc3a61ee8f2d1cb7143c2a0d300de5a60749d0025b6536a01657f6997d9561e6b837df7cf2aa2b2c8a38c5a246efc371813e1c5279d4011844076b57240c242908f90c51b07f7b141803c19638466df37590d230d42c1c79fc8d1984373481312414d2de07782d25d4a6dcad26a903118a274499319ea5b7e13c5ff1c6911fcd2e21b0b1ce0f35eaf907cffd5c86994b515a826ea88385ab3f1265ad90fe0d11281e233a045c349a5b4c7e4ae7a804222c209ee19037e84f95bc01607fbcfcf1ef7a35b1cbc323c7f63ae9f59ad394394a491c868b0b0e4479e549c9f7e226ccacd7afafcd1558b6ec60527ceb152cb3339cca50652a88805f7c35';
-  const privKey = '04968601b00541a9a2188b1709b4c11534ad419fd4d8143a67b3622bf924e5ee';
-  const sbpkey = '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725';
+// test('Mailbox - Decrypt mail metadata', async t => {
+//   t.plan(1);
+//   const mailbox = setup();
+//   const encMeta = '1fad354dc805d2fb322bd3bc3993fd4bdbf2d074b81eb3dc3a61ee8f2d1cb7143c2a0d300de5a60749d0025b6536a01657f6997d9561e6b837df7cf2aa2b2c8a38c5a246efc371813e1c5279d4011844076b57240c242908f90c51b07f7b141803c19638466df37590d230d42c1c79fc8d1984373481312414d2de07782d25d4a6dcad26a903118a274499319ea5b7e13c5ff1c6911fcd2e21b0b1ce0f35eaf907cffd5c86994b515a826ea88385ab3f1265ad90fe0d11281e233a045c349a5b4c7e4ae7a804222c209ee19037e84f95bc01607fbcfcf1ef7a35b1cbc323c7f63ae9f59ad394394a491c868b0b0e4479e549c9f7e226ccacd7afafcd1558b6ec60527ceb152cb3339cca50652a88805f7c35';
+//   const privKey = '04968601b00541a9a2188b1709b4c11534ad419fd4d8143a67b3622bf924e5ee';
+//   const sbpkey = '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725';
 
-  const decoded = Mailbox._decryptMeta(encMeta, sbpkey, privKey);
+//   const decoded = mailbox._decryptMeta(encMeta, sbpkey, privKey);
 
-  t.ok(decoded, `Decrypted mail metadata => ${decoded}`);
-});
+//   t.ok(decoded, `Decrypted mail metadata => ${decoded}`);
+// });
 
 test.onFinish(() => process.exit(0));

@@ -3,11 +3,11 @@
 [![Current Version](https://img.shields.io/github/package-json/v/Telios-org/telios-sdk)](https://github.com/Telios-org/telios-sdk)
 [![GitHub Issues](https://img.shields.io/github/issues/Telios-org/telios-sdk/open)](https://github.com/Telios-org/telios-sdk/issues)
 
-This SDK can be used to build your own client for communicating with the Telios network. Telios is an offline-capabale e2e encrypted email service that uses p2p technology for sending and receiving emails.
+This package provides components for building an email client using the Telios Network. Telios is an offline-capabale e2e encrypted email service that uses p2p technology for sending and receiving emails.
 
 ## What does this SDK do?
 
-This SDK provides methods for interacting with the Telios Client-Server API. This SDK comes with everything needed for sending/receiving encrypted data, registering a new account, creating mailboxes, and registering aliases.
+This SDK provides methods for interacting with the Telios Client-Server API. It comes with everything needed for sending/receiving encrypted data, registering a new account, creating mailboxes, and registering aliases.
 
 
 ## Installation
@@ -29,7 +29,7 @@ const account = new Account({
 const payload = await Account.init({
   spkey: signingKeypair.publicKey,
   sbpkey: secretBoxKeypair.publicKey,
-  recovery_email: 'test@telios.io'
+  recovery_email: 'user@mail.com'
 });
 
 const res = await account.register(payload);
@@ -73,8 +73,8 @@ const res = await account.register(payload);
 #### Example response:
 ```js
 {
-  drive: '[drive]', // The seed drive public key
-  sig: '[server_signature]'
+  drive: '[drive_key]', // The seed drive's public key created by the server
+  sig: '[server_signature]' // signature from server to be used for authentication
 }
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This replaces the need for requiring a username and password for authentication.
