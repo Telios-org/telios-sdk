@@ -1,0 +1,29 @@
+Return-Path: <hex@telios.io>
+Delivered-To: test@telios.io
+Received: from telios.io ([127.0.0.1])
+        by telios.io
+        for <test@telios.io>; Tue, 21 Jul 2020 21:53:59 -0400
+X-Spam-Status: No, score=-0.8 required=5.0 tests=ALL_TRUSTED,DKIM_INVALID,
+        DKIM_SIGNED autolearn=no autolearn_force=no version=3.4.2
+X-Spam-Report:
+        * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.1 DKIM_INVALID DKIM or DK signature exists, but is not valid
+X-Spam-Score: -0.8
+Received: from authenticated-user (telios.io [xxx.xxx.xxx.xxx])
+        by telios.email
+        for <test@telios.io>; Tue, 21 Jul 2020 21:53:58 -0400 (EDT)
+DKIM-Signature: 
+MIME-Version: 1.0
+Date: Tue, 21 Jul 2020 21:53:58 -0400
+From: hex@telios.io
+To: test@telios.io
+Subject: Unit Test
+Message-ID: <1aabc3ef29437f37d3c40dc09e1bac76@telios.io>
+X-Sender: hex@telios.io
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+
+Test email for unit test.

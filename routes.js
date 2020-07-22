@@ -90,11 +90,7 @@ module.exports = {
       auth: 'Bearer',
       method: 'get',
       url: '/mailbox/address/:addr',
-      req: {
-        sbpkey: '4bd1f102176d62a2f9b4598900e35b23e6a136da53590ba96c3e823f8c1d9c7c',
-        addr: 'test@telios.io',
-        pwd: 'password'
-      },
+      req: null,
       res: { sbpkey: 'd0b573a6f9bd0b676277367d31eda6b931e71f0648d8e0d2d4ca39f896d3dd36' }
     },
     get_new_mail: {

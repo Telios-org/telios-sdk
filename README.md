@@ -73,8 +73,8 @@ const res = await account.register(payload);
 #### Example response:
 ```js
 {
-  drive: <drive>, // The seed drive public key
-  sig: <server_signature>
+  drive: '[drive]', // The seed drive public key
+  sig: '[server_signature]'
 }
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
@@ -88,10 +88,10 @@ const account = new Account({
 
 // Create an account payload and then sign with your public signing key
 const account = {
-  spkey: <signing_public_key>,
-  sbpkey: <secret_box_public_key>,
-  device_id: <device_id>,
-  sig: <server_signature>
+  spkey: '[signing_public_key]',
+  sbpkey: '[secret_box_public_key]',
+  device_id: '[device_id]',
+  sig: '[server_signature>]'
 };
 
 // Sign account
@@ -105,7 +105,7 @@ const res = await account.register(auth_payload);
 
 ```js
 {
-    "access_token": <jwt_token>
+    "access_token": '[jwt_token]'
 }
 ```
 The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
@@ -122,7 +122,7 @@ const account = new Account({
 const payload = { devices: 'all' };
 
 // Pass in current token
-const token = <jwt_token>
+const token = '[jwt_token]';
 
 // Logout
 const res = await account.logout(token, payload);
@@ -136,13 +136,13 @@ The Mailbox object provides functionality needed for processing encrypted emails
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: <jwt_token>
+  token: '[jwt_token]'
 });
 
 const payload = {
-  sbpkey: <secret_box_public_key>,
+  sbpkey: '[secret_box_public_key]',
   addr: 'test@telios.io',
-  pwd: <password>
+  pwd: '[password]'
 };
 
 const res = await mailbox.registerMailbox(payload);
@@ -162,7 +162,7 @@ A recipient's public key is required for sending encrypted emails within the Tel
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: <jwt_token>
+  token: '[jwt_token]'
 });
 
 const addr = {
@@ -176,14 +176,17 @@ const res = await mailbox.registerMailbox(addr);
 
 ```js
 {
-    "sbpkey": <secret_box_public_key>
+    "sbpkey": '[secret_box_public_key]'
 }
 ```
 
 ### Sending Emails
 
 ``` js
-const { Mailbox } = require('telios-sdk');
+const mailbox = new Mailbox({
+  provider: 'telios.io',
+  token: '[jwt_token]'
+});
 
 const email = {
   to: ["Test Person <test@example.com>"],
@@ -211,5 +214,5 @@ const email = {
   ]
 }
 
-const res = await Mailbox.send(email);
+const res = await mailbox.send(email);
 ```
