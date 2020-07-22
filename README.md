@@ -7,7 +7,7 @@ This SDK can be used to build your own client for communicating with the Telios 
 
 ## What does this SDK do?
 
-This SDK provides for interacting with the Telios Client-Server API. This SDK comes with everything needed for sending/receiving encrypted data, registering a new account, creating mailboxes, and registering aliases.
+This SDK provides methods for interacting with the Telios Client-Server API. This SDK comes with everything needed for sending/receiving encrypted data, registering a new account, creating mailboxes, and registering aliases.
 
 
 ## Installation
@@ -157,7 +157,7 @@ const res = await mailbox.registerMailbox(payload);
 ```
 
 ### Retrieve a Mailbox's Public Key
-A recipient's public key is required for sending encrypted emails within the Telios network. An separate email will need to be encrypted for each recipient.
+A recipient's public key is required for sending encrypted emails within the Telios network. A separate email will need to be encrypted for each recipient.
 
 ``` js
 const mailbox = new Mailbox({
@@ -180,11 +180,36 @@ const res = await mailbox.registerMailbox(addr);
 }
 ```
 
-### Encrypting Emails
+### Sending Emails
 
 ``` js
 const { Mailbox } = require('telios-sdk');
 
-// Pass in a raw email message
-const encrypted = await Mailbox.encryptMail(email);
+const email = {
+  to: ["Test Person <test@example.com>"],
+  sender: "Test Persons Friend <friend@telios.io>",
+  subject: "Hello Test Person",
+  text_body: "You're my favorite test person ever",
+  html_body: "<h1>You're my favorite test person ever</h1>",
+  custom_headers: [
+    {
+      header: "Reply-To",
+      value: "Actual Person <test3@telios.io>"
+    }
+  ],
+  attachments: [
+      {
+          filename: "test.pdf",
+          fileblob: "--base64-data--",
+          mimetype: "application/pdf"
+      },
+      {
+          filename: "test.txt",
+          fileblob: "--base64-data--",
+          mimetype: "text/plain"
+      }
+  ]
+}
+
+const res = await Mailbox.send(email);
 ```
