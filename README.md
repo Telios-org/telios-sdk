@@ -52,7 +52,7 @@ const signing_priv_key = signingKeypair.privateKey;
 ```
 
 ### Register a New Account
-After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is would be required in a situation where a client attempts to retrieve an email from a device that is now offline.
+After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is required in situations where a client attempts to retrieve an email from an offline device.
 
 ```js
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
@@ -77,7 +77,7 @@ const res = await account.register(payload);
   sig: '[server_signature]'
 }
 ```
-The `sig` returned will be required for authentication and should be stored and encrypted locally. This essentially replaces the need for requiring a username and password for authentication.
+The `sig` returned will be required for authentication and should be stored and encrypted locally. This replaces the need for requiring a username and password for authentication.
 
 ### Account Login
 ```js
@@ -91,10 +91,10 @@ const account = {
   spkey: '[signing_public_key]',
   sbpkey: '[secret_box_public_key]',
   device_id: '[device_id]',
-  sig: '[server_signature>]'
+  sig: '[server_signature]'
 };
 
-// Sign account
+// Construct auth request
 const auth_payload = Account.accountSignAuth(account);
 
 // Authenticate with auth payload
