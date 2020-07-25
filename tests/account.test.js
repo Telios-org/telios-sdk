@@ -7,11 +7,11 @@ test('Account - Make Keypairs', async t => {
   t.plan(4);
   const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
-  t.ok(secretBoxKeypair.privateKey, 'Secret box private key');
-  t.ok(secretBoxKeypair.publicKey, 'Secret box public key');
+  t.ok(secretBoxKeypair.privateKey, `Secret box private key: ${secretBoxKeypair.privateKey}`);
+  t.ok(secretBoxKeypair.publicKey, `Secret box public key: ${secretBoxKeypair.publicKey}`);
 
-  t.ok(signingKeypair.privateKey, 'Signing private key');
-  t.ok(signingKeypair.publicKey, 'Signing public key');
+  t.ok(signingKeypair.privateKey, `Signing private key: ${signingKeypair.privateKey}`);
+  t.ok(signingKeypair.publicKey, `Signing public key: ${signingKeypair.publicKey}`);
 });
 
 test('Account - Init', async t => {

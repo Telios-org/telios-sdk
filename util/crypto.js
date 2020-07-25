@@ -127,6 +127,35 @@ exports.randomBytes = data => {
   return buf.toString('hex');
 };
 
+exports.generateAEDKey = () => {
+  let k = Buffer.alloc(sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES);
+  sodium.crypto_aead_xchacha20poly1305_ietf_keygen(k);
+  return k;
+}
+
+exports.encryptAED = (key, msg) => {
+  let m = Buffer.from(msg, 'utf-8');
+  let c = Buffer.alloc(m.length + sodium.crypto_aead_xchacha20poly1305_ietf_ABYTES);
+  let npub = Buffer.alloc(sodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
+  let k = Buffer.from(key, 'hex');
+  
+  sodium.randombytes_buf(npub);
+  
+  sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(c, m, null, null, npub, k);
+
+  return { npub: npub, msg: c };
+}
+
+exports.decryptAED = (key, nonce, c) => {
+  let m = Buffer.alloc(c.length - sodium.crypto_aead_xchacha20poly1305_ietf_ABYTES);
+  let npub = Buffer.from(nonce, 'hex');
+  let k = Buffer.from(key, 'hex');
+
+  sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(m, null, c, null, npub, k);
+
+  return m;
+}
+
 exports.generateStreamKey = () => {
   let k = Buffer.alloc(sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES);
   sodium.crypto_secretstream_xchacha20poly1305_keygen(k);

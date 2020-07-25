@@ -8,7 +8,9 @@ test('Hyperdrive - create drive', async t => {
 
   try {
     const hyperdrive = new Hyperdrive('Account - Test Drive', { persist: false });
-    const drive = await hyperdrive.createDrive();
+    await hyperdrive.connect();
+    const drive = hyperdrive.drive;
+
     const key = drive.key.toString('hex');
     drive.close();
     t.ok(key, 'Generated Hyperdrive key');
