@@ -93,7 +93,7 @@ const account = new Account({
 });
 
 // Create an account payload and then sign with your public signing key
-const account = {
+const acct = {
   spkey: '[signing_public_key]',
   sbpkey: '[secret_box_public_key]',
   device_id: '[device_id]',
@@ -101,7 +101,7 @@ const account = {
 };
 
 // Construct auth request
-const auth_payload = Account.accountSignAuth(account, signingKeypair.privateKey);
+const auth_payload = Account.accountSignAuth(acct, signingKeypair.privateKey);
 
 // Authenticate with auth payload
 const res = await account.register(auth_payload);
