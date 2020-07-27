@@ -104,7 +104,7 @@ const acct = {
 const auth_payload = Account.accountSignAuth(acct, signingKeypair.privateKey);
 
 // Authenticate with auth payload
-const res = await account.register(auth_payload);
+const res = await account.login(auth_payload);
 ```
 
 #### Example response:
