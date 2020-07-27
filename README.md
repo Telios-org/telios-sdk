@@ -73,8 +73,11 @@ const res = await account.register(payload);
 #### Example response:
 ```js
 {
-  _drive: '[drive_key]', // The seed drive's public key created by the server
-  _sig: '[server_signature]' // signature from server to be used for authentication
+  // The seed drive's public key created by the server
+  _drive: '[drive_key]', 
+
+  // signature from server to be used for authentication
+  _sig: '[server_signature]'
 }
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This replaces the need for requiring a username and password for authentication.
@@ -236,23 +239,17 @@ being sent in cleartext to other recipients. If some of the recipients are using
 be encrypted at rest when picked up by the mailserver for Telios recipients.
 
 ``` js
+// In this example Bob is sending an ecrypted email to two other Telios mailboxes.
+
 const mailbox = new Mailbox({
   provider: 'telios.io',
   token: '[jwt_token]'
 });
 
-/**
- * In this example Bob is sending an ecrypted email to two other Telios mailboxes.
-*/
-
-/**
- * Private key is only used during encryption and never sent or stored.
- */
+// Private key is only used during encryption and never sent or stored.
 const privKey = '[bob_secret_box_private_key]'; 
 
-/**
- * Public key is used for authenticity of sender
- */
+// Public key is used for authenticity of sender
 const pubKey = '[bob_secret_box_public_key]';
 
 const email = {
@@ -268,45 +265,38 @@ const email = {
     }
   ],
   attachments: [
-      {
-          filename: "test.pdf",
-          fileblob: "--base64-data--",
-          mimetype: "application/pdf"
-      },
-      {
-          filename: "test.txt",
-          fileblob: "--base64-data--",
-          mimetype: "text/plain"
-      }
+    {
+      filename: "test.pdf",
+      fileblob: "--base64-data--",
+      mimetype: "application/pdf"
+    },
+    {
+      filename: "test.txt",
+      fileblob: "--base64-data--",
+      mimetype: "text/plain"
+    }
   ]
 }
 
 const res = await mailbox.send(email, {
-  /**
-   * The sender's private key (Bob)
-   */
+  // The sender's private key (Bob)
   privKey: privKey,
 
-  /**
-   * The sender's public key (Bob)
-   */
+  // The sender's public key (Bob)
   pubKey: pubKey,
 
-  /**
-   * The key for the local drive that will be storing the ecrypted email
-   */
+  // The key for the local drive that will be storing the ecrypted email.
   drive: '[drive_key]',
 
-  /**
-   * This is the path on the local drive where the encrypted email data will be written. 
-   * In the example below, the sender (Bob) stores all sent mail in a directory with the 
-   * name of his mailbox (/bob@telios.io), and all encrypted emails are stored inside this directory. 
-   * Each are named with a generated guid (a5caa6dd-835f-4468-a54c-b53e7114887c) for added privacy. 
-   * When the other recipients decode their metadata sent to them via Bob, they will use this 
-   * path to retrieve their email.
-   *  
-   * example: '/bob@telios.io/a5caa6dd-835f-4468-a54c-b53e7114887c'
-  */
+  // This is the path on the local drive where the encrypted email data will be written. 
+  // In the example below, the sender (Bob) stores all sent mail in a directory with the 
+  // name of his mailbox (/bob@telios.io), and all encrypted emails are stored inside this directory. 
+  // Each are named with a generated guid (a5caa6dd-835f-4468-a54c-b53e7114887c) for added privacy. 
+  // When the other recipients decode their metadata sent to them via Bob, they will use this 
+  // path to retrieve their email.
+  
+  // example: '/bob@telios.io/a5caa6dd-835f-4468-a54c-b53e7114887c'
+
   drivePath: '[path_to_encrypted_email]'
 });
 
@@ -330,10 +320,36 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 
 ```js
 [
-  {
-    _id: '5f1210b7a29fe6222f199f80',
-    msg: '81eb0873315b7d0ccd8012331080fb1726080a874c7c031fad87046ca68699377dcf761ff3425b02049f3a691a03d02acc90817a9dc190462734f6d7d1b8cab2a08a7f0dbaa967589fcfb3c71182200e846e4743eb910c1f7fc5cb9e731be1b4d4d7296f71e98f8ca044735c5f092e266280f2797b994588c2970bd62c698d9425553d8561c9891d820069657d66ffb38b1e5739e51b52a730c08477b7b3b5e424caf5d17da3560662f001f2ab849f0bf2d0bcbb344bd901f54ab17b9f426ba7427025c7d301446b23206860c3d65129a084dcc43fce5d427bdfda73ef332ae218d640e51fdb268cc7e89217ed544be1305b301b3b52d016f72bcc9ce2eb2391f7f32bccd7aba44c6f736d3272d994fbcae68f61d03912915e3f371fde1e6962845c7ff16e1f771a99307443993cbe8c9c5b1897899655e76080bd1e8b4a599eb3a04964f3f5728678e3eb010abed511ee33add5e41d4e791d452004937d7b82b4a0ecbe32eda96561b59b5bd73eadd11361483ed80219e33d019e3363d954f24246cb7c337f57f1a55bb453f5b41559f5b082721e1510ddcb13da4bf7d85a11cdb7089fccbe8a7810ef9aa6e59216819ceecdecd87b3766673fde41d799adc19c2fd12076fa48a0b4f0366b0287c1212eb386f2fad2c85149c3390c81da77ac6cef625b8b30f47bdf6620c73626ae63bc20076ebcb17b94bebbd21556d2b5178a7eb0167e523746c1c8d441478c83e942de241aed572d3ea0453daf178d17ed810f0daf74c6665c2697d958cce43c2da9f5263d6ce4b36006415f5b196fca2a0ebd852fb5929fe5b370a697286c5aa2471fe6'
-  }
+  [
+    {
+      _id: '5f1210b7a29fe6222f199f80',
+      email: {
+        to: ["Alice Tester <alice@telios.io>", "Test Tester <tester@telios.io>"],
+        sender: "Bob Tester <bob@telios.io>",
+        subject: "Hello Alice",
+        text_body: "You're my favorite test person ever",
+        html_body: "<h1>You're my favorite test person ever</h1>",
+        custom_headers: [
+          {
+            header: "Reply-To",
+            value: "Actual Person <test3@telios.io>"
+          }
+        ],
+        attachments: [
+          {
+            filename: "test.pdf",
+            fileblob: "--base64-data--",
+            mimetype: "application/pdf"
+          },
+          {
+            filename: "test.txt",
+            fileblob: "--base64-data--",
+            mimetype: "text/plain"
+          }
+        ]
+      }
+    }
+  ]
 ]
 ```
 
@@ -349,15 +365,4 @@ const mailbox = new Mailbox({
  * Pass in an array of message IDs to be marked as read
  */
 const res = await mailbox.markAsRead(["5f1210b7a29fe6222f199f80"]);
-```
-
-#### Example response:
-
-```js
-[
-  {
-    _id: '5f1210b7a29fe6222f199f80',
-    msg: '81eb0873315b7d0ccd8012331080fb1726080a874c7c031fad87046ca68699377dcf761ff3425b02049f3a691a03d02acc90817a9dc190462734f6d7d1b8cab2a08a7f0dbaa967589fcfb3c71182200e846e4743eb910c1f7fc5cb9e731be1b4d4d7296f71e98f8ca044735c5f092e266280f2797b994588c2970bd62c698d9425553d8561c9891d820069657d66ffb38b1e5739e51b52a730c08477b7b3b5e424caf5d17da3560662f001f2ab849f0bf2d0bcbb344bd901f54ab17b9f426ba7427025c7d301446b23206860c3d65129a084dcc43fce5d427bdfda73ef332ae218d640e51fdb268cc7e89217ed544be1305b301b3b52d016f72bcc9ce2eb2391f7f32bccd7aba44c6f736d3272d994fbcae68f61d03912915e3f371fde1e6962845c7ff16e1f771a99307443993cbe8c9c5b1897899655e76080bd1e8b4a599eb3a04964f3f5728678e3eb010abed511ee33add5e41d4e791d452004937d7b82b4a0ecbe32eda96561b59b5bd73eadd11361483ed80219e33d019e3363d954f24246cb7c337f57f1a55bb453f5b41559f5b082721e1510ddcb13da4bf7d85a11cdb7089fccbe8a7810ef9aa6e59216819ceecdecd87b3766673fde41d799adc19c2fd12076fa48a0b4f0366b0287c1212eb386f2fad2c85149c3390c81da77ac6cef625b8b30f47bdf6620c73626ae63bc20076ebcb17b94bebbd21556d2b5178a7eb0167e523746c1c8d441478c83e942de241aed572d3ea0453daf178d17ed810f0daf74c6665c2697d958cce43c2da9f5263d6ce4b36006415f5b196fca2a0ebd852fb5929fe5b370a697286c5aa2471fe6'
-  }
-]
 ```
