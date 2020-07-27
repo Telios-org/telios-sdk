@@ -13,13 +13,13 @@ This SDK provides methods for interacting with the Telios Client-Server API. It 
 ## Installation
 
 ``` js
-npm install telios-sdk
+npm i @telios/telios-sdk
 ```
 
 ## Usage
 
 ``` js
-const { Account, Mailbox } = require('telios-sdk');
+const { Account, Mailbox } = require('@telios/telios-sdk');
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
 const account = new Account({
