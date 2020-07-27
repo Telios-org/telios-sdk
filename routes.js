@@ -8,18 +8,18 @@ module.exports = {
       url: '/account/register',
       req: {
         account: {
-          spkey: 'bf04b8d6ebf36a46ae9d55a6d123b7c538e42fe21ac1beeddc5fae3c5ae313bd',
-          sbpkey: 'b5e0818615181328fb9e65685ba1029644c8902726495a4d852282d36265087c',
-          recovery_email: 'test@telios.io',
-          device_id: 'b7c38291-8147-4e66-ab33-79c4b8561c70',
+          spkey: 'b4dab9a8e547c0edc1cca396a1bfc735225b1abc424c36e7ab23eec911eb7ee1',
+          sbpkey: '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725',
+          recovery_email: 'alice@mail.com',
+          device_id: 'bf1d346a-8a5c-4c60-baf9-dfd96d7e9380',
           device_drive: '7a3a58faecd67a5e0387525c31524aab94f22e4c0d0153c8ea1b79f9a10815bd',
           device_core: 'c20ebbfc5702bd4aabf86e055463c011bdcfd24785039c7d70d2be5e6016c7b5'
         },
-        sig: '6ae3469c4fda19ae381351f550b891b474ca4118f1901e433d76b3ebdd9566647c2bd54ac59c183affc56ae1e45f9689fddb80d1bafe820a4a8f48612cd81105'
+        sig: '547816e39f429334f4c8fad469af04379931118fd18f1920f6fe6cfe3005787917b4c0984c834a5a14e2ea8a618d387dda240842139bdfd0894baf265d7fbf0d'
       },
       res: {
         _drive: 'cd0979839ee7adc9613ecacfaa1bfad34fb8c76cd23044f5d3b128cd4003fa7e',
-        _sig: '4b0963a63a0f3aa22e798db7811043503a13a1088ad75759c22ec254353ae36751a191ec4d50c70a661a7d1d382644ff5bd883e203643b1ae42fd26ebf58a501'
+        _sig: '1381a9399dbef59687ef0c39e39567d53a03bfb71c8b62fe9015e0745c60a5bd6fce252f0c738fdaaaff396469ff5acfb97c332ed98f48af866469bd07226104'
       }
     },
     login: {

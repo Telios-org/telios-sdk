@@ -61,13 +61,13 @@ const account = new Account({
   provider: 'telios.io'
 });
 
-const payload = await Account.init({
+const params = await Account.init({
   spkey: signingKeypair.publicKey,
   sbpkey: secretBoxKeypair.publicKey,
   recovery_email: 'test@telios.io'
 });
 
-const res = await account.register(payload);
+const res = await account.register(params, signingKeypair.privateKey);
 ```
 
 #### Example response:
