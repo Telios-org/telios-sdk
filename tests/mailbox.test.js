@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const conf = require('./conf');
 const { Mailbox, Hyperdrive } = require('..');
+const Crypto = require('../util/crypto');
 
 // Mailbox test setup
 const initMailbox = async () => {
@@ -33,15 +34,15 @@ test('Setup', async t => {
   // const email = JSON.stringify(conf.TEST_EMAIL);
 
   // const key = Crypto.generateAEDKey();
-  // const { npub, msg } = Crypto.encryptAED(key, email);
+  // const { npub, encrypted } = Crypto.encryptAED(key, email);
 
   // console.log('KEY :: ', key.toString('hex'));
   // console.log('NPUB :: ', npub.toString('hex'));
-  // console.log('MESSAGE :: ', msg);
+  // console.log('MESSAGE :: ', encrypted);
 
   
 
-  // fs.writeFileSync(__dirname + '/encrypted.mail', msg);
+  // fs.writeFileSync(__dirname + '/encrypted.mail', encrypted);
 
   // // return encrypted metadata
   // const meta = {
@@ -51,10 +52,19 @@ test('Setup', async t => {
   //   "path": conf.MAILSERVER_DRIVE_PATH
   // };
 
-  // const encrypted_meta = Mailbox._encryptMeta(meta, sbpkey, privKey);
+  // const encryptedMeta = Mailbox._encryptMeta(meta, sbpkey, privKey);
 
-  // console.log('Encrypted metadata :: ', encrypted_meta);
-  // t.end();
+  // console.log('Encrypted metadata :: ', encryptedMeta);
+
+  // const sealedMsg = {
+  //   "from": conf.BOB_SB_PUB_KEY,
+  //   "meta": encryptedMeta
+  // }
+
+  // const encMsg = Crypto.encryptSealedBox(JSON.stringify(sealedMsg), sbpkey);
+
+  // console.log('Final Message :: ', encMsg.toString('hex'));
+  t.end();
 });
 
 test('Mailbox - Register', async t => {
@@ -71,13 +81,16 @@ test('Mailbox - Register', async t => {
   t.equals(res.status, 200, 'Mailbox can create new mailbox');
 });
 
-test('Mailbox - Get Public Key', async t => {
-  t.plan(2);
+test('Mailbox - Get public keys', async t => {
+  t.plan(4);
   const mailbox = await initMailbox();
 
-  const res = await mailbox.getMailboxPubKey('test@telios.io');
-  t.equals(res.url, `/mailbox/address/test@telios.io`, `URL properly formed ${res.url}`);
-  t.equals(res.status, 200, `Got mailbox public key ${res.data.sbpkey}`);
+  const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io']);
+
+  t.equals(res.url, `/mailbox/addresses/alice@telios.io,tester@telios.io`, `URL properly formed ${res.url}`);
+  t.equals(res.status, 200, `Got mailbox public keys`);
+  t.ok(res.data['alice@telios.io'], `Returned Alice\'s Public Key ${res.data['alice@telios.io']}`);
+  t.ok(res.data['tester@telios.io'], `Returned Tester\'s Public Key ${res.data['tester@telios.io']}`);
 });
 
 test('Mailbox - Get new mail metadata', async t => {
@@ -91,10 +104,10 @@ test('Mailbox - Get new mail metadata', async t => {
 test('Mailbox - Retrieve unread mail and decrypt', async t => {
   t.plan(1);
   const mailbox = await initMailbox();
+  const sbpkey = conf.ALICE_SB_PUB_KEY;
   const privKey = conf.ALICE_SB_PRIV_KEY;
-  const sbpkey = conf.BOB_SB_PUB_KEY;
 
-  const mail = await mailbox.getNewMail(sbpkey, privKey);
+  const mail = await mailbox.getNewMail(privKey, sbpkey);
 
   t.ok(mail, `Decrypted and retrieved new mail`);
   t.end();
@@ -117,8 +130,8 @@ test('Mailbox - Send mail metadata', async t => {
   const mailbox = await initMailbox();
   
   const payload = {
-    sbpkey: '207a09c53b2c3b9b95c95871a20d3485d3594345dffa8636a7be151ab3821428',
-    msg: 'eafa21c9ab3d1d9c58db61139670c68ea0e550a52cf230e77d59bf6004323abeb0c5c2701ab73fe8b6a074b9f4fa5c0bf2cbaeee22605adea5fd72f6bb7c425c2a30a1f53873a22b10433ce27da1f26c6bf1f2be6b1854a4e36ff3bfa6a05ef06871bbf5054476c836a6006e126b2cf903514b074136f73634e7383912c734f5339bafb0ae5c39e26174a54b2903f33d9926430940bc72568d258a671613202c6927195736b4d4d61dff64601c00f12ca3bd88e247ebbc00a353d31a2d8a909450b7b3f8c8d763afe537cc3bcb7cac6d91b1185baf09361591960719bed4b92d64c000c9b0d2a44f4afc1a281bb6430379f6e3aa1354601815187581e762b35b164eff9b235cc3fa5a85f5fb0d3bdb24861adbab8139f98c9c7880d2289855c5a4'
+    sbpkey: '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725',
+    msg: '81eb0873315b7d0ccd8012331080fb1726080a874c7c031fad87046ca68699377dcf761ff3425b02049f3a691a03d02acc90817a9dc190462734f6d7d1b8cab2a08a7f0dbaa967589fcfb3c71182200e846e4743eb910c1f7fc5cb9e731be1b4d4d7296f71e98f8ca044735c5f092e266280f2797b994588c2970bd62c698d9425553d8561c9891d820069657d66ffb38b1e5739e51b52a730c08477b7b3b5e424caf5d17da3560662f001f2ab849f0bf2d0bcbb344bd901f54ab17b9f426ba7427025c7d301446b23206860c3d65129a084dcc43fce5d427bdfda73ef332ae218d640e51fdb268cc7e89217ed544be1305b301b3b52d016f72bcc9ce2eb2391f7f32bccd7aba44c6f736d3272d994fbcae68f61d03912915e3f371fde1e6962845c7ff16e1f771a99307443993cbe8c9c5b1897899655e76080bd1e8b4a599eb3a04964f3f5728678e3eb010abed511ee33add5e41d4e791d452004937d7b82b4a0ecbe32eda96561b59b5bd73eadd11361483ed80219e33d019e3363d954f24246cb7c337f57f1a55bb453f5b41559f5b082721e1510ddcb13da4bf7d85a11cdb7089fccbe8a7810ef9aa6e59216819ceecdecd87b3766673fde41d799adc19c2fd12076fa48a0b4f0366b0287c1212eb386f2fad2c85149c3390c81da77ac6cef625b8b30f47bdf6620c73626ae63bc20076ebcb17b94bebbd21556d2b5178a7eb0167e523746c1c8d441478c83e942de241aed572d3ea0453daf178d17ed810f0daf74c6665c2697d958cce43c2da9f5263d6ce4b36006415f5b196fca2a0ebd852fb5929fe5b370a697286c5aa2471fe6'
   };
 
   const res = await mailbox.sendMailMeta(payload);
@@ -128,14 +141,20 @@ test('Mailbox - Send mail metadata', async t => {
 test('Mailbox - Send mail', async t => {
   //t.plan(1);
   const mailbox = await initMailbox();
-  
+  const privKey = conf.BOB_SB_PRIV_KEY;
   const email = conf.TEST_EMAIL;
 
-  const res = await mailbox.send(email);
+  const res = await mailbox.send(email, {
+    privKey: privKey,
+    drive: conf.MAILSERVER_DRIVE,
+    drivePath: conf.MAILSERVER_DRIVE_PATH
+  });
   t.end();
 });
 
 test('Mailbox - Encrypt mail metadata', async t => {
+  const mailbox = await initMailbox();
+
   t.plan(1);
   const privKey = '04968601b00541a9a2188b1709b4c11534ad419fd4d8143a67b3622bf924e5ee';
   const sbpkey = '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725';
@@ -147,7 +166,7 @@ test('Mailbox - Encrypt mail metadata', async t => {
     "path": conf.MAILSERVER_DRIVE_PATH
   };
 
-  const encoded = Mailbox._encryptMeta(meta, sbpkey, privKey);
+  const encoded = mailbox._encryptMeta(meta, sbpkey, privKey);
 
 
   t.ok(encoded, `Encrypted mail metadata => ${encoded}`);

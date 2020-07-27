@@ -35,7 +35,7 @@ exports.generateSBKeypair = () => {
   }
 }
 
-exports.encryptMessage = (msg, sbpkey, privKey) => {
+exports.encryptSBMessage = (msg, sbpkey, privKey) => {
   const m = Buffer.from(msg, 'utf-8');
   const c = Buffer.alloc(m.length + sodium.crypto_box_MACBYTES);
   const n = Buffer.alloc(sodium.crypto_box_NONCEBYTES);
@@ -50,7 +50,7 @@ exports.encryptMessage = (msg, sbpkey, privKey) => {
   return c.toString('hex');
 }
 
-exports.decryptMessage = (msg, sbpkey, privKey) => {
+exports.decryptSBMessage = (msg, sbpkey, privKey) => {
   const c = Buffer.from(msg, 'hex');
   const m = Buffer.alloc(c.length - sodium.crypto_box_MACBYTES);
   const n = Buffer.alloc(sodium.crypto_box_NONCEBYTES);
@@ -80,6 +80,29 @@ exports.signDetached = (msg, privKey) => {
 
   return signature;
 };
+
+exports.encryptSealedBox = (msg, pubKey) => {
+  let m = Buffer.from(msg, 'utf-8');
+  let c = Buffer.alloc(m.length + sodium.crypto_box_SEALBYTES);
+  let pk = Buffer.from(pubKey, 'hex');
+
+  sodium.crypto_box_seal(c, m, pk);
+
+  return c;
+}
+
+exports.decryptSealedBox = (msg, privKey, pubKey) => {
+  let c = Buffer.from(msg, 'hex');
+  let m = Buffer.alloc(c.length - sodium.crypto_box_SEALBYTES);
+  let sk = Buffer.from(privKey, 'hex');
+  let pk = Buffer.from(pubKey, 'hex');
+
+  var bool = sodium.crypto_box_seal_open(m, c, pk, sk);
+
+  if (!bool) throw new Error('Unable to decrypt message.');
+
+  return m.toString('utf-8');
+}
 
 exports.hash = str => {
   let out = Buffer.alloc(sodium.crypto_generichash_BYTES);
@@ -143,7 +166,7 @@ exports.encryptAED = (key, msg) => {
   
   sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(c, m, null, null, npub, k);
 
-  return { npub: npub, msg: c };
+  return { npub: npub, encrypted: c };
 }
 
 exports.decryptAED = (key, nonce, c) => {

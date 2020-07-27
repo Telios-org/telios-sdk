@@ -18,9 +18,9 @@ module.exports = {
   CORE_NAME: 'Test Core',
   TEST_EMAIL_ENCRYPTED_META: 'f29828da9eb336b67f46b2efd3d9d05b0987ce3650010b15289708270221b44d2432146f79e30cb81424fba0f37410573e00009bca0dc2af1db079de7467583d954610278d22827c02d39a6a5186381db3d8628a0d4121c349ab57510f95c4de4723e501b16dec7193f0ecf517dc0a9c8bb2140f0f751976afe99c521a3bf18f3cbfc902c43074bf9671c29c90bca32f64829e54aefbc7dffc3033db578e9865d2b2ee01fa0f822951467de0020cd3deae611eb889a988374a03f9c995163c9fa9c3f45a69eb8bcdc74948684d0a31e866a95712506ce360e2ab5026ada94c9a906804017af876',
   TEST_EMAIL: {
-    to: ["Test Person <test@example.com>"],
-    sender: "Test Persons Friend <friend@telios.io>",
-    subject: "Hello Test Person",
+    to: ["Alice Tester <alice@telios.io>", "Test Tester <tester@telios.io>"],
+    sender: "Bob Tester <bob@telios.io>",
+    subject: "Hello Alice",
     text_body: "You're my favorite test person ever",
     html_body: "<h1>You're my favorite test person ever</h1>",
     custom_headers: [
