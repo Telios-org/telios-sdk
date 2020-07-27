@@ -28,42 +28,6 @@ test('Setup', async t => {
   const email = fs.readFileSync(__dirname + '/encrypted.mail');
   drive.writeFile(conf.MAILSERVER_DRIVE_PATH, email);
 
-  // const privKey = conf.BOB_SB_PRIV_KEY;
-  // const sbpkey = conf.ALICE_SB_PUB_KEY;
-
-  // const email = JSON.stringify(conf.TEST_EMAIL);
-
-  // const key = Crypto.generateAEDKey();
-  // const { npub, encrypted } = Crypto.encryptAED(key, email);
-
-  // console.log('KEY :: ', key.toString('hex'));
-  // console.log('NPUB :: ', npub.toString('hex'));
-  // console.log('MESSAGE :: ', encrypted);
-
-  
-
-  // fs.writeFileSync(__dirname + '/encrypted.mail', encrypted);
-
-  // // return encrypted metadata
-  // const meta = {
-  //   "key": key.toString('hex'),
-  //   "pub": npub.toString('hex'),
-  //   "drive": conf.MAILSERVER_DRIVE,
-  //   "path": conf.MAILSERVER_DRIVE_PATH
-  // };
-
-  // const encryptedMeta = Mailbox._encryptMeta(meta, sbpkey, privKey);
-
-  // console.log('Encrypted metadata :: ', encryptedMeta);
-
-  // const sealedMsg = {
-  //   "from": conf.BOB_SB_PUB_KEY,
-  //   "meta": encryptedMeta
-  // }
-
-  // const encMsg = Crypto.encryptSealedBox(JSON.stringify(sealedMsg), sbpkey);
-
-  // console.log('Final Message :: ', encMsg.toString('hex'));
   t.end();
 });
 
@@ -79,6 +43,24 @@ test('Mailbox - Register', async t => {
   const res = await mailbox.registerMailbox(payload);
 
   t.equals(res.status, 200, 'Mailbox can create new mailbox');
+});
+
+test('Mailbox - Register alias', async t => {
+  t.plan(1);
+  const mailbox = await initMailbox();
+
+  const res = await mailbox.registerAlias('alice-netflix@telios.io');
+
+  t.equals(res.status, 200, 'Can create new alias');
+});
+
+test('Mailbox - Remove alias', async t => {
+  t.plan(1);
+  const mailbox = await initMailbox();
+
+  const res = await mailbox.removeAlias('alice-netflix@telios.io');
+
+  t.equals(res.status, 200, 'Can remove alias');
 });
 
 test('Mailbox - Get public keys', async t => {
@@ -101,27 +83,24 @@ test('Mailbox - Get new mail metadata', async t => {
 });
 
 test('Mailbox - Retrieve unread mail and decrypt', async t => {
-  t.plan(1);
+  t.plan(3);
   const mailbox = await initMailbox();
   const sbpkey = conf.ALICE_SB_PUB_KEY;
   const privKey = conf.ALICE_SB_PRIV_KEY;
 
   const mail = await mailbox.getNewMail(privKey, sbpkey);
 
-  t.ok(mail, `Decrypted and retrieved new mail`);
-  t.end();
+  t.equals(1, mail.length, '1 Email was retrieved and deciphered');
+  t.ok(mail[0]._id, 'Email has an _id');
+  t.ok(mail[0].email, 'Email has a message object');
 });
 
-test('Mailbox - Mark messages as read', async t => {
+test('Mailbox - Mark emails as read', async t => {
   t.plan(1);
   const mailbox = await initMailbox();
-  
-  const payload = {
-    "msg_ids": ["5f11e4554e19c8223640f0bc"]
-  };
 
-  const res = await mailbox.markAsRead(payload);
-  t.equals(res.status, 200, `Marked mail messages as read`);
+  const res = await mailbox.markAsRead(['5f11e4554e19c8223640f0bc']);
+  t.equals(res.status, 200, `Marked emails as read`);
 });
 
 test('Mailbox - Send mail metadata', async t => {
@@ -144,7 +123,7 @@ test('Mailbox - Send mail metadata', async t => {
 });
 
 test('Mailbox - Send mail', async t => {
-  //t.plan(1);
+  t.plan(1);
   const mailbox = await initMailbox();
   const privKey = conf.BOB_SB_PRIV_KEY;
   const pubKey = conf.BOB_SB_PUB_KEY;
@@ -156,7 +135,8 @@ test('Mailbox - Send mail', async t => {
     drive: conf.MAILSERVER_DRIVE,
     drivePath: conf.MAILSERVER_DRIVE_PATH
   });
-  t.end();
+
+  t.equals(res.status, 200, `Sent mail to two Telios recipients`);
 });
 
 test('Mailbox - Encrypt mail metadata', async t => {

@@ -18,8 +18,8 @@ module.exports = {
         sig: '6ae3469c4fda19ae381351f550b891b474ca4118f1901e433d76b3ebdd9566647c2bd54ac59c183affc56ae1e45f9689fddb80d1bafe820a4a8f48612cd81105'
       },
       res: {
-        drive: 'cd0979839ee7adc9613ecacfaa1bfad34fb8c76cd23044f5d3b128cd4003fa7e',
-        sig: '4b0963a63a0f3aa22e798db7811043503a13a1088ad75759c22ec254353ae36751a191ec4d50c70a661a7d1d382644ff5bd883e203643b1ae42fd26ebf58a501'
+        _drive: 'cd0979839ee7adc9613ecacfaa1bfad34fb8c76cd23044f5d3b128cd4003fa7e',
+        _sig: '4b0963a63a0f3aa22e798db7811043503a13a1088ad75759c22ec254353ae36751a191ec4d50c70a661a7d1d382644ff5bd883e203643b1ae42fd26ebf58a501'
       }
     },
     login: {
@@ -74,7 +74,7 @@ module.exports = {
       auth: 'Bearer',
       method: 'post',
       url: '/mailbox/alias/register',
-      req: { addr: 'aliasuser@telios.io' },
+      req: { addr: 'alice-netflix@telios.io' },
       res: {
         registered: true
       }
@@ -83,7 +83,7 @@ module.exports = {
       auth: 'Bearer',
       method: 'delete',
       url: '/mailbox/alias',
-      req: { addr: 'aliasuser@telios.io' },
+      req: { addr: 'alice-netflix@telios.io' },
       res: {
         removed: true
       }
