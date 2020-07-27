@@ -19,20 +19,21 @@ npm i @telios/telios-sdk
 ## Usage
 
 ``` js
-const { Account, Mailbox } = require('@telios/telios-sdk');
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
 const account = new Account({
   provider: 'telios.io'
 });
 
-const payload = await Account.init({
+const params = {
   spkey: signingKeypair.publicKey,
   sbpkey: secretBoxKeypair.publicKey,
-  recovery_email: 'user@mail.com'
-});
+  recovery_email: 'test@telios.io'
+};
 
-const res = await account.register(payload);
+const signedAcct = await Account.init(params, signingKeypair.privateKey);
+
+const res = await account.register(signedAcct);
 ```
 
 ## Account
@@ -61,13 +62,15 @@ const account = new Account({
   provider: 'telios.io'
 });
 
-const params = await Account.init({
+const params = {
   spkey: signingKeypair.publicKey,
   sbpkey: secretBoxKeypair.publicKey,
   recovery_email: 'test@telios.io'
-});
+};
 
-const res = await account.register(params, signingKeypair.privateKey);
+const signedAcct = await Account.init(params, signingKeypair.privateKey);
+
+const res = await account.register(signedAcct);
 ```
 
 #### Example response:
