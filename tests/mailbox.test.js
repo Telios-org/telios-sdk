@@ -31,7 +31,6 @@ test('Setup', async t => {
     await drive.mkdir(conf.ALICE_MAILBOX);
   }
 
-  console.log(await drive.readdir('/'));
   // write encrypted mail to drive
   const email = fs.readFileSync(__dirname + '/encrypted.mail');
   drive.writeFile(conf.MAILSERVER_DRIVE_PATH, email);
@@ -170,8 +169,9 @@ test.onFinish(async () => {
   // Clean up drives
   const opts = {
     name: conf.MAILSERVER_DRIVE,
-    storage: __dirname + '/drive',
-    ...conf.DRIVE_OPTS
+    driveOpts: {
+      persist: true
+    }
   };
 
   const hyperdrive = new Hyperdrive(opts);
