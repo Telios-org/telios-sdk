@@ -84,20 +84,26 @@ const opts = {
   account: {
     spkey: signingKeypair.publicKey,
     sbpkey: secretBoxKeypair.publicKey,
-    recovery_email: recoveryEmail
+    recovery_email: 'alice@mail.com'
   },
   drive: {
+    // NOTE: This is the same name that gets passed into the
+    // [drive_name] property when sending emails.
     name: 'Alice Drive',
+    // Local path to where the drive should be created 
     storage: '[path_to_drive]',
     driveOpts: {
-      persist: false
+      // Persist the drive through restarts
+      persist: true
     }
   },
   core: {
     name: 'Alice Core',
+    // Local path to where the core should be created 
     storage: '[path_to_core]',
     coreOpts: {
-      persist: false
+      // Persist the core through restarts
+      persist: true
     }
   }
 };
@@ -155,6 +161,8 @@ The `access_token` returned will be required for all protected routes and should
 ```js
 // Instantiate a new Account object
 const account = new Account({
+  // Mail provider. Only telios.io is supported, but could be extended to 
+  // support other email providers using the same protocol
   provider: 'telios.io'
 });
 
@@ -181,8 +189,7 @@ const mailbox = new Mailbox({
 
 const payload = {
   sbpkey: '[secret_box_public_key]',
-  addr: 'test@telios.io',
-  pwd: '[password]'
+  addr: 'test@telios.io'
 };
 
 const res = await mailbox.registerMailbox(payload);
@@ -283,12 +290,6 @@ const mailbox = new Mailbox({
   token: '[jwt_token]'
 });
 
-// Private key is only used during encryption and never sent or stored.
-const privKey = '[bob_secret_box_private_key]'; 
-
-// Public key is used for authenticity of sender
-const pubKey = '[bob_secret_box_public_key]';
-
 const email = {
   to: ["Alice Tester <alice@telios.io>", "Test Tester <tester@telios.io>"],
   sender: "Bob Tester <bob@telios.io>",
@@ -316,24 +317,22 @@ const email = {
 }
 
 const res = await mailbox.send(email, {
-  // The sender's private key (Bob)
-  privKey: privKey,
+  // The sender's private key (Bob). Private key is only used during encryption and never sent or stored.
+  privKey: '[bob_secret_box_private_key]',
 
-  // The sender's public key (Bob)
-  pubKey: pubKey,
+  // The sender's public key (Bob). Public key is used for authenticity of sender
+  pubKey: '[bob_secret_box_public_key]',
 
-  // The key for the local drive that will be storing the ecrypted email.
-  drive: '[drive_key]',
+  // The name for the local drive that will be storing the ecrypted email.
+  drive: '[drive_name]',
 
-  // This is the path on the local drive where the encrypted email data will be written. 
-  // In the example below, the sender (Bob) stores all sent mail in a directory with the 
-  // name of his mailbox (/bob@telios.io), and all encrypted emails are stored inside this directory. 
-  // Each are named with a generated guid (a5caa6dd-835f-4468-a54c-b53e7114887c) for added privacy. 
-  // When the other recipients decode their metadata sent to them via Bob, they will use this 
-  // path to retrieve their email.
-  
-  // example: '/bob@telios.io/a5caa6dd-835f-4468-a54c-b53e7114887c'
-  drivePath: '[path_to_encrypted_email]'
+  // This is the directory where the local drive stores it's encrypted emails. 
+  // In the example below, the sender (Bob) stores all his sent mail in the 
+  // directory '/mail'. The email being sent will be encrypted and stored 
+  // in this directory. Each email is dynamically named with a guid for 
+  // added privacy. When the other recipients decode their metadata sent 
+  // to them via Bob, they will use this path to retrieve their email.
+  drivePath: '/mail'
 });
 
 ```

@@ -26,12 +26,12 @@ test('Account - Init', async t => {
         recovery_email: conf.ALICE_RECOVERY
       },
       drive: {
-        name: 'Alice Device 1 Drive',
+        name: 'Alice',
         storage: __dirname + '/drive',
         ...conf.DRIVE_OPTS
       },
       core: {
-        name: 'Alice Device 1 Core',
+        name: 'Alice',
         storage: __dirname + '/core',
         ...conf.CORE_OPTS
       }
@@ -65,7 +65,8 @@ test('Account - Register', async t => {
   }
 
   const res = await account.register(payload);
-  t.equals(res.status, 200, 'Account can register');
+  
+  t.ok(res, 'Account can register');
 });
 
 test('Account - Sign authorization payload', async t => {
@@ -79,7 +80,9 @@ test('Account - Sign authorization payload', async t => {
   };
   
   const payload = Account.accountSignAuth(account, conf.ALICE_SIG_PRIV_KEY);
+  
   console.log(payload);
+  
   t.ok(payload, 'Account has authorization payload');
 });
 
@@ -99,22 +102,27 @@ test('Account - Login', async t => {
   }
 
   const res = await account.login(payload);
-  t.equals(res.status, 200, 'Account can login');
+  
+  console.log(res);
+  
+  t.ok(res._access_token, 'Account can login');
 });
 
 test('Account - Logout', async t => {
+  t.plan(2);
   const account = new Account({
     provider: 'telios.io'
   });
-  const payload = { devices: 'all' };
 
+  const payload = { devices: 'all' };
   let token = null;
+
   t.rejects(account.logout(token, payload), null, 'Account login should return error when missing token');
 
   token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzcGtleSI6IjlhZjI2ZTM3MjA3MGY4YjYyNDI5NTJkNWE4NDRiZWUwNzQzZWI3MDRiMTA1ZDY0N2QwYjkzNzBiY2QzMWQxODIiLCJzYnBrZXkiOiJkMGI1NzNhNmY5YmQwYjY3NjI3NzM2N2QzMWVkYTZiOTMxZTcxZjA2NDhkOGUwZDJkNGNhMzlmODk2ZDNkZDM2IiwiZGV2aWNlX2lkIjoiZjcwNTQ0MTVhN2NiMDExZjU1NTI5ODQ0Njc2MjU5MmY5ZTQ4OGI4ZDZkM2FlMGY1YTQ4NDgyNjA3MWFhYmFkZSIsImV4cCI6MTU5NTI4MTYyMSwiaWF0IjoxNTk1Mjc4MDIxfQ.BOxQJ5FRVMKKAFAmHHpMJQVlpB-eGEmEWZLBcMtLuH4hsLmJSE3pKxvMz2OqDh75ECLofFHdNh4a1UojfjtxhfQKkSu-hxQkadQxjDhhrfTW_nGsTpBEX94n-HgjRpndzIJfvE_zz4DgqRN901PhIkKo1FFqkJxUkZHUU5afGAr5sAT3M6_RmoCpG7DNl2uLPOH4ZYae-fPMYeje0oiPmJyboxWQ7aolx5dhBWSMpYB4H7hudaueUYi6gkPZz2keAP9RzTGQFaQNRVtoFbFTsfz4XP9WnibqXTfmMBUF1E6RI5u2B43s2mG-wgGg9Ev9UkonGKRyzHEX5a_fCp4dEQ';
   res = await account.logout(token, payload);
-  t.equals(res.status, 200, 'Account can logout of all devices');
-  t.end();
+  
+  t.ok(res, 'Account can logout of all devices');
 });
 
 test.onFinish(() => process.exit(0));
