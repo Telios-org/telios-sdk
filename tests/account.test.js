@@ -19,13 +19,25 @@ test('Account - Init', async t => {
   t.plan(1);
 
   try {
-    const params = {
-      spkey: conf.ALICE_SIG_PUB_KEY,
-      sbpkey: conf.ALICE_SB_PUB_KEY,
-      recovery_email: conf.ALICE_RECOVERY
+    const opts = {
+      account: {
+        spkey: conf.ALICE_SIG_PUB_KEY,
+        sbpkey: conf.ALICE_SB_PUB_KEY,
+        recovery_email: conf.ALICE_RECOVERY
+      },
+      drive: {
+        name: 'Alice Device 1 Drive',
+        storage: __dirname + '/drive',
+        ...conf.DRIVE_OPTS
+      },
+      core: {
+        name: 'Alice Device 1 Core',
+        storage: __dirname + '/core',
+        ...conf.CORE_OPTS
+      }
     };
 
-    const signed = await Account.init(params, conf.ALICE_SIG_PRIV_KEY);
+    const signed = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
     
     console.log(signed);
 

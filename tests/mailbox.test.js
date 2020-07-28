@@ -16,7 +16,13 @@ const initMailbox = async () => {
 }
 
 test('Setup', async t => {
-  const hyperdrive = new Hyperdrive(conf.MAILSERVER_DRIVE, { persist: true });
+  const opts = {
+    name: conf.MAILSERVER_DRIVE,
+    storage: __dirname + '/drive',
+    ...conf.DRIVE_OPTS
+  };
+
+  const hyperdrive = new Hyperdrive(opts);
   await hyperdrive.connect();
   const drive = hyperdrive.drive;
 
@@ -161,7 +167,13 @@ test('Mailbox - Encrypt mail metadata', async t => {
 
 test.onFinish(async () => {
   // Clean up drives
-  const hyperdrive = new Hyperdrive(conf.MAILSERVER_DRIVE, { persist: true });
+  const opts = {
+    name: 'Alice Device 1 Drive',
+    storage: __dirname + '/drive',
+    ...conf.DRIVE_OPTS
+  };
+
+  const hyperdrive = new Hyperdrive(opts);
   await hyperdrive.connect();
   const drive = hyperdrive.drive;
   drive.destroyStorage();

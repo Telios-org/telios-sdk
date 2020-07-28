@@ -1,3 +1,4 @@
+const conf = require('./conf');
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
@@ -7,7 +8,15 @@ test('Hyperdrive - create drive', async t => {
   t.plan(1);
 
   try {
-    const hyperdrive = new Hyperdrive('Account - Test Drive', { persist: false });
+    const opts = {
+      name: 'Test Drive',
+      storage: __dirname + '/drive',
+      driveOpts: {
+        persist: false
+      }
+    };
+
+    const hyperdrive = new Hyperdrive(opts);
     await hyperdrive.connect();
     const drive = hyperdrive.drive;
 

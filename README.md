@@ -25,13 +25,31 @@ const account = new Account({
   provider: 'telios.io'
 });
 
-const params = {
-  spkey: signingKeypair.publicKey,
-  sbpkey: secretBoxKeypair.publicKey,
-  recovery_email: 'test@telios.io'
+const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
+
+const opts = {
+  account: {
+    spkey: signingKeypair.publicKey,
+    sbpkey: secretBoxKeypair.publicKey,
+    recovery_email: recoveryEmail
+  },
+  drive: {
+    name: 'Alice Drive',
+    storage: '[path_to_drive]',
+    driveOpts: {
+      persist: false
+    }
+  },
+  core: {
+    name: 'Alice Core',
+    storage: '[path_to_core]',
+    coreOpts: {
+      persist: false
+    }
+  }
 };
 
-const signedAcct = await Account.init(params, signingKeypair.privateKey);
+const signedAcct = await Account.init(opts, signingKeypair.privateKey);
 
 const res = await account.register(signedAcct);
 ```
@@ -62,13 +80,29 @@ const account = new Account({
   provider: 'telios.io'
 });
 
-const params = {
-  spkey: signingKeypair.publicKey,
-  sbpkey: secretBoxKeypair.publicKey,
-  recovery_email: 'test@telios.io'
+const opts = {
+  account: {
+    spkey: signingKeypair.publicKey,
+    sbpkey: secretBoxKeypair.publicKey,
+    recovery_email: recoveryEmail
+  },
+  drive: {
+    name: 'Alice Drive',
+    storage: '[path_to_drive]',
+    driveOpts: {
+      persist: false
+    }
+  },
+  core: {
+    name: 'Alice Core',
+    storage: '[path_to_core]',
+    coreOpts: {
+      persist: false
+    }
+  }
 };
 
-const signedAcct = await Account.init(params, signingKeypair.privateKey);
+const signedAcct = await Account.init(opts, signingKeypair.privateKey);
 
 const res = await account.register(signedAcct);
 ```

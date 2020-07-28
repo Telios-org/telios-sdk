@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Hyperdrives and Hypercores
+drive/
+core/
