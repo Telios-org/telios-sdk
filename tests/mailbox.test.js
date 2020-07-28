@@ -31,6 +31,7 @@ test('Setup', async t => {
     await drive.mkdir(conf.ALICE_MAILBOX);
   }
 
+  console.log(await drive.readdir('/'));
   // write encrypted mail to drive
   const email = fs.readFileSync(__dirname + '/encrypted.mail');
   drive.writeFile(conf.MAILSERVER_DRIVE_PATH, email);
