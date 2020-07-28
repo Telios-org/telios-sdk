@@ -18,7 +18,9 @@ test('Setup', async t => {
   const opts = {
     name: conf.MAILSERVER_DRIVE,
     storage: __dirname + '/drive',
-    ...conf.DRIVE_OPTS
+    driveOpts: {
+      persist: true
+    }
   };
 
   const hyperdrive = new Hyperdrive(opts);
