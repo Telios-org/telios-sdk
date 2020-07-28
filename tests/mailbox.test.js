@@ -38,6 +38,41 @@ test('Setup', async t => {
   t.end();
 });
 
+test('Mailbox - Send mail', async t => {
+  t.plan(1);
+  
+  const mailbox = await initMailbox();
+  const email = conf.TEST_EMAIL;
+
+  const res = await mailbox.send(email, {
+    privKey: conf.BOB_SB_PRIV_KEY,
+    pubKey: conf.BOB_SB_PUB_KEY,
+    drive: conf.MAILSERVER_DRIVE,
+    drivePath: conf.MAILSERVER_DRIVE_PATH
+  });
+
+  t.ok(res,`Sent mail to two Telios recipients`);
+});
+
+test('Mailbox - Encrypt mail metadata', async t => {
+  t.plan(1);
+
+  const mailbox = await initMailbox();
+  const privKey = conf.ALICE_SB_PRIV_KEY;
+  const sbpkey = conf.BOB_SB_PUB_KEY;
+  
+  const meta = {
+    "key": "fbe4ead33e63ef791435f0d1aae5b7a534f31e6c5d3245ea771170e272ede084",
+    "header": "5b6dedb36d173385f35323f07d83d76019845784361cd0a9",
+    "drive": "hyper://asdf133asdfe2tgrgfeer131dv1cfasfaefadf2323rewczcaef",
+    "path": conf.MAILSERVER_DRIVE_PATH
+  };
+
+  const encoded = mailbox._encryptMeta(meta, sbpkey, privKey);
+
+  t.ok(encoded, `Encrypted mail metadata => ${encoded}`);
+});
+
 test('Mailbox - Register', async t => {
   t.plan(1);
   
@@ -130,45 +165,11 @@ test('Mailbox - Send mail metadata', async t => {
   t.ok(res, `Sent mail metadata`);
 });
 
-test('Mailbox - Send mail', async t => {
-  t.plan(1);
-  
-  const mailbox = await initMailbox();
-  const email = conf.TEST_EMAIL;
-
-  const res = await mailbox.send(email, {
-    privKey: conf.BOB_SB_PRIV_KEY,
-    pubKey: conf.BOB_SB_PUB_KEY,
-    drive: conf.MAILSERVER_DRIVE,
-    drivePath: conf.MAILSERVER_DRIVE_PATH
-  });
-
-  t.ok(res,`Sent mail to two Telios recipients`);
-});
-
-test('Mailbox - Encrypt mail metadata', async t => {
-  t.plan(1);
-
-  const mailbox = await initMailbox();
-  const privKey = '04968601b00541a9a2188b1709b4c11534ad419fd4d8143a67b3622bf924e5ee';
-  const sbpkey = '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725';
-  
-  const meta = {
-    "key": "fbe4ead33e63ef791435f0d1aae5b7a534f31e6c5d3245ea771170e272ede084",
-    "header": "5b6dedb36d173385f35323f07d83d76019845784361cd0a9",
-    "drive": "asdf133asdfe2tgrgfeer131dv1cfasfaefadf2323rewczcaef",
-    "path": conf.MAILSERVER_DRIVE_PATH
-  };
-
-  const encoded = mailbox._encryptMeta(meta, sbpkey, privKey);
-
-  t.ok(encoded, `Encrypted mail metadata => ${encoded}`);
-});
-
 test.onFinish(async () => {
   // Clean up drives
   const opts = {
     name: conf.MAILSERVER_DRIVE,
+    storage: __dirname + '/drive',
     driveOpts: {
       persist: true
     }
