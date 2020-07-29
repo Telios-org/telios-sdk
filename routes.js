@@ -97,10 +97,6 @@ module.exports = {
         {
           address: 'alice@telios.io',
           sbpkey: '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725'
-        },
-        {
-          address: 'tester@telios.io',
-          sbpkey: '4c709ee7e6d43f1e01d9208c600d466d0c9382e27097ac84249a02b031bad24a'
         }
       ]
     },
