@@ -345,8 +345,8 @@ const mailbox = new Mailbox({
   token: '[jwt_token]'
 });
 
-const sbpkey = conf.ALICE_SB_PUB_KEY;
-const privKey = conf.ALICE_SB_PRIV_KEY;
+const sbpkey = '[client_secretbox_private_key]';
+const privKey = '[client_secretbox_public_key]';
 
 const mail = await mailbox.getNewMail(privKey, sbpkey);
 ```
