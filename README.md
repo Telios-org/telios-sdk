@@ -19,7 +19,7 @@ npm i @telios/telios-sdk
 ## Usage
 
 ``` js
-const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
+const { Account, Mailbox } = require('@telios/telios-sdk');
 
 const account = new Account({
   provider: 'telios.io'
