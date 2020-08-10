@@ -11,6 +11,46 @@ exports.verifySig = (sig, publicKey, msg) => {
   return sodium.crypto_sign_verify_detached(signature, m, pk);
 };
 
+exports.signSeedKeypair = (seed) => {
+  let pk = Buffer.alloc(sodium.crypto_sign_PUBLICKEYBYTES);
+  let sk = Buffer.alloc(sodium.crypto_sign_SECRETKEYBYTES);
+
+  if (!seed) {
+    seed = Buffer.alloc(sodium.crypto_sign_SEEDBYTES);
+    sodium.randombytes_buf(seed);
+  } else {
+    seed = Buffer.from(seed, 'hex');
+  }
+
+  sodium.crypto_sign_seed_keypair(pk, sk, seed);
+  
+  return {
+    publicKey: pk.toString('hex'),
+    privateKey: sk.toString('hex'),
+    seedKey: seed.toString('hex')
+  }
+}
+
+exports.boxSeedKeypair = (seed) => {
+  let pk = Buffer.alloc(sodium.crypto_box_PUBLICKEYBYTES);
+  let sk = Buffer.alloc(sodium.crypto_box_SECRETKEYBYTES);
+
+  if (!seed) {
+    seed = Buffer.alloc(sodium.crypto_box_SEEDBYTES);
+    sodium.randombytes_buf(seed);
+  } else {
+    seed = Buffer.from(seed, 'hex');
+  }
+
+  sodium.crypto_box_seed_keypair(pk, sk, seed);
+
+  return {
+    publicKey: pk.toString('hex'),
+    privateKey: sk.toString('hex'),
+    seedKey: seed.toString('hex')
+  }
+}
+
 exports.generateSigKeypair = () => {
   let pk = Buffer.alloc(sodium.crypto_sign_PUBLICKEYBYTES);
   let sk = Buffer.alloc(sodium.crypto_sign_SECRETKEYBYTES);
