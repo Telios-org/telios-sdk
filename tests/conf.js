@@ -16,7 +16,8 @@ module.exports = {
   BOB_SIG_PUB_KEY: '9e26ea0f73fdea02b708f2bb836f830372328ef256f51b4bb3b7eb0a42186451',
   BOB_SIG_PRIV_KEY: 'cc3e6e8ccd987555af8a63916e7ac9a372578085bec4659588f28a6a3bb2767d9e26ea0f73fdea02b708f2bb836f830372328ef256f51b4bb3b7eb0a42186451',
   MAILSERVER_DRIVE: 'Test Drive',
-  MAILSERVER_DRIVE_PATH: '/alice@telios.io/a5caa6dd-835f-4468-a54c-b53e7114887c',
+  MAILSERVER_DRIVE_PATH: '/alice@telios.io',
+  MAILSERVER_DRIVE_PATH2: '/alice@telios.io/a5caa6dd-835f-4468-a54c-a42c6225778d',
   CORE_NAME: 'Test Core',
   DRIVE_OPTS: {
     driveOpts: {
