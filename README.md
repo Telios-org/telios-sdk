@@ -291,27 +291,35 @@ const mailbox = new Mailbox({
 });
 
 const email = {
-  to: ["Alice Tester <alice@telios.io>", "Test Tester <tester@telios.io>"],
-  sender: "Bob Tester <bob@telios.io>",
-  subject: "Hello Alice",
-  text_body: "You're my favorite test person ever",
-  html_body: "<h1>You're my favorite test person ever</h1>",
-  custom_headers: [
+  "subject": "Hello Bob",
+  "date": "2020-07-14T13:49:36.000Z",
+  "to": [
     {
-      header: "Reply-To",
-      value: "Actual Person <test@telios.io>"
+      "address": "bob@mail.com",
+      "name": "Bob"
     }
   ],
-  attachments: [
+  "from": [
     {
-      filename: "test.pdf",
-      fileblob: "--base64-data--",
-      mimetype: "application/pdf"
+      "address": "alice@mail.com",
+      "name": "Alice"
+    }
+  ],
+  "cc": [],
+  "bcc": [],
+  "sender": [],
+  "text_body": "You're my favorite test person ever",
+  "html_body": "<h1>You're my favorite test person ever</h1>",
+  "attachments": [
+    {
+        "filename": "test.pdf",
+        "fileblob": "--base64-data--",
+        "mimetype": "application/pdf"
     },
     {
-      filename: "test.txt",
-      fileblob: "--base64-data--",
-      mimetype: "text/plain"
+        "filename": "test.txt",
+        "fileblob": "--base64-data--",
+        "mimetype": "text/plain"
     }
   ]
 }
@@ -356,32 +364,43 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 ```js
 [
   {
-    _id: '5f1210b7a29fe6222f199f80',
-    email: {
-      to: ["Alice Tester <alice@telios.io>", "Test Tester <tester@telios.io>"],
-      sender: "Bob Tester <bob@telios.io>",
-      subject: "Hello Alice",
-      text_body: "You're my favorite test person ever",
-      html_body: "<h1>You're my favorite test person ever</h1>",
-      custom_headers: [
-        {
-          header: "Reply-To",
-          value: "Actual Person <test3@telios.io>"
-        }
-      ],
-      attachments: [
-        {
-          filename: "test.pdf",
-          fileblob: "--base64-data--",
-          mimetype: "application/pdf"
-        },
-        {
-          filename: "test.txt",
-          fileblob: "--base64-data--",
-          mimetype: "text/plain"
-        }
-      ]
-    }
+    "headers": [
+      {
+        "header": "x-spam-score",
+        "value": "1.9"
+      }
+    ],
+    "subject": "Hello Bob",
+    "date": "2020-07-14T13:49:36.000Z",
+    "to": [
+      {
+        "address": "bob@mail.com",
+        "name": "Bob"
+      }
+    ],
+    "from": [
+      {
+        "address": "alice@mail.com",
+        "name": "Alice"
+      }
+    ],
+    "cc": [],
+    "bcc": [],
+    "sender": [],
+    "text_body": "You're my favorite test person ever",
+    "html_body": "<h1>You're my favorite test person ever</h1>",
+    "attachments": [
+      {
+          "filename": "test.pdf",
+          "fileblob": "--base64-data--",
+          "mimetype": "application/pdf"
+      },
+      {
+          "filename": "test.txt",
+          "fileblob": "--base64-data--",
+          "mimetype": "text/plain"
+      }
+    ]
   }
 ]
 ```
