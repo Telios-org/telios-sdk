@@ -239,7 +239,7 @@ test('Mailbox - Retrieve unread mail and decrypt', async t => {
   const mailbox = await initMailbox();
 
   const mail = await mailbox.getNewMail(conf.ALICE_SB_PRIV_KEY, conf.ALICE_SB_PUB_KEY);
-  console.log(mail);
+
   await drive.close();
 
   t.equals(2, mail.length, '2 Emails were retrieved and deciphered');
