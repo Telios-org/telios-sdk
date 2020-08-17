@@ -2,9 +2,10 @@ const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
 const fs = require('fs');
+const ram = require('random-access-memory');
 
 const conf = require('./conf');
-const { Mailbox, Hyperdrive } = require('..');
+const { Mailbox, Hyperdrive, Hypercore } = require('..');
 
 let encMeta = null;
 let driveKey = null;
@@ -256,9 +257,53 @@ test('Mailbox - Mark emails as read', async t => {
   t.ok(res, `Marked emails as read`);
 });
 
+test('Mailbox - Mailbox Received Mail Event', async t => {
+  t.plan(2);
+  let opts = {
+    name: 'Test Core',
+    storage: __dirname + '/core',
+    coreOpts: {
+      persist: false
+    }
+  };
+
+  const hyper1 = new Hypercore(opts);
+  feed1 = await hyper1.createCore();
+
+  const e1 = feed1.registerExtension('example', {
+    encoding: 'json',
+    onmessage: (message, peer) => {
+      t.equals(JSON.stringify(message), JSON.stringify({ hi: 'e1' }));
+    }
+  });
+
+  opts = {
+    name: feed1.key.toString('hex'),
+    storage: ram,
+    coreOpts: {
+      persist: false
+    }
+  };
+
+  const hyper2 = new Hypercore(opts);
+  feed2 = await hyper2.createCore();
+
+  const e2 = feed2.registerExtension('example', {
+    encoding: 'json',
+    onmessage: (message, peer) => {
+      t.equals(JSON.stringify(message), JSON.stringify({ hi: 'e2' }));
+      e2.send({ hi: 'e1' }, peer);
+    }
+  });
+
+  feed1.on('peer-open', (peer) => {
+    e1.broadcast({ hi: 'e2' });
+  });
+
+});
+
 test.onFinish(async () => {
   // Clean up drives
-  console.log('TEARDOWN');
   const opts = {
     name: conf.MAILSERVER_DRIVE,
     storage: __dirname + '/drive',
