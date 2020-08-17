@@ -70,19 +70,26 @@ test('Mailbox - Send mail', async t => {
   const mailbox = await initMailbox();
   const email = conf.TEST_EMAIL;
 
+  const opts = {
+    name: conf.MAILSERVER_DRIVE,
+    storage: __dirname + '/drive',
+    driveOpts: {
+      persist: true
+    }
+  };
+
+  const hyperdrive = new Hyperdrive(opts);
+  await hyperdrive.connect();
+
   const res = await mailbox.send(email, {
     privKey: conf.BOB_SB_PRIV_KEY,
     pubKey: conf.BOB_SB_PUB_KEY,
-    drive: {
-      name: conf.MAILSERVER_DRIVE,
-      storage: __dirname + '/drive',
-      driveOpts: {
-        persist: true
-      }
-    },
+    drive: hyperdrive,
     drivePath: conf.MAILSERVER_DRIVE_PATH
   });
 
+  await hyperdrive.drive.close();
+  
   t.ok(res, `Sent mail to Telios recipient`);
 });
 
