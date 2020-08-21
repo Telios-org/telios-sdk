@@ -13,10 +13,12 @@ let sealedMsg = null;
 
 // Mailbox test setup
 const initMailbox = async () => {
-  return new Mailbox({
+  const mailbox =  new Mailbox({
     provider: 'telios.io',
     token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzcGtleSI6IjlhZjI2ZTM3MjA3MGY4YjYyNDI5NTJkNWE4NDRiZWUwNzQzZWI3MDRiMTA1ZDY0N2QwYjkzNzBiY2QzMWQxODIiLCJzYnBrZXkiOiJkMGI1NzNhNmY5YmQwYjY3NjI3NzM2N2QzMWVkYTZiOTMxZTcxZjA2NDhkOGUwZDJkNGNhMzlmODk2ZDNkZDM2IiwiZGV2aWNlX2lkIjoiZjcwNTQ0MTVhN2NiMDExZjU1NTI5ODQ0Njc2MjU5MmY5ZTQ4OGI4ZDZkM2FlMGY1YTQ4NDgyNjA3MWFhYmFkZSIsImV4cCI6MTU5NTI4MTYyMSwiaWF0IjoxNTk1Mjc4MDIxfQ.BOxQJ5FRVMKKAFAmHHpMJQVlpB-eGEmEWZLBcMtLuH4hsLmJSE3pKxvMz2OqDh75ECLofFHdNh4a1UojfjtxhfQKkSu-hxQkadQxjDhhrfTW_nGsTpBEX94n-HgjRpndzIJfvE_zz4DgqRN901PhIkKo1FFqkJxUkZHUU5afGAr5sAT3M6_RmoCpG7DNl2uLPOH4ZYae-fPMYeje0oiPmJyboxWQ7aolx5dhBWSMpYB4H7hudaueUYi6gkPZz2keAP9RzTGQFaQNRVtoFbFTsfz4XP9WnibqXTfmMBUF1E6RI5u2B43s2mG-wgGg9Ev9UkonGKRyzHEX5a_fCp4dEQ'
   });
+
+  return mailbox;
 }
 
 test('Setup', async t => {
@@ -89,7 +91,7 @@ test('Mailbox - Send mail', async t => {
   });
 
   await hyperdrive.drive.close();
-  
+
   t.ok(res, `Sent mail to Telios recipient`);
 });
 
@@ -264,9 +266,12 @@ test('Mailbox - Mark emails as read', async t => {
   t.ok(res, `Marked emails as read`);
 });
 
-test('Mailbox - Mailbox Received Mail Event', async t => {
-  t.plan(2);
-  let opts = {
+test('Mailbox - Mailbox Listen for Mail Events', async t => {
+  t.plan(1);
+
+  const mailbox = await initMailbox();
+
+  var opts = {
     name: 'Test Core',
     storage: __dirname + '/core',
     coreOpts: {
@@ -274,37 +279,32 @@ test('Mailbox - Mailbox Received Mail Event', async t => {
     }
   };
 
-  const hyper1 = new Hypercore(opts);
-  feed1 = await hyper1.createCore();
+  const coreFeed = await mailbox.registerMailEventListener(opts);
 
-  const e1 = feed1.registerExtension('example', {
-    encoding: 'json',
-    onmessage: (message, peer) => {
-      t.equals(JSON.stringify(message), JSON.stringify({ hi: 'e1' }));
-    }
+  mailbox.on('mail', (message, peer) => {
+    console.log('New Mail :: ', message);
+    t.ok(message, 'Receieved new mail event');
   });
 
-  opts = {
-    name: feed1.key.toString('hex'),
+  var opts = {
+    name: coreFeed.key.toString('hex'),
     storage: ram,
     coreOpts: {
       persist: false
     }
   };
 
-  const hyper2 = new Hypercore(opts);
-  feed2 = await hyper2.createCore();
+  const hypercore = new Hypercore(opts);
+  const mockServerFeed = await hypercore.createCore();
 
-  const e2 = feed2.registerExtension('example', {
+  const ext = mockServerFeed.registerExtension('mail', {
     encoding: 'json',
     onmessage: (message, peer) => {
-      t.equals(JSON.stringify(message), JSON.stringify({ hi: 'e2' }));
-      e2.send({ hi: 'e1' }, peer);
     }
   });
 
-  feed1.on('peer-open', (peer) => {
-    e1.broadcast({ hi: 'e2' });
+  mockServerFeed.on('peer-open', (peer) => {
+    ext.broadcast({ mail: true });
   });
 
 });
