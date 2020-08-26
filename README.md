@@ -19,7 +19,7 @@ npm i @telios/telios-sdk
 ## Usage
 
 ``` js
-const { Account, Mailbox } = require('@telios/telios-sdk');
+const { SDK, Account, Mailbox } = require('@telios/telios-sdk');
 
 const account = new Account({
   provider: 'telios.io'
@@ -33,25 +33,24 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: recoveryEmail
   },
-  drive: {
-    name: 'Alice Drive',
-    storage: '[path_to_drive]',
-    driveOpts: {
+  storage: __dirname + '/storage',
+  Hyperdrive: {
+    name: 'Alice',
+    opts: {
       persist: false
     }
   },
-  core: {
-    name: 'Alice Core',
-    storage: '[path_to_core]',
-    coreOpts: {
+  Hypercore: {
+    name: 'Alice',
+    opts: {
       persist: false
     }
   }
 };
 
-const signedAcct = await Account.init(opts, signingKeypair.privateKey);
+const { account, sig, Hyperdrive, Hypercore } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
 
-const res = await account.register(signedAcct);
+const res = await account.register(sig);
 ```
 
 ## Account
@@ -86,39 +85,38 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: 'alice@mail.com'
   },
-  drive: {
+  // Local path to where the drive should be stored
+  storage: __dirname + '/storage',
+  Hyperdrive: {
     // NOTE: This is the same name that gets passed into the
     // [drive_name] property when sending emails.
     name: 'Alice Drive',
-    // Local path to where the drive should be created 
-    storage: '[path_to_drive]',
-    driveOpts: {
-      // Persist the drive through restarts
-      persist: true
+    opts: {
+      // Persist the drive through restart
+      persist: false
     }
   },
-  core: {
+  Hypercore: {
+    // Local path to where the core should be stored
     name: 'Alice Core',
-    // Local path to where the core should be created 
-    storage: '[path_to_core]',
-    coreOpts: {
-      // Persist the core through restarts
-      persist: true
+    opts: {
+      // Persist the core through restart
+      persist: false
     }
   }
 };
 
-const signedAcct = await Account.init(opts, signingKeypair.privateKey);
+// Returns the Hyperdrive and Hypercore instances that were created upon initialization
+const { account, sig, Hyperdrive, Hypercore } = await Account.init(opts, signingKeypair.privateKey);
 
-const res = await account.register(signedAcct);
+// Send the account object that was just signed to be stored and verified
+// on the server for later authentication.
+const res = await account.register(sig);
 ```
 
 #### Example response:
 ```js
 {
-  // The seed drive's public key created by the server
-  _drive: '[drive_key]', 
-
   // signature from server to be used for authentication
   _sig: '[server_signature]'
 }
@@ -331,8 +329,8 @@ const res = await mailbox.send(email, {
   // The sender's public key (Bob). Public key is used for authenticity of sender
   pubKey: '[bob_secret_box_public_key]',
 
-  // The name for the local drive that will be storing the ecrypted email.
-  drive: '[drive_name]',
+  // A Hyperdrive object.
+  drive: '[Hyperdrive]',
 
   // This is the directory where the local drive stores it's encrypted emails. 
   // In the example below, the sender (Bob) stores all his sent mail in the 
@@ -405,7 +403,7 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 ]
 ```
 
-### Mark Emails as Read
+### Mark Emails as Synced
 
 ``` js
 const mailbox = new Mailbox({
@@ -416,5 +414,5 @@ const mailbox = new Mailbox({
 /**
  * Pass in an array of message IDs to be marked as read
  */
-const res = await mailbox.markAsRead(["5f1210b7a29fe6222f199f80"]);
+const res = await mailbox.markAsSynced(["5f1210b7a29fe6222f199f80"]);
 ```

@@ -3,14 +3,17 @@ const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
 const { Hyperdrive } = require('..');
+const SDK = require('dat-sdk');
 
 test('Hyperdrive - create drive', async t => {
   t.plan(1);
 
   try {
+    const sdk = await SDK();
+
     const opts = {
       name: 'Test Drive',
-      storage: __dirname + '/drive',
+      sdk: sdk,
       driveOpts: {
         persist: false
       }
@@ -21,8 +24,11 @@ test('Hyperdrive - create drive', async t => {
     const drive = hyperdrive.drive;
 
     const key = drive.key.toString('hex');
-    drive.close();
-    t.ok(key, 'Generated Hyperdrive key');
+
+    await drive.destroyStorage();
+    await hyperdrive.close();
+
+    t.ok(key, `Generated Hyperdrive key ${key}`);
   } catch (err) {
     t.error(err);
   }

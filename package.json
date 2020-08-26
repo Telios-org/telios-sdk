@@ -1,11 +1,10 @@
 {
   "name": "@telios/telios-sdk",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
-    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec",
-    "test-core": "env NODE_ENV=test tape tests/hypercore.test.js | tap-spec"
+    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec"
   },
   "repository": {
     "type": "git",

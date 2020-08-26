@@ -106,4 +106,5 @@ dist
 # Hyperdrives and Hypercores
 drive/
 core/
+tests/storage
 tests/data/encrypted_tmp.email

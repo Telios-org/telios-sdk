@@ -3,13 +3,17 @@ const _test = require('tape-promise').default;
 const test = _test(tape);
 const fs = require('fs');
 const ram = require('random-access-memory');
+const { SDK } = require('..');
 
 const conf = require('./conf');
-const { Mailbox, Hyperdrive, Hypercore } = require('..');
+const { Mailbox } = require('..');
 
 let encMeta = null;
 let driveKey = null;
 let sealedMsg = null;
+let sdk = null;
+let Hyperdrive = null;
+let Hypercore = null;
 
 // Mailbox test setup
 const initMailbox = async () => {
@@ -22,20 +26,31 @@ const initMailbox = async () => {
 }
 
 test('Setup', async t => {
-  const opts = {
-    name: conf.MAILSERVER_DRIVE,
-    storage: __dirname + '/drive',
-    driveOpts: {
-      persist: true
-    }
-  };
 
-  const hyperdrive = new Hyperdrive(opts);
-  await hyperdrive.connect();
-  const drive = hyperdrive.drive;
+  sdk = new SDK({
+    storage: __dirname + '/storage',
+    Hypercore: {
+      name: conf.MAILSERVER_DRIVE,
+      opts: {
+        persist: true
+      }
+    },
+    Hyperdrive: {
+      name: conf.MAILSERVER_CORE,
+      opts: {
+        persist: true
+      }
+    }
+  });
+  await sdk.ready();
+
+  Hyperdrive = sdk.Hyperdrive;
+  Hypercore = sdk.Hypercore;
+
+  const drive = Hyperdrive.drive;
   driveKey = drive.key.toString('hex');
 
-  if (!await hyperdrive.dirExists(conf.ALICE_MAILBOX)) {
+  if (!await Hyperdrive.dirExists(conf.ALICE_MAILBOX)) {
     await drive.mkdir(conf.ALICE_MAILBOX);
   }
 
@@ -47,7 +62,6 @@ test('Setup', async t => {
   const email2 = fs.readFileSync(__dirname + '/data/encrypted_stream.email');
 
   await drive.writeFile(conf.MAILSERVER_DRIVE_PATH2, email2);
-  await drive.close();
 
   t.end();
 });
@@ -72,25 +86,12 @@ test('Mailbox - Send mail', async t => {
   const mailbox = await initMailbox();
   const email = conf.TEST_EMAIL;
 
-  const opts = {
-    name: conf.MAILSERVER_DRIVE,
-    storage: __dirname + '/drive',
-    driveOpts: {
-      persist: true
-    }
-  };
-
-  const hyperdrive = new Hyperdrive(opts);
-  await hyperdrive.connect();
-
   const res = await mailbox.send(email, {
     privKey: conf.BOB_SB_PRIV_KEY,
     pubKey: conf.BOB_SB_PUB_KEY,
-    drive: hyperdrive,
+    drive: Hyperdrive,
     drivePath: conf.MAILSERVER_DRIVE_PATH
   });
-
-  await hyperdrive.drive.close();
 
   t.ok(res, `Sent mail to Telios recipient`);
 });
@@ -131,15 +132,14 @@ test('Mailbox - Send mailserver message', async t => {
   // write json file to drive like I did in callout.js
   const opts = {
     name: 'META',
-    storage: __dirname + '/drive',
     driveOpts: {
       persist: true
     }
   };
 
-  const hyperdrive = new Hyperdrive(opts);
-  await hyperdrive.connect();
-  const drive = hyperdrive.drive;
+  const drive = await Hyperdrive.getDrive(opts);
+
+  await drive.download('/');
   
   let meta = JSON.parse(await drive.readFile('/meta/encrypted_meta_test.json'));
 
@@ -231,39 +231,21 @@ test('Mailbox - Send mail metadata', async t => {
 
 test('Mailbox - Retrieve unread mail and decrypt', async t => {
   t.plan(3);
-
-  const opts = {
-    name: conf.MAILSERVER_DRIVE,
-    storage: __dirname + '/drive',
-    driveOpts: {
-      persist: true,
-      sparse: false,
-      sparseMetadata: false
-    }
-  };
-
-  const hyperdrive = new Hyperdrive(opts);
-  await hyperdrive.connect();
-  const drive = hyperdrive.drive;
-   
   const mailbox = await initMailbox();
-
   const mail = await mailbox.getNewMail(conf.ALICE_SB_PRIV_KEY, conf.ALICE_SB_PUB_KEY);
-
-  await drive.close();
 
   t.equals(2, mail.length, '2 Emails were retrieved and deciphered');
   t.ok(mail[0]._id, 'Email has an _id');
   t.ok(mail[0].email, 'Email has a message object');
 });
 
-test('Mailbox - Mark emails as read', async t => {
+test('Mailbox - Mark emails as synced', async t => {
   t.plan(1);
   
   const mailbox = await initMailbox();
-  const res = await mailbox.markAsRead(['5f11e4554e19c8223640f0bc']);
+  const res = await mailbox.markAsSynced(['5f11e4554e19c8223640f0bc']);
   
-  t.ok(res, `Marked emails as read`);
+  t.ok(res, `Marked emails as synced`);
 });
 
 test('Mailbox - Mailbox Listen for Mail Events', async t => {
@@ -271,58 +253,43 @@ test('Mailbox - Mailbox Listen for Mail Events', async t => {
 
   const mailbox = await initMailbox();
 
-  var opts = {
-    name: 'Test Core',
-    storage: __dirname + '/core',
-    coreOpts: {
-      persist: false
-    }
-  };
+  const feed = await mailbox.registerMailEventListener(Hypercore.feed);
 
-  const coreFeed = await mailbox.registerMailEventListener(opts);
-
-  mailbox.on('mail', (message, peer) => {
-    console.log('New Mail :: ', message);
-    t.ok(message, 'Receieved new mail event');
-  });
-
-  var opts = {
-    name: coreFeed.key.toString('hex'),
+  sdk = new SDK({
     storage: ram,
-    coreOpts: {
-      persist: false
+    Hypercore: {
+      name: feed.key.toString('hex'),
+      opts: {
+        persist: false
+      }
     }
-  };
+  });
+  await sdk.ready();
+  const core2 = sdk.Hypercore;
 
-  const hypercore = new Hypercore(opts);
-  const mockServerFeed = await hypercore.createCore();
-
-  const ext = mockServerFeed.registerExtension('mail', {
+  const ext = core2.feed.registerExtension('mail', {
     encoding: 'json',
     onmessage: (message, peer) => {
     }
   });
 
-  mockServerFeed.on('peer-open', (peer) => {
+  core2.feed.on('peer-open', (peer) => {
     ext.broadcast({ mail: true });
+  });
+
+  mailbox.on('mail', async (message, peer) => {
+    console.log('New Mail :: ', message);
+    await feed.close();
+    await core2.feed.close();
+    t.ok(message, 'Receieved new mail event');
   });
 
 });
 
 test.onFinish(async () => {
   // Clean up drives
-  const opts = {
-    name: conf.MAILSERVER_DRIVE,
-    storage: __dirname + '/drive',
-    driveOpts: {
-      persist: true
-    }
-  };
-
-  const hyperdrive = new Hyperdrive(opts);
-  await hyperdrive.connect();
-  const drive = hyperdrive.drive;
-  await drive.destroyStorage();
+  await Hyperdrive.drive.destroyStorage();
+  await Hyperdrive.close();
   
   process.exit(0);
 });

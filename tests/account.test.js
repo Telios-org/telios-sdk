@@ -1,8 +1,14 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Account } = require('..');
+const { Account, Hypercore } = require('..');
 const conf = require('./conf');
+const { SDK } = require('..');
+
+const storage = {
+  Hyperdrive: null,
+  Hypercore: null,
+}
 
 test('Account - Make Keypairs', async t => {
   t.plan(4);
@@ -16,7 +22,7 @@ test('Account - Make Keypairs', async t => {
 });
 
 test('Account - Init', async t => {
-  t.plan(1);
+  t.plan(4);
 
   try {
     const opts = {
@@ -25,23 +31,30 @@ test('Account - Init', async t => {
         sbpkey: conf.ALICE_SB_PUB_KEY,
         recovery_email: conf.ALICE_RECOVERY
       },
-      drive: {
+      storage: __dirname + '/storage',
+      Hyperdrive: {
         name: 'Alice',
-        storage: __dirname + '/drive',
-        ...conf.DRIVE_OPTS
+        opts: {
+          persist: false
+        }
       },
-      core: {
+      Hypercore: {
         name: 'Alice',
-        storage: __dirname + '/core',
-        ...conf.CORE_OPTS
+        opts: {
+          persist: false
+        }
       }
     };
 
-    const signed = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
+    const { account, sig, Hyperdrive, Hypercore } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
     
-    console.log(signed);
+    storage.Hyperdrive = Hyperdrive;
+    storage.Hypercore = Hypercore;
 
-    t.ok(signed, 'Account object signed');
+    t.ok(account, 'Account object returned');
+    t.ok(sig, 'Account object signed');
+    t.ok(Hyperdrive.drive.key.toString('hex'), `Hyperdrive created ${Hyperdrive.drive.key.toString('hex')}`);
+    t.ok(Hypercore.feed.key.toString('hex'), `Hypercore created ${Hypercore.feed.key.toString('hex')}`);
   } catch (err) {
     t.error(err);
   }
@@ -125,4 +138,12 @@ test('Account - Logout', async t => {
   t.ok(res, 'Account can logout of all devices');
 });
 
-test.onFinish(() => process.exit(0));
+test.onFinish(async () => {
+  // Clean up drives
+  await storage.Hyperdrive.drive.destroyStorage();
+  await storage.Hyperdrive.close();
+  await storage.Hypercore.feed.destroyStorage();
+  await storage.Hypercore.close();
+
+  process.exit(0)
+});
