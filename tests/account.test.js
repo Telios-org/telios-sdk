@@ -1,14 +1,15 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Account, Hypercore } = require('..');
+const { Account, HyperSession } = require('..');
 const conf = require('./conf');
-const { SDK } = require('..');
 
 const storage = {
   Hyperdrive: null,
   Hypercore: null,
 }
+
+const hyperSession = new HyperSession();
 
 test('Account - Make Keypairs', async t => {
   t.plan(4);
@@ -25,31 +26,36 @@ test('Account - Init', async t => {
   t.plan(4);
 
   try {
+    const { Hypercore, Hyperdrive } = await hyperSession.add('Alice Session', {
+      storage: __dirname + '/storage',
+      Hypercore: {
+        name: 'Alice',
+        opts: {
+          persist: false
+        }
+      },
+      Hyperdrive: {
+        name: 'Alice',
+        opts: {
+          persist: false
+        }
+      }
+    });
+
+    storage.Hypercore = Hypercore;
+    storage.Hyperdrive = Hyperdrive;
+
     const opts = {
       account: {
         spkey: conf.ALICE_SIG_PUB_KEY,
         sbpkey: conf.ALICE_SB_PUB_KEY,
         recovery_email: conf.ALICE_RECOVERY
       },
-      storage: __dirname + '/storage',
-      Hyperdrive: {
-        name: 'Alice',
-        opts: {
-          persist: false
-        }
-      },
-      Hypercore: {
-        name: 'Alice',
-        opts: {
-          persist: false
-        }
-      }
+      Hypercore,
+      Hyperdrive
     };
 
-    const { account, sig, Hyperdrive, Hypercore } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
-    
-    storage.Hyperdrive = Hyperdrive;
-    storage.Hypercore = Hypercore;
+    const { account, sig } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
 
     t.ok(account, 'Account object returned');
     t.ok(sig, 'Account object signed');
@@ -139,11 +145,10 @@ test('Account - Logout', async t => {
 });
 
 test.onFinish(async () => {
-  // Clean up drives
+  // Clean up session
   await storage.Hyperdrive.drive.destroyStorage();
-  await storage.Hyperdrive.close();
   await storage.Hypercore.feed.destroyStorage();
-  await storage.Hypercore.close();
+  await hyperSession.close();
 
   process.exit(0)
 });

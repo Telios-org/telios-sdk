@@ -19,7 +19,8 @@ npm i @telios/telios-sdk
 ## Usage
 
 ``` js
-const { SDK, Account, Mailbox } = require('@telios/telios-sdk');
+const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
+const hyperSession = new HyperSession();
 
 const account = new Account({
   provider: 'telios.io'
@@ -27,28 +28,33 @@ const account = new Account({
 
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
+const { Hypercore, Hyperdrive } = await hyperSession.add('Alice Session', {
+  storage: __dirname + '/storage',
+  Hypercore: {
+    name: 'Alice',
+    opts: {
+      persist: false
+    }
+  },
+  Hyperdrive: {
+    name: 'Alice',
+    opts: {
+      persist: false
+    }
+  }
+});
+
 const opts = {
   account: {
     spkey: signingKeypair.publicKey,
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: recoveryEmail
   },
-  storage: __dirname + '/storage',
-  Hyperdrive: {
-    name: 'Alice',
-    opts: {
-      persist: false
-    }
-  },
-  Hypercore: {
-    name: 'Alice',
-    opts: {
-      persist: false
-    }
-  }
+  Hypercore: Hypercore,
+  Hyperdrive: Hyperdrive
 };
 
-const { account, sig, Hyperdrive, Hypercore } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
+const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
 
 const res = await account.register(sig);
 ```
@@ -73,10 +79,33 @@ const signing_priv_key = signingKeypair.privateKey;
 After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is required in situations where a client attempts to retrieve an email from an offline device.
 
 ```js
+const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
+const hyperSession = new HyperSession();
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
 const account = new Account({
   provider: 'telios.io'
+});
+
+const { Hypercore, Hyperdrive } = await hyperSession.add('Alice Session', {
+  // Local path to where the drive should be stored
+  storage: __dirname + '/storage',
+  Hypercore: {
+    // NOTE: This is the same name that gets passed into the
+    // [drive_name] property when sending emails.
+    name: 'Alice Core',
+    opts: {
+      // Persist the core through restart
+      persist: true
+    }
+  },
+  Hyperdrive: {
+    name: 'Alice Drive',
+    opts: {
+      // Persist the core through restart
+      persist: true
+    }
+  }
 });
 
 const opts = {
@@ -85,29 +114,12 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: 'alice@mail.com'
   },
-  // Local path to where the drive should be stored
-  storage: __dirname + '/storage',
-  Hyperdrive: {
-    // NOTE: This is the same name that gets passed into the
-    // [drive_name] property when sending emails.
-    name: 'Alice Drive',
-    opts: {
-      // Persist the drive through restart
-      persist: false
-    }
-  },
-  Hypercore: {
-    // Local path to where the core should be stored
-    name: 'Alice Core',
-    opts: {
-      // Persist the core through restart
-      persist: false
-    }
-  }
+  Hypercore: Hypercore,
+  Hyperdrive: Hyperdrive
 };
 
 // Returns the Hyperdrive and Hypercore instances that were created upon initialization
-const { account, sig, Hyperdrive, Hypercore } = await Account.init(opts, signingKeypair.privateKey);
+const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
 
 // Send the account object that was just signed to be stored and verified
 // on the server for later authentication.

@@ -131,7 +131,7 @@ module.exports = {
       ],
       res: {}
     },
-    mark_as_read: {
+    mark_as_synced: {
       auth: 'Bearer',
       method: 'post',
       url: '/mailbox/messages/read',
