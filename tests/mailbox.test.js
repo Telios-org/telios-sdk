@@ -242,44 +242,6 @@ test('Mailbox - Mark emails as synced', async t => {
   t.ok(res, `Marked emails as synced`);
 });
 
-// test('Mailbox - Mailbox Listen for Mail Events', async t => {
-//   t.plan(1);
-
-//   const mailbox = await initMailbox();
-
-//   const feed = await mailbox.registerMailEventListener(Hypercore.feed);
-
-//   sdk = new SDK({
-//     storage: ram,
-//     Hypercore: {
-//       name: feed.key.toString('hex'),
-//       opts: {
-//         persist: false
-//       }
-//     }
-//   });
-//   await sdk.ready();
-//   const core2 = sdk.Hypercore;
-
-//   const ext = core2.feed.registerExtension('mail', {
-//     encoding: 'json',
-//     onmessage: (message, peer) => {
-//     }
-//   });
-
-//   core2.feed.on('peer-open', (peer) => {
-//     ext.broadcast({ mail: true });
-//   });
-
-//   mailbox.on('mail', async (message, peer) => {
-//     console.log('New Mail :: ', message);
-//     await feed.close();
-//     await core2.feed.close();
-//     t.ok(message, 'Receieved new mail event');
-//   });
-
-// });
-
 test.onFinish(async () => {
   // Clean up session
   await storage.Hyperdrive.drive.destroyStorage();

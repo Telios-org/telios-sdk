@@ -108,3 +108,4 @@ drive/
 core/
 tests/storage
 tests/data/encrypted_tmp.email
+tests/data/encrypted_tmp.email

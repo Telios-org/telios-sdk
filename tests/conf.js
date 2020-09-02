@@ -36,16 +36,13 @@ module.exports = {
       name: "Alice Tester",
       address: "alice@telios.io"
     }],
-    sender: "Bob Tester <bob@telios.io>",
+    from: [{
+      name: "Bob Tester",
+      address: "bob@telios.io"
+    }],
     subject: "Hello Alice",
     text_body: "You're my favorite test person ever",
     html_body: "<h1>You're my favorite test person ever</h1>",
-    custom_headers: [
-      {
-        header: "Reply-To",
-        value: "Actual Person <test3@telios.io>"
-      }
-    ],
     attachments: [
         {
             filename: "test.pdf",

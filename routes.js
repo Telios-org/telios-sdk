@@ -131,6 +131,13 @@ module.exports = {
       ],
       res: {}
     },
+    send_external_mail: {
+      auth: 'Bearer',
+      method: 'post',
+      url: '/mailbox/external/message',
+      req: conf.TEST_EMAIL,
+      res: {}
+    },
     mark_as_synced: {
       auth: 'Bearer',
       method: 'post',
