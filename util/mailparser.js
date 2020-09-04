@@ -16,6 +16,10 @@ exports.parser = async (data) => {
     })
   }
 
+  parsed.attachments = parsed.attachments.filter(file => {
+    if (!file.related) return file;
+  });
+
   const formatted = {
     headers: headers,
     subject: parsed.subject,
@@ -28,7 +32,7 @@ exports.parser = async (data) => {
     bcc: parsed.bcc ? parsed.bcc.value : [],
     sender: parsed.sender ? parsed.sender.value: [],
     text_body: parsed.text,
-    html_body: parsed.textAsHtml,
+    html_body: parsed.html,
     attachments: parsed.attachments,
   }
 
