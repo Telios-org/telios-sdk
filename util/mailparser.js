@@ -28,7 +28,7 @@ exports.parser = async (data) => {
     bcc: parsed.bcc ? parsed.bcc.value : [],
     sender: parsed.sender ? parsed.sender.value: [],
     text_body: parsed.text,
-    html_body: parsed.html,
+    html_body: parsed.textAsHtml,
     attachments: parsed.attachments,
   }
 
