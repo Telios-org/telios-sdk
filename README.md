@@ -194,7 +194,9 @@ The Mailbox object provides functionality needed for processing encrypted emails
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 const payload = {
@@ -219,7 +221,9 @@ const res = await mailbox.registerMailbox(payload);
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 const res = await mailbox.registerAlias('alice-netflix@telios.io');
@@ -238,7 +242,9 @@ const res = await mailbox.registerAlias('alice-netflix@telios.io');
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 const res = await mailbox.removeAlias('alice-netflix@telios.io');
@@ -258,7 +264,9 @@ A recipient's public key is required for sending encrypted emails within the Tel
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io']);
@@ -297,7 +305,9 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 const email = {
@@ -360,7 +370,9 @@ const res = await mailbox.send(email, {
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 const sbpkey = '[client_secretbox_private_key]';
@@ -420,7 +432,9 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 ``` js
 const mailbox = new Mailbox({
   provider: 'telios.io',
-  token: '[jwt_token]'
+  token: {
+    value: '[jwt_token]'
+  }
 });
 
 /**
