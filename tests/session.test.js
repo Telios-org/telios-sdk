@@ -30,12 +30,9 @@ test('HyperSession - Add a New Session', async t => {
 });
 
 test('HyperSession - Close Session', async t => {
-  t.plan(3);
+  t.plan(1);
   const sessions = await hyperSession.close();
-
   t.equals(sessions[0].status, 'closed');
-  t.equals(sessions[0].Hypercore.feed.writable, false);
-  t.equals(sessions[0].Hyperdrive.drive.closed, true);
 });
 
 test('HyperSession - Resume Session', async t => {
