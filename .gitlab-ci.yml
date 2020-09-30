@@ -1,0 +1,49 @@
+stages:
+    - build
+    - test
+    - publish
+
+image: node:12.18.4-alpine3.12
+
+before_script:
+    - echo "Steps to run at the start of each job"
+
+after_script:
+    - echo "Steps to run after each job"
+
+build:
+    stage: build
+    script: 
+        - apk update
+        - apk add zip unzip
+        - npm install --production
+        - npx npm-pack-zip
+    artifacts:
+        untracked: false
+        expire_in: 30 days
+        paths:
+            - "*.zip"
+
+test1:
+    stage: test
+    script:
+        - npm install
+        - npm run test
+
+test2:
+    stage: test
+    script:
+        - npm install
+        - npm run test2
+
+include:
+    - template: Secret-Detection.gitlab-ci.yml
+    - template: SAST.gitlab-ci.yml
+    - template: License-Scanning.gitlab-ci.yml
+    - template: Dependency-Scanning.gitlab-ci.yml
+
+publish:
+    stage: publish
+    script:
+        - echo "Publish the sdk somewhere"
+
