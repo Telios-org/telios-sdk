@@ -15,7 +15,7 @@ build:
     stage: build
     script: 
         - apt-get update
-        - apt-get install zip unzip
+        - apt-get install -y zip unzip
         - npm install --production
         - npx npm-pack-zip
     artifacts:
