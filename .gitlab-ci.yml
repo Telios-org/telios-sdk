@@ -42,14 +42,6 @@ include:
     - template: License-Scanning.gitlab-ci.yml
     - template: Dependency-Scanning.gitlab-ci.yml
 
-.ds-analyzer:
-    rules:
-        - when: always
-
-gemnasium-dependency-scanning:
-    rules:
-        - when: always
-
 publish:
     stage: publish
     script:
