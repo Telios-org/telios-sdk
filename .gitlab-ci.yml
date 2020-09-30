@@ -42,7 +42,7 @@ include:
     - template: License-Scanning.gitlab-ci.yml
     - template: Dependency-Scanning.gitlab-ci.yml
 
-.ds-analyzer:
+gemnasium-dependency-scanning:
     rules:
         - when: always
 
