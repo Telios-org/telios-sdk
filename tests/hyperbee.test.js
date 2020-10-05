@@ -28,37 +28,12 @@ test('Hyperbee - Create new db', async t => {
     await hypercore.connect();
     const feed = hypercore.feed;
     
-    hyperbee = new Hyperbee(null, feed);
+    hyperbee = new Hyperbee(feed, null);
 
     t.ok(hyperbee.db.feed.key.toString('hex'));
   } catch (err) {
     console.log('ERROR: ', err);
     t.error(err);
-  }
-});
-
-test('Hyperbee - Test null private key', async t => {
-  t.plan(3);
-
-  try {
-    await hyperbee.put('test');
-    t.error('Expected null private key inside put to throw an error.');
-  } catch (err) {
-    t.ok(err, `Null private key inside put threw error: '${err}'`);
-  }
-
-  try {
-    await hyperbee.del('test');
-    t.error('Expected null private key inside del to throw an error.');
-  } catch (err) {
-    t.ok(err, `Null private key inside del threw error: '${err}'`);
-  }
-
-  try {
-    await hyperbee.get('test');
-    t.error('Expected null private key inside get to throw an error.');
-  } catch (err) {
-    t.ok(err, `Null private key inside get threw error: '${err}'`);
   }
 });
 

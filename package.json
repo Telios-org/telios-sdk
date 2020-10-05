@@ -4,8 +4,7 @@
   "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
-    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec",
-    "test2": "env NODE_ENV=test tape tests/hyperbee.test.js | tap-spec"
+    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec"
   },
   "repository": {
     "type": "git",

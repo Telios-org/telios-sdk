@@ -1,15 +1,27 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Account, HyperSession } = require('..');
+const { Account, HyperSession, Hypercore } = require('..');
 const conf = require('./conf');
-
-const storage = {
-  Hyperdrive: null,
-  Hypercore: null,
-}
+const SDK = require('dat-sdk');
 
 const hyperSession = new HyperSession();
+let acctCore = null;
+
+test('Account - Test Setup', async t => {
+  let sdk = await SDK({ storage: __dirname + '/storage' });
+
+  let opts = {
+    name: 'Alice',
+    sdk: sdk,
+    coreOpts: {
+      persist: false
+    }
+  };
+
+  acctCore = new Hypercore(opts);
+  await acctCore.connect();
+});
 
 test('Account - Make Keypairs', async t => {
   t.plan(4);
@@ -23,44 +35,24 @@ test('Account - Make Keypairs', async t => {
 });
 
 test('Account - Init', async t => {
-  t.plan(4);
+  t.plan(2);
 
   try {
-    const { Hypercore, Hyperdrive } = await hyperSession.add('Alice Session', {
-      storage: __dirname + '/storage',
-      Hypercore: {
-        name: 'Alice',
-        opts: {
-          persist: false
-        }
-      },
-      Hyperdrive: {
-        name: 'Alice',
-        opts: {
-          persist: false
-        }
-      }
-    });
-
-    storage.Hypercore = Hypercore;
-    storage.Hyperdrive = Hyperdrive;
-
     const opts = {
       account: {
         spkey: conf.ALICE_SIG_PUB_KEY,
         sbpkey: conf.ALICE_SB_PUB_KEY,
-        recovery_email: conf.ALICE_RECOVERY
+        recovery_email: conf.ALICE_RECOVERY,
       },
-      Hypercore,
-      Hyperdrive
+      discoveryKey: conf.ALICE_DEVICE_1_KEY
     };
 
     const { account, sig } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
 
+    console.log({ account, sig: sig });
+
     t.ok(account, 'Account object returned');
     t.ok(sig, 'Account object signed');
-    t.ok(Hyperdrive.drive.key.toString('hex'), `Hyperdrive created ${Hyperdrive.drive.key.toString('hex')}`);
-    t.ok(Hypercore.feed.key.toString('hex'), `Hypercore created ${Hypercore.feed.key.toString('hex')}`);
   } catch (err) {
     t.error(err);
   }
@@ -77,8 +69,7 @@ test('Account - Register', async t => {
       sbpkey: conf.ALICE_SB_PUB_KEY,
       recovery_email: conf.ALICE_RECOVERY,
       device_id: conf.ALICE_DEVICE_1_ID,
-      device_drive: conf.ALICE_DEVICE_1_DRIVE,
-      device_core: conf.ALICE_DEVICE_1_CORE
+      device_key: conf.ALICE_DEVICE_1_KEY
     },
     sig: conf.ALICE_ACCOUNT_SIG
   }
@@ -100,8 +91,6 @@ test('Account - Sign authorization payload', async t => {
   
   const payload = Account.accountSignAuth(account, conf.ALICE_SIG_PRIV_KEY);
   
-  console.log(payload);
-  
   t.ok(payload, 'Account has authorization payload');
 });
 
@@ -121,8 +110,6 @@ test('Account - Login', async t => {
   }
 
   const res = await account.login(payload);
-  
-  console.log(res);
   
   t.ok(res._access_token, 'Account can login');
 });
