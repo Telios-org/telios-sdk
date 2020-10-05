@@ -1,0 +1,12 @@
+name: Mirroring
+on: [push, delete]
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: repo-sync
+        uses: actions/checkout@v1
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: "git@gitlab.com:telios2/telios-sdk.git"
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }} 
