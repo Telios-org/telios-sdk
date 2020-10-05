@@ -44,7 +44,7 @@ test('Account - Init', async t => {
         sbpkey: conf.ALICE_SB_PUB_KEY,
         recovery_email: conf.ALICE_RECOVERY,
       },
-      discoveryKey: conf.ALICE_DEVICE_1_KEY
+      discovery_key: conf.ALICE_DEVICE_1_KEY
     };
 
     const { account, sig } = await Account.init(opts, conf.ALICE_SIG_PRIV_KEY);
