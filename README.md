@@ -32,20 +32,17 @@ const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
 const session = await hyperSession.add('Alice Session', {
   storage: __dirname + '/storage',
-  cores: {
-    name: 'Cores',
-    keypair: secretBoxKeypair, // optionally use if you want Cores DB to be encrypted locally
-    opts: {
-      persist: true
-    }
-  },
-  drives: {
-    name: 'Drives',
-    keypair: secretBoxKeypair, // optionally use if you want Drives DB to be encrypted locally
-    opts: {
-      persist: true
-    }
-  }
+  databases: [
+      'Cores',
+      'Drives',
+      'Email',
+      'Contacts',
+      'Files'
+    ],
+    bootstrap: [
+      'Cores',
+      'Drives'
+    ]
 });
 
 const opts = {
@@ -54,8 +51,8 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: recoveryEmail
   },
-  // Device key is a hypercore's discovery key. This is used for server -> device connections.
-  device_key: discoveryKey
+  // Device key is a hypercore's public key. This is used for server -> device connections.
+  device_key: hypercorePublicKey
 };
 
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
@@ -93,20 +90,17 @@ const account = new Account({
 const session = await hyperSession.add('Alice Session', {
   // Local path to where the drive should be stored
   storage: __dirname + '/storage',
-  cores: {
-    name: 'Cores',
-    keypair: secretBoxKeypair, // optionally use if you want Cores DB to be encrypted locally
-    opts: {
-      persist: true
-    }
-  },
-  drives: {
-    name: 'Drives',
-    keypair: secretBoxKeypair, // optionally use if you want Drives DB to be encrypted locally
-    opts: {
-      persist: true
-    }
-  }
+  databases: [
+      'Cores',
+      'Drives',
+      'Email',
+      'Contacts',
+      'Files'
+    ],
+    bootstrap: [
+      'Cores',
+      'Drives'
+    ]
 });
 
 const opts = {
@@ -115,8 +109,8 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: 'alice@mail.com'
   },
-  // Device key is a hypercore's discovery key. This is used for server -> device connections.
-  device_key: discoveryKey
+  // Device key is a hypercore's public key. This is used for server -> device connections.
+  device_key: hypercorePublicKey
 };
 
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey);

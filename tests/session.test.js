@@ -54,9 +54,9 @@ test('HyperSession - Test Setup', async t => {
         name: opts.name,
         type: 'hypercore',
         key: feed.key.toString('hex'),
-        discoveryKey: feed.discoveryKey.toString('hex'),
+        announce: true,
         seed: true,
-        created: new Date(),
+        expires: new Date()
       };
 
       await CoresDB.put(i.toString(), JSON.stringify(item));
@@ -85,9 +85,9 @@ test('HyperSession - Test Setup', async t => {
         name: opts.name,
         type: 'hyperdrive',
         key: drive.key.toString('hex'),
-        discoveryKey: drive.discoveryKey.toString('hex'),
+        announce: true,
         seed: true,
-        created: new Date()
+        expires: new Date()
       };
 
       await DrivesDB.put(i.toString(), JSON.stringify(item));
@@ -108,20 +108,17 @@ test('HyperSession - Add a New Session', async t => {
 
   const session = await hyperSession.add('Alice Session', {  
     storage: __dirname + '/storage/alice',
-    cores: {
-      name: 'Cores',
-      keypair: null,
-      opts: {
-        persist: false
-      }
-    },
-    drives: {
-      name: 'Drives',
-      keypair: null,
-      opts: {
-        persist: false
-      }
-    }
+    databases: [
+      'Cores',
+      'Drives',
+      'Email',
+      'Contacts',
+      'Files'
+    ],
+    bootstrap: [
+      'Cores',
+      'Drives'
+    ]
   });
 
   t.equals(session.status, 'open');
@@ -134,12 +131,16 @@ test('HyperSession - Close Session', async t => {
 });
 
 test('HyperSession - Resume Session', async t => {
-  t.plan(3);
+  t.plan(7);
 
   const session = await hyperSession.resume('Alice Session');
   t.equals(session.status, 'open');
-  t.equals(session.cores[0].writable, true);
-  t.equals(session.drives[0].opened, true);
+  t.ok(session.sdk);
+  t.ok(session.HyperDB.Cores);
+  t.ok(session.HyperDB.Drives);
+  t.ok(session.HyperDB.Email);
+  t.ok(session.HyperDB.Contacts);
+  t.ok(session.HyperDB.Files);
 });
 
 test.onFinish(async () => {

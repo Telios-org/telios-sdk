@@ -246,7 +246,6 @@ test('Mailbox - Mark emails as synced', async t => {
 test.onFinish(async () => {
   // Clean up session
   await storage.Hyperdrive.drive.destroyStorage();
-  await hyperSession.close();
 
   process.exit(0);
 });
