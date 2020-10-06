@@ -3,6 +3,8 @@
 [![Current Version](https://img.shields.io/github/package-json/v/Telios-org/telios-sdk)](https://github.com/Telios-org/telios-sdk)
 [![GitHub Issues](https://img.shields.io/github/issues/Telios-org/telios-sdk/open)](https://github.com/Telios-org/telios-sdk/issues)
 
+### ⚠️ This is an experimental package that is not yet intended for production use. Use at your own risk ⚠️
+
 This package provides components for building an email client using the Telios Network. Telios is an offline-capabale e2e encrypted email service that uses p2p technology for sending and receiving emails.
 
 ## What does this SDK do?
@@ -28,18 +30,20 @@ const account = new Account({
 
 const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
 
-const { Hypercore, Hyperdrive } = await hyperSession.add('Alice Session', {
+const session = await hyperSession.add('Alice Session', {
   storage: __dirname + '/storage',
-  Hypercore: {
-    name: 'Alice',
+  cores: {
+    name: 'Cores',
+    keypair: secretBoxKeypair, // optionally use if you want Cores DB to be encrypted locally
     opts: {
-      persist: false
+      persist: true
     }
   },
-  Hyperdrive: {
-    name: 'Alice',
+  drives: {
+    name: 'Drives',
+    keypair: secretBoxKeypair, // optionally use if you want Drives DB to be encrypted locally
     opts: {
-      persist: false
+      persist: true
     }
   }
 });
@@ -50,8 +54,8 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: recoveryEmail
   },
-  Hypercore: Hypercore,
-  Hyperdrive: Hyperdrive
+  // Device key is a hypercore's discovery key. This is used for server -> device connections.
+  device_key: discoveryKey
 };
 
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
@@ -76,7 +80,6 @@ const signing_priv_key = signingKeypair.privateKey;
 ```
 
 ### Register a New Account
-After a successful registration, the server will create a seed `drive` and return this to the client. This `drive` will seed the user's data when all devices are disconnected. This is required in situations where a client attempts to retrieve an email from an offline device.
 
 ```js
 const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
@@ -87,22 +90,20 @@ const account = new Account({
   provider: 'telios.io'
 });
 
-const { Hypercore, Hyperdrive } = await hyperSession.add('Alice Session', {
+const session = await hyperSession.add('Alice Session', {
   // Local path to where the drive should be stored
   storage: __dirname + '/storage',
-  Hypercore: {
-    // NOTE: This is the same name that gets passed into the
-    // [drive_name] property when sending emails.
-    name: 'Alice Core',
+  cores: {
+    name: 'Cores',
+    keypair: secretBoxKeypair, // optionally use if you want Cores DB to be encrypted locally
     opts: {
-      // Persist the core through restart
       persist: true
     }
   },
-  Hyperdrive: {
-    name: 'Alice Drive',
+  drives: {
+    name: 'Drives',
+    keypair: secretBoxKeypair, // optionally use if you want Drives DB to be encrypted locally
     opts: {
-      // Persist the core through restart
       persist: true
     }
   }
@@ -114,11 +115,10 @@ const opts = {
     sbpkey: secretBoxKeypair.publicKey,
     recovery_email: 'alice@mail.com'
   },
-  Hypercore: Hypercore,
-  Hyperdrive: Hyperdrive
+  // Device key is a hypercore's discovery key. This is used for server -> device connections.
+  device_key: discoveryKey
 };
 
-// Returns the Hyperdrive and Hypercore instances that were created upon initialization
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
 
 // Send the account object that was just signed to be stored and verified
@@ -355,12 +355,11 @@ const res = await mailbox.send(email, {
   drive: '[Hyperdrive]',
 
   // This is the directory where the local drive stores it's encrypted emails. 
-  // In the example below, the sender (Bob) stores all his sent mail in the 
-  // directory '/mail'. The email being sent will be encrypted and stored 
-  // in this directory. Each email is dynamically named with a guid for 
+  // In the example below, the sender (Bob) placed an email file named 3ff78ec3-2964-44c5-97fe-13875f97c040.json
+  // in the root of the referenced hyperdrive. Each email is dynamically named with a guid for 
   // added privacy. When the other recipients decode their metadata sent 
-  // to them via Bob, they will use this path to retrieve their email.
-  drivePath: '/mail'
+  // to them via Bob, they will use this drive/path to retrieve their email.
+  drivePath: '/3ff78ec3-2964-44c5-97fe-13875f97c040.json'
 });
 
 ```

@@ -4,9 +4,8 @@ const test = _test(tape);
 const fs = require('fs');
 
 const conf = require('./conf');
-const { Mailbox, HyperSession } = require('..');
-
-const hyperSession = new HyperSession();
+const { Mailbox, Hyperdrive } = require('..');
+const SDK = require('dat-sdk');
 
 let encMeta = null;
 let driveKey = null;
@@ -30,21 +29,21 @@ const initMailbox = async () => {
 }
 
 test('Setup', async t => {
+  const sdk = await SDK({ storage: __dirname + '/storage' });
 
-  const { Hyperdrive } = await hyperSession.add('Alice Session', {
-    storage: __dirname + '/storage',
-    Hyperdrive: {
+  const driveOpts = {
       name: conf.MAILSERVER_DRIVE,
-      opts: {
+      sdk: sdk,
+      driveOpts: {
         persist: true
       }
-    }
-  });
-
-  const drive = Hyperdrive.drive;
+    };
+    
+  const hyperdrive = new Hyperdrive(driveOpts);
+  const drive = await hyperdrive.connect();
   driveKey = drive.key.toString('hex');
 
-  if (!await Hyperdrive.dirExists(conf.ALICE_MAILBOX)) {
+  if (!await hyperdrive.dirExists(conf.ALICE_MAILBOX)) {
     await drive.mkdir(conf.ALICE_MAILBOX);
   }
 
@@ -57,7 +56,7 @@ test('Setup', async t => {
 
   await drive.writeFile(conf.MAILSERVER_DRIVE_PATH2, email2);
 
-  storage.Hyperdrive = Hyperdrive;
+  storage.Hyperdrive = hyperdrive;
 
   t.end();
 });

@@ -1,11 +1,10 @@
 {
   "name": "@telios/telios-sdk",
-  "version": "0.6.15",
+  "version": "0.7.3",
   "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
-    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec",
-    "test2": "env NODE_ENV=test tape tests/hyperdrive.test.js | tap-spec"
+    "test": "env NODE_ENV=test tape tests/*.test.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -21,6 +20,7 @@
     "async": "^3.2.0",
     "axios": "^0.19.2",
     "dat-sdk": "^2.5.0",
+    "hyperbee": "0.0.18",
     "jwt-decode": "^2.2.0",
     "mailparser": "^2.8.1",
     "moment": "^2.27.0",
