@@ -51,7 +51,7 @@ test('HyperSession - Test Setup', async t => {
       const feed = await hypercore.connect();
 
       const item = {
-        name: opts.name,
+        name: `Core ${i}`,
         type: 'hypercore',
         key: feed.key.toString('hex'),
         announce: true,
@@ -82,7 +82,7 @@ test('HyperSession - Test Setup', async t => {
       const drive = await hyperdrive.connect();
 
       const item = {
-        name: opts.name,
+        name: `Drive ${i}`,
         type: 'hyperdrive',
         key: drive.key.toString('hex'),
         announce: true,
@@ -120,7 +120,6 @@ test('HyperSession - Add a New Session', async t => {
       'Drives'
     ]
   });
-
   t.equals(session.status, 'open');
 });
 
@@ -131,9 +130,10 @@ test('HyperSession - Close Session', async t => {
 });
 
 test('HyperSession - Resume Session', async t => {
-  t.plan(7);
+  t.plan(8);
 
   const session = await hyperSession.resume('Alice Session');
+
   t.equals(session.status, 'open');
   t.ok(session.sdk);
   t.ok(session.HyperDB.Cores);
@@ -141,6 +141,7 @@ test('HyperSession - Resume Session', async t => {
   t.ok(session.HyperDB.Email);
   t.ok(session.HyperDB.Contacts);
   t.ok(session.HyperDB.Files);
+  t.ok(session.Corestore);
 });
 
 test.onFinish(async () => {
