@@ -3,7 +3,7 @@ stages:
     - test
     - publish
 
-image: node:12.18.4-alpine3.12
+image: node:12.18.4
 
 before_script:
     - echo "Steps to run at the start of each job"
@@ -14,8 +14,8 @@ after_script:
 build:
     stage: build
     script: 
-        - apk update
-        - apk add zip unzip
+        - apt-get update
+        - apt-get install -y zip unzip
         - npm install --production
         - npx npm-pack-zip
     artifacts:
@@ -46,4 +46,3 @@ publish:
     stage: publish
     script:
         - echo "Publish the sdk somewhere"
-
