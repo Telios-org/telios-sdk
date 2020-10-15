@@ -20,7 +20,7 @@
   "dependencies": {
     "async": "^3.2.0",
     "axios": "^0.19.2",
-    "dat-sdk": "^2.5.0",
+    "dat-sdk": "^2.8.1",
     "hyperbee": "0.0.18",
     "jwt-decode": "^2.2.0",
     "mailparser": "^2.8.1",

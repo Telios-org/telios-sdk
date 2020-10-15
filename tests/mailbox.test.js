@@ -7,6 +7,7 @@ const conf = require('./conf');
 const { Mailbox, Hyperdrive } = require('..');
 const SDK = require('dat-sdk');
 
+let sdk = null;
 let encMeta = null;
 let driveKey = null;
 let sealedMsg = null;
@@ -29,7 +30,7 @@ const initMailbox = async () => {
 }
 
 test('Setup', async t => {
-  const sdk = await SDK({ storage: __dirname + '/storage' });
+  sdk = await SDK({ storage: __dirname + '/storage' });
 
   const driveOpts = {
       name: conf.MAILSERVER_DRIVE,
@@ -124,15 +125,16 @@ test('Mailbox - Seal encrypted metadata', async t => {
 });
 
 test('Mailbox - Send mailserver message', async t => {
-  // write json file to drive like I did in callout.js
   const opts = {
     name: 'META',
+    sdk: sdk,
     driveOpts: {
       persist: true
     }
   };
 
-  const drive = await storage.Hyperdrive.getDrive(opts);
+  const hyperdrive = await new Hyperdrive(opts);
+  const drive = await hyperdrive.connect();
 
   await drive.download('/');
   
@@ -146,9 +148,9 @@ test('Mailbox - Send mailserver message', async t => {
     }
   )
   await drive.writeFile('/meta/encrypted_meta_test.json', JSON.stringify(meta));
-
+    
   await drive.close();
-
+  
   t.end();
 });
 
