@@ -2,7 +2,7 @@ const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
 const fs = require('fs');
-
+const path = require('path');
 const conf = require('./conf');
 const { Mailbox, Hyperdrive } = require('..');
 const SDK = require('dat-sdk');
@@ -11,6 +11,8 @@ let sdk = null;
 let encMeta = null;
 let driveKey = null;
 let sealedMsg = null;
+
+const metaFilePath = path.join(__dirname, 'data/meta/encrypted_meta_test.json');
 
 const storage = {
   Hyperdrive: null
@@ -125,6 +127,7 @@ test('Mailbox - Seal encrypted metadata', async t => {
 });
 
 test('Mailbox - Send mailserver message', async t => {
+
   const opts = {
     name: 'META',
     sdk: sdk,
@@ -136,9 +139,8 @@ test('Mailbox - Send mailserver message', async t => {
   const hyperdrive = await new Hyperdrive(opts);
   const drive = await hyperdrive.connect();
 
-  await drive.download('/');
-  
-  let meta = JSON.parse(await drive.readFile('/meta/encrypted_meta_test.json'));
+  // await drive.download('/');
+  let meta = [];
 
   meta.push(
     {
@@ -147,7 +149,7 @@ test('Mailbox - Send mailserver message', async t => {
       _id: '5f1210b7a29fe6222f199f80'
     }
   )
-  await drive.writeFile('/meta/encrypted_meta_test.json', JSON.stringify(meta));
+  await fs.writeFileSync(metaFilePath, JSON.stringify(meta));
   await drive.close();
   
   t.end();
@@ -204,9 +206,50 @@ test('Mailbox - Mark emails as synced', async t => {
   t.ok(res, `Marked emails as synced`);
 });
 
+test('Mailbox - Get new mail metadata', async t => {
+  t.plan(1);
+  
+  const mailbox = await initMailbox();
+  const res = await mailbox._getNewMailMeta();
+  
+  t.equals(1, res.length, `Mail meta count === ${res.length}`);
+});
+
+test('Mailbox - Send mail metadata', async t => {
+  t.plan(1);
+  
+  const mailbox = await initMailbox();
+  
+  const payload = [
+    {
+      sbpkey: '4d2ee610476955dd2faf1d1d309ca70a9707c41ab1c828ad22dbfb115c87b725',
+      msg: 'f4e802a9cec3827079a59889abfa6fcbf49d9067809738969ba0060754e7bf33f8571689f9f79be3878a5474f210c2bf47db6378527e782ab8ac5389e9fd49a5dc8e14976dab97668becd036383b7c51fd90790a6c308aa2147a10682cd33afcc1b7cf300c8b0d96120997c59466e56fe4505e72aa1bfcb4d50c28a1d6ac23972e23668bb0897666906009970f24953ea5a2be09e9bbe94e7a434ddb9b26d17b437717ec2bffa0167cac07f40a63527c81eaa39eecca23bc327e8db03645dd82462bb46dc230c54b17bf484dd79ac29f09'
+    },
+    {
+      sbpkey: '4c709ee7e6d43f1e01d9208c600d466d0c9382e27097ac84249a02b031bad24a',
+      msg: 'b7b0d35992020a5b6b0bf83fe11afd917f7b038e2e74293f840843cc17fcc92ace56280b883a20028723f061cc4831c055842c279dcf30680acdcf7192c9d414f81ab19a6eac4cadbfb09830c0e7f2db599ec57f51be026e0fbc504b948ea68a1ab37d5c1bd06760e42297596fd5d3961736d74468a03d6f7f47bb7865d1ff45127b6e92db5a2d2d49788855489805b78cdfad421bd82984f00a432547cd58ab34ebff836ae9fbe28f3a32772ee0d8961059866ebcd538ad6e0336e52552d04d288e8bdd3a6957074746fbed23695d7bb3'
+    }
+  ];
+
+  const res = await mailbox._sendMailMeta(payload);
+  
+  t.ok(res, `Sent mail metadata`);
+});
+
+test('Mailbox - Retrieve unread mail and decrypt', async t => {
+  t.plan(3);
+  const mailbox = await initMailbox();
+  const mail = await mailbox.getNewMail(conf.ALICE_SB_PRIV_KEY, conf.ALICE_SB_PUB_KEY);
+
+  t.equals(1, mail.length, '2 Emails were retrieved and deciphered');
+  t.ok(mail[0]._id, 'Email has an _id');
+  t.ok(mail[0].email, 'Email has a message object');
+});
+
 test.onFinish(async () => {
   // Clean up session
   await storage.Hyperdrive.drive.destroyStorage();
   await sdk.close();
+  fs.unlinkSync(metaFilePath);
   process.exit(0);
 });

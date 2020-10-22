@@ -108,4 +108,5 @@ dist
 drive/
 core/
 tests/storage
+tests/data/meta/*
 tests/data/encrypted_tmp.email

@@ -2,7 +2,7 @@ const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
 
-const Crypto = require('../util/crypto');
+const { Crypto } = require('..');
 const { HyperSession } = require('..');
 
 const hyperSession = new HyperSession();
@@ -30,6 +30,7 @@ test('HyperSession - Add Core/Drive to Session', async t => {
   
   try {
     let session = hyperSession.getActive();
+    
     const driveOpts = {
       announce: true,
       seed: false,
@@ -54,8 +55,8 @@ test('HyperSession - Add Core/Drive to Session', async t => {
 
     session = hyperSession.getActive();
 
-    t.ok(session.CoreMap['Drive 1'], 'Active session added Drive 1');
-    t.ok(session.CoreMap['Core 1'], 'Active session added Core 1');
+    t.ok(session.CoreMap.Drives['Drive 1'], 'Active session added Drive 1');
+    t.ok(session.CoreMap.Cores['Core 1'], 'Active session added Core 1');
   } catch (err) {
     t.error(err);
   }

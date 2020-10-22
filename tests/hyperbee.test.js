@@ -1,10 +1,8 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Hypercore } = require('..');
-const { Hyperbee } = require('..');
+const { Crypto, Hypercore, Hyperbee } = require('..');
 const SDK = require('dat-sdk');
-const Crypto = require('../util/crypto');
 const ram = require('random-access-memory');
 
 let hyperbee = null;

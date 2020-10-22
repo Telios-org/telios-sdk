@@ -1,5 +1,6 @@
 const tape = require('tape');
-const { signSeedKeypair, boxSeedKeypair } = require('../util/crypto');
+const { Crypto } = require('..');
+const { signSeedKeypair, boxSeedKeypair } = Crypto;
 
 tape('Crypto', async t => {
   const signKeypair = signSeedKeypair();
