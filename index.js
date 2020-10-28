@@ -5,6 +5,7 @@ const Hypercore = require('./lib/hypercore');
 const Hyperdrive = require('./lib/hyperdrive');
 const Hyperbee = require('./lib/hyperbee');
 const Mailbox = require('./lib/mailbox');
+const SDK = require('dat-sdk');
 
 module.exports = {
   HyperSession: HyperSession,
@@ -13,5 +14,6 @@ module.exports = {
   Hyperdrive: Hyperdrive,
   Hyperbee: Hyperbee,
   Mailbox: Mailbox,
-  Crypto: Crypto
+  Crypto: Crypto,
+  SDK: SDK
 };
