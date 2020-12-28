@@ -1,6 +1,6 @@
 {
   "name": "@telios/telios-sdk",
-  "version": "0.8.9",
+  "version": "0.8.10",
   "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
