@@ -211,7 +211,7 @@ test('Mailbox - Get new mail metadata', async t => {
   t.plan(1);
   
   const mailbox = await initMailbox();
-  const res = await mailbox._getNewMailMeta();
+  const res = await mailbox.getNewMailMeta();
   
   t.equals(1, res.length, `Mail meta count === ${res.length}`);
 });
