@@ -162,8 +162,7 @@ test('Mailbox - Register', async t => {
   const payload = {
     sbpkey: '4bd1f102176d62a2f9b4598900e35b23e6a136da53590ba96c3e823f8c1d9c7c',
     name: 'Alice Tester',
-    addr: 'test@telios.io',
-    pwd: 'password'
+    addr: 'test@telios.io'
   };
 
   const res = await mailbox.registerMailbox(payload);

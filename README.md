@@ -24,11 +24,11 @@ npm i @telios/telios-sdk
 const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
 const hyperSession = new HyperSession();
 
-const account = new Account({
+const acct = new Account({
   provider: 'telios.io'
 });
 
-const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
+const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
 
 const session = await hyperSession.add('Alice Session', {
   storage: __dirname + '/storage',
@@ -47,17 +47,16 @@ const session = await hyperSession.add('Alice Session', {
 
 const opts = {
   account: {
-    spkey: signingKeypair.publicKey,
+    device_signing_key: signingKeypair.publicKey,
     sbpkey: secretBoxKeypair.publicKey,
+    peer_key: peerKeypair.publicKey,
     recovery_email: recoveryEmail
-  },
-  // Device key is a hypercore's public key. This is used for server -> device connections.
-  device_key: hypercorePublicKey
+  }
 };
 
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
 
-const res = await account.register(sig);
+const res = await acct.register({ account, sig });
 ```
 
 ## Account
@@ -67,13 +66,16 @@ The Account object handles communication with the Telios server and provides met
 Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
 
 ``` js
-const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
+const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
 
 const secret_box_pub_key = secretBoxKeypair.publicKey;
 const secret_box_priv_key = secretBoxKeypair.privateKey;
 
 const signing_pub_key = signingKeypair.publicKey;
 const signing_priv_key = signingKeypair.privateKey;
+
+const peer_pub_key = peerKeypair.publicKey;
+const peer_priv_key = peerKeypair.privateKey;
 ```
 
 ### Register a New Account
@@ -81,7 +83,7 @@ const signing_priv_key = signingKeypair.privateKey;
 ```js
 const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
 const hyperSession = new HyperSession();
-const { secretBoxKeypair, signingKeypair } = Account.makeKeys();
+const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
 
 const account = new Account({
   provider: 'telios.io'
@@ -105,19 +107,18 @@ const session = await hyperSession.add('Alice Session', {
 
 const opts = {
   account: {
-    spkey: signingKeypair.publicKey,
+    device_signing_key: signingKeypair.publicKey,
     sbpkey: secretBoxKeypair.publicKey,
-    recovery_email: 'alice@mail.com'
-  },
-  // Device key is a hypercore's public key. This is used for server -> device connections.
-  device_key: hypercorePublicKey
+    peer_key: peerKeypair.publicKey,
+    recovery_email: recoveryEmail
+  }
 };
 
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
 
 // Send the account object that was just signed to be stored and verified
 // on the server for later authentication.
-const res = await account.register(sig);
+const res = await account.register({ account, sig });
 ```
 
 #### Example response:
@@ -129,57 +130,6 @@ const res = await account.register(sig);
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This replaces the need for requiring a username and password for authentication.
 
-### Account Login
-```js
-// Instantiate a new Account object
-const account = new Account({
-  provider: 'telios.io'
-});
-
-// Create an account payload and then sign with your public signing key
-const acct = {
-  spkey: '[signing_public_key]',
-  sbpkey: '[secret_box_public_key]',
-  device_id: '[device_id]',
-  sig: '[server_signature]'
-};
-
-// Construct auth request
-const auth_payload = Account.accountSignAuth(acct, signingKeypair.privateKey);
-
-// Authenticate with auth payload
-const res = await account.login(auth_payload);
-```
-
-#### Example response:
-
-```js
-{
-  "_access_token": '[jwt_token]'
-}
-```
-The `access_token` returned will be required for all protected routes and should be stored and encrypted locally.
-
-### Account Logout
-
-```js
-// Instantiate a new Account object
-const account = new Account({
-  // Mail provider. Only telios.io is supported, but could be extended to 
-  // support other email providers using the same protocol
-  provider: 'telios.io'
-});
-
-// the 'all' option will log out all devices
-const payload = { devices: 'all' };
-
-// Pass in current token
-const token = '[jwt_token]';
-
-// Logout
-const res = await account.logout(token, payload);
-```
-
 ## Mailbox
 The Mailbox object provides functionality needed for processing encrypted emails.
 
@@ -187,10 +137,7 @@ The Mailbox object provides functionality needed for processing encrypted emails
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 const payload = {
@@ -214,10 +161,7 @@ const res = await mailbox.registerMailbox(payload);
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 const res = await mailbox.registerAlias('alice-netflix@telios.io');
@@ -235,10 +179,7 @@ const res = await mailbox.registerAlias('alice-netflix@telios.io');
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 const res = await mailbox.removeAlias('alice-netflix@telios.io');
@@ -257,10 +198,7 @@ A recipient's public key is required for sending encrypted emails within the Tel
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io']);
@@ -298,10 +236,7 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 // In this example Bob is sending an ecrypted email to two other Telios mailboxes.
 
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 const email = {
@@ -362,10 +297,7 @@ const res = await mailbox.send(email, {
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 const sbpkey = '[client_secretbox_private_key]';
@@ -424,10 +356,7 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'telios.io',
-  token: {
-    value: '[jwt_token]'
-  }
+  provider: 'telios.io'
 });
 
 /**
