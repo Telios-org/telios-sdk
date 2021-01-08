@@ -5,7 +5,7 @@
 
 ### ⚠️ This is an experimental package that is not yet intended for production use. Use at your own risk ⚠️
 
-This package provides components for building an email client using the Telios Network. Telios is an offline-capabale e2e encrypted email service that uses p2p technology for sending and receiving emails.
+This package provides components for building an email client using the Telios Network. Telios is an offline-capabale e2e encrypted email service built on [hypercore-protocol](https://hypercore-protocol.org/) for sending and receiving emails.
 
 ## What does this SDK do?
 
