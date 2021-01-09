@@ -64,7 +64,7 @@ test('Account - Init', async t => {
 test('Account - Register', async t => {
   t.plan(1)
   const account = new Account({
-    provider: 'telios.io'
+    provider: 'https://apiv1.telios.io'
   });
   const payload = {
     account: {
