@@ -137,7 +137,15 @@ The Mailbox object provides functionality needed for processing encrypted emails
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
+  provider: 'https://apiv1.telios.io',
+  auth: {
+    device_signing_key: '[device_signing_key]',
+    device_signing_priv_key: '[device_signing_priv_key]',
+    sbpkey: '[sbpkey]',
+    peer_key: '[peer_key]',
+    device_id: '[device_id]',
+    sig: '[sig]'
+  }
 });
 
 const payload = {
@@ -161,7 +169,15 @@ const res = await mailbox.registerMailbox(payload);
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
+  provider: 'https://apiv1.telios.io',
+  auth: {
+    device_signing_key: '[device_signing_key]',
+    device_signing_priv_key: '[device_signing_priv_key]',
+    sbpkey: '[sbpkey]',
+    peer_key: '[peer_key]',
+    device_id: '[device_id]',
+    sig: '[sig]'
+  }
 });
 
 const res = await mailbox.registerAlias('alice-netflix@telios.io');
@@ -198,7 +214,15 @@ A recipient's public key is required for sending encrypted emails within the Tel
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
+  provider: 'https://apiv1.telios.io',
+  auth: {
+    device_signing_key: '[device_signing_key]',
+    device_signing_priv_key: '[device_signing_priv_key]',
+    sbpkey: '[sbpkey]',
+    peer_key: '[peer_key]',
+    device_id: '[device_id]',
+    sig: '[sig]'
+  }
 });
 
 const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io']);
@@ -236,7 +260,15 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 // In this example Bob is sending an ecrypted email to two other Telios mailboxes.
 
 const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
+  provider: 'https://apiv1.telios.io',
+  auth: {
+    device_signing_key: '[device_signing_key]',
+    device_signing_priv_key: '[device_signing_priv_key]',
+    sbpkey: '[sbpkey]',
+    peer_key: '[peer_key]',
+    device_id: '[device_id]',
+    sig: '[sig]'
+  }
 });
 
 const email = {
@@ -297,7 +329,15 @@ const res = await mailbox.send(email, {
 
 ``` js
 const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
+  provider: 'https://apiv1.telios.io',
+  auth: {
+    device_signing_key: '[device_signing_key]',
+    device_signing_priv_key: '[device_signing_priv_key]',
+    sbpkey: '[sbpkey]',
+    peer_key: '[peer_key]',
+    device_id: '[device_id]',
+    sig: '[sig]'
+  }
 });
 
 const sbpkey = '[client_secretbox_private_key]';
