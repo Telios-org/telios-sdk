@@ -24,17 +24,11 @@ build:
         paths:
             - "*.zip"
 
-test1:
+test:
     stage: test
     script:
         - npm install
         - npm run test
-
-test2:
-    stage: test
-    script:
-        - npm install
-        - npm run test2
 
 include:
     - template: Secret-Detection.gitlab-ci.yml
