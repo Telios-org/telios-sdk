@@ -34,10 +34,7 @@ const session = await hyperSession.add('Alice Session', {
   storage: __dirname + '/storage',
   databases: [
       'Cores',
-      'Drives',
-      'Email',
-      'Contacts',
-      'Files'
+      'Drives'
     ],
     bootstrap: [
       'Cores',
@@ -49,7 +46,7 @@ const opts = {
   account: {
     device_signing_key: signingKeypair.publicKey,
     sbpkey: secretBoxKeypair.publicKey,
-    peer_key: peerKeypair.publicKey,
+    discovery_key: core.key.toString('utf8'), // a hypercore public key
     recovery_email: recoveryEmail
   }
 };
@@ -94,10 +91,7 @@ const session = await hyperSession.add('Alice Session', {
   storage: __dirname + '/storage',
   databases: [
       'Cores',
-      'Drives',
-      'Email',
-      'Contacts',
-      'Files'
+      'Drives'
     ],
     bootstrap: [
       'Cores',
@@ -109,7 +103,7 @@ const opts = {
   account: {
     device_signing_key: signingKeypair.publicKey,
     sbpkey: secretBoxKeypair.publicKey,
-    peer_key: peerKeypair.publicKey,
+    discovery_key: core.key.toString('utf8'), // a hypercore public key
     recovery_email: recoveryEmail
   }
 };
@@ -139,11 +133,13 @@ The Mailbox object provides functionality needed for processing encrypted emails
 const mailbox = new Mailbox({
   provider: 'https://apiv1.telios.io',
   auth: {
-    device_signing_key: '[device_signing_key]',
+    claims: {
+      device_signing_key: '[device_signing_key]',
+      sbpkey: '[sbpkey]',
+      discovery_key: '[discovery_key]', // a hypercore public key
+      device_id: '[device_id]'
+    },
     device_signing_priv_key: '[device_signing_priv_key]',
-    sbpkey: '[sbpkey]',
-    peer_key: '[peer_key]',
-    device_id: '[device_id]',
     sig: '[sig]'
   }
 });
@@ -194,10 +190,6 @@ const res = await mailbox.registerAlias('alice-netflix@telios.io');
 ### Remove an Alias
 
 ``` js
-const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
-});
-
 const res = await mailbox.removeAlias('alice-netflix@telios.io');
 ```
 
@@ -213,18 +205,6 @@ const res = await mailbox.removeAlias('alice-netflix@telios.io');
 A recipient's public key is required for sending encrypted emails within the Telios network. `getMailboxPubKeys` takes an array of recipient addresses and returns their corresponding public keys to be used for encrypting data sent to them.
 
 ``` js
-const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io',
-  auth: {
-    device_signing_key: '[device_signing_key]',
-    device_signing_priv_key: '[device_signing_priv_key]',
-    sbpkey: '[sbpkey]',
-    peer_key: '[peer_key]',
-    device_id: '[device_id]',
-    sig: '[sig]'
-  }
-});
-
 const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io']);
 ```
 
@@ -258,18 +238,6 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 
 ``` js
 // In this example Bob is sending an ecrypted email to two other Telios mailboxes.
-
-const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io',
-  auth: {
-    device_signing_key: '[device_signing_key]',
-    device_signing_priv_key: '[device_signing_priv_key]',
-    sbpkey: '[sbpkey]',
-    peer_key: '[peer_key]',
-    device_id: '[device_id]',
-    sig: '[sig]'
-  }
-});
 
 const email = {
   "subject": "Hello Bob",
@@ -328,18 +296,6 @@ const res = await mailbox.send(email, {
 ### Retrieve New Emails
 
 ``` js
-const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io',
-  auth: {
-    device_signing_key: '[device_signing_key]',
-    device_signing_priv_key: '[device_signing_priv_key]',
-    sbpkey: '[sbpkey]',
-    peer_key: '[peer_key]',
-    device_id: '[device_id]',
-    sig: '[sig]'
-  }
-});
-
 const sbpkey = '[client_secretbox_private_key]';
 const privKey = '[client_secretbox_public_key]';
 
@@ -395,10 +351,6 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 ### Mark Emails as Synced
 
 ``` js
-const mailbox = new Mailbox({
-  provider: 'https://apiv1.telios.io'
-});
-
 /**
  * Pass in an array of message IDs to be marked as read
  */

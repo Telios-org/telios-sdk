@@ -24,11 +24,13 @@ const initMailbox = async () => {
   const mailbox =  new Mailbox({
     provider: 'https://apiv1.telios.io',
     auth: {
-      device_signing_key: conf.ALICE_SIG_PUB_KEY,
+      claims: {
+        device_signing_key: conf.ALICE_SIG_PUB_KEY,
+        sbpkey: conf.ALICE_SB_PUB_KEY,
+        peer_key: conf.ALICE_PEER_PUB_KEY,
+        device_id: conf.ALICE_DEVICE_1_ID
+      },
       device_signing_priv_key: conf.ALICE_SIG_PRIV_KEY,
-      sbpkey: conf.ALICE_SB_PUB_KEY,
-      peer_key: conf.ALICE_PEER_PUB_KEY,
-      device_id: conf.ALICE_DEVICE_1_ID,
       sig: conf.ALICE_ACCOUNT_SERVER_SIG
     }
   });
