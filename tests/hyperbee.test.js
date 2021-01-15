@@ -12,22 +12,8 @@ test('Hyperbee - Create new db', async t => {
   t.plan(1);
 
   try {
-    const sdk = await SDK({ storage: ram });
-
-    const opts = {
-      name: 'Test DB Core',
-      sdk: sdk,
-      coreOpts: {
-        persist: false
-      }
-    };
-
-    const hypercore = new Hypercore(opts);
-    await hypercore.connect();
-    const feed = hypercore.feed;
-    
-    hyperbee = new Hyperbee(feed, null);
-
+    hyperbee = new Hyperbee('./tests/storage/MultiB', null);
+    await hyperbee.db.ready();
     t.ok(hyperbee.db.feed.key.toString('hex'));
   } catch (err) {
     console.log('ERROR: ', err);
@@ -42,8 +28,9 @@ test('Hyperbee - Test put/get', async t => {
     hyperbee.privKey = keypair.privateKey;
     hyperbee.pubKey = keypair.publicKey;
 
-    await hyperbee.put('hello', 'world');
+    await hyperbee.put('hello', { data: 'world' });
     const val = await hyperbee.get('hello');
+    
     t.equals(val, 'world');
   } catch (err) {
     t.error(err);

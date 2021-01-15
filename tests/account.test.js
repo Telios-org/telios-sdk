@@ -1,11 +1,10 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Account, HyperSession, Hypercore } = require('..');
+const { Account, Hypercore } = require('..');
 const conf = require('./conf');
 const SDK = require('dat-sdk');
 
-const hyperSession = new HyperSession();
 let acctCore = null;
 
 test('Account - Test Setup', async t => {
@@ -99,10 +98,8 @@ test('Account - Create auth token', async t => {
 });
 
 test.onFinish(async () => {
-  // Clean up session
   await storage.Hyperdrive.drive.destroyStorage();
   await storage.Hypercore.feed.destroyStorage();
-  await hyperSession.close();
 
   process.exit(0);
 });

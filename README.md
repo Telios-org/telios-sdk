@@ -21,26 +21,13 @@ npm i @telios/telios-sdk
 ## Usage
 
 ``` js
-const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
-const hyperSession = new HyperSession();
+const { Account, Mailbox } = require('@telios/telios-sdk');
 
 const acct = new Account({
   provider: 'https://apiv1.telios.io'
 });
 
 const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
-
-const session = await hyperSession.add('Alice Session', {
-  storage: __dirname + '/storage',
-  databases: [
-      'Cores',
-      'Drives'
-    ],
-    bootstrap: [
-      'Cores',
-      'Drives'
-    ]
-});
 
 const opts = {
   account: {
@@ -78,25 +65,11 @@ const peer_priv_key = peerKeypair.privateKey;
 ### Register a New Account
 
 ```js
-const { HyperSession, Account, Mailbox } = require('@telios/telios-sdk');
-const hyperSession = new HyperSession();
+const { Account, Mailbox } = require('@telios/telios-sdk');
 const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
 
 const account = new Account({
   provider: 'https://apiv1.telios.io'
-});
-
-const session = await hyperSession.add('Alice Session', {
-  // Local path to where the drive should be stored
-  storage: __dirname + '/storage',
-  databases: [
-      'Cores',
-      'Drives'
-    ],
-    bootstrap: [
-      'Cores',
-      'Drives'
-    ]
 });
 
 const opts = {
@@ -170,7 +143,7 @@ const mailbox = new Mailbox({
     device_signing_key: '[device_signing_key]',
     device_signing_priv_key: '[device_signing_priv_key]',
     sbpkey: '[sbpkey]',
-    peer_key: '[peer_key]',
+    discovery_key: '[discovery_key]', // a hypercore public key
     device_id: '[device_id]',
     sig: '[sig]'
   }
@@ -281,7 +254,7 @@ const res = await mailbox.send(email, {
   pubKey: '[bob_secret_box_public_key]',
 
   // A Hyperdrive object.
-  drive: '[Hyperdrive]',
+  drive: '[drive]',
 
   // This is the directory where the local drive stores it's encrypted emails. 
   // In the example below, the sender (Bob) placed an email file named 3ff78ec3-2964-44c5-97fe-13875f97c040.json

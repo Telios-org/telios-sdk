@@ -94,7 +94,7 @@ test('Mailbox - Send mail', async t => {
   const res = await mailbox.send(email, {
     privKey: conf.BOB_SB_PRIV_KEY,
     pubKey: conf.BOB_SB_PUB_KEY,
-    drive: storage.Hyperdrive,
+    drive: storage.Hyperdrive.drive,
     drivePath: conf.MAILSERVER_DRIVE_PATH
   });
 
