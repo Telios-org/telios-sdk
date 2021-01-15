@@ -28,10 +28,14 @@ test('Hyperbee - Test put/get', async t => {
     hyperbee.privKey = keypair.privateKey;
     hyperbee.pubKey = keypair.publicKey;
 
-    await hyperbee.put('hello', { data: 'world' });
-    const val = await hyperbee.get('hello');
+    await hyperbee.put('hello', {
+      data: {
+        value: 'world'
+      }
+    });
+    const item = await hyperbee.get('hello');
     
-    t.equals(val, 'world');
+    t.equals(item.value, 'world');
   } catch (err) {
     t.error(err);
   }
