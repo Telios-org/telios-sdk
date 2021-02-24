@@ -3,6 +3,8 @@ const _test = require('tape-promise').default;
 const test = _test(tape);
 const fs = require('fs');
 const { Drive, Account, Crypto } = require('..');
+const EventEmitter = require('events');
+const eventEmitter = new EventEmitter();
 
 const tmp = fs.readFileSync(__dirname + '/.tmp');
 const {
@@ -41,12 +43,22 @@ test('Connect Local Drive', async t => {
   t.ok(drive.diffFeed, `Drive has diffFeed: ${drive.diffFeed}`);
   t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
+
+  eventEmitter.on('add-peer', async (peer) => {
+    await drive.db.addPeer(peer);
+  })
 });
 
 // create a seeded drive
 test('Create Seeded Drive', async t => {
-  t.plan(1);
+  t.plan(2);
+  const entries = {
+    owner: false,
+    file: false
+  }
+
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
+  
   const drivePath = __dirname + '/drive.seed';
   const metaPath = __dirname + '/meta/remote/drive.meta';
 
@@ -64,30 +76,33 @@ test('Create Seeded Drive', async t => {
   });
 
   await drive.ready();
-  
-  // drive.on('connection', async () => {
-  //   const owner = await drive.db.get('owner');
-  //   console.log(owner);
-  //   t.ok(owner);
-  // });
 
+  eventEmitter.emit('add-peer', drive.diffFeed);
   const rs = drive.db.createHistoryStream({ live: true, gte: -1 });
 
-  rs.on('data', (data) => {
-    console.log(data);
-    setTimeout(() => {
-      t.ok();
-    }, 5000);
+  rs.on('data', async (data) => {
+    // if (data.value.owner) {
+    //   const owner = await drive.db.get('owner');
+    //   console.log('ON DATA ', owner);
+    //   // t.ok(owner)
+      
+    // }
+    onUpdate(data);
   });
-  
-  // const file = await drive.db.get('test.txt');
-  // const hash = await drive.db.get(file.value.hash);
 
+  function onUpdate(data) {
+    if (data.key === 'owner' && !entries.owner) {
+      console.log(data.value);
+      entries.owner = true;
+      t.ok(data.value);
+    }
 
-  // t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
-  // t.ok(drive.diffFeed, `Drive has diffFeed: ${drive.diffFeed}`);
-  // t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
-  // t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
+    if (data.key === 'test.txt' && !entries.file) {
+      console.log(data.value);
+      entries.file = true;
+      t.ok(data.value);
+    }
+  }
 });
 
 // peer handshake

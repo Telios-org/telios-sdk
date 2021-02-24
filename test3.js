@@ -22,19 +22,19 @@ const topicHex = crypto.createHash('sha256')
   };
 
   await db.ready();
-  //await db.addPeer('1f7d7f9534881a6078640e0e3b776c331f29042450a12239c61494b3e5ed792a');
+  //await db.addPeer('9f5d1bdf74fd8e87bc6cc9006598d5b9368960311ca9a0fac52f39c79e31a7ba');
 
   const diffHyperbee = await db.getDiff();
   const diffFeed = diffHyperbee.feed;
 
   console.log(`diffFeed key: ${diffFeed.key.toString('hex')}`);
 
-  const owner = await db.get('owner');
-  const topic = await db.get('topic');
-  //await db.put('canWrite', { peers: ['1f7d7f9534881a6078640e0e3b776c331f29042450a12239c61494b3e5ed792a']});
+  // const owner = await db.get('testGareth');
+  // const topic = await db.get('topic');
+  //await db.put('canWrite', { peers: ['9f5d1bdf74fd8e87bc6cc9006598d5b9368960311ca9a0fac52f39c79e31a7ba']});
   
   const rs = db.createHistoryStream({ live: true, gte: -1 });
-
+  
   rs.on('data', async(data) => {
     console.log(data);
   })

@@ -23,16 +23,24 @@ const topicHex = crypto.createHash('sha256')
   };
 
   await db.ready();
-  //await db.addPeer('74a1194a7147c088098bd0fbd3dc7da0be4ecdb98811f1a13255550c8e12ed12');
+  await db.addPeer('9f9533d4c6d4eaa7d1b2c40e0ffffe8749876bf6433cee2166a62bad7bc2ff8e');
 
   const diffHyperbee = await db.getDiff();
   const diffFeed = diffHyperbee.feed;
 
   console.log(`diffFeed key: ${diffFeed.key.toString('hex')}`);
 
-  // await db.put('gareth', meta);
-  // await db.put('tset', { foo: 'bar223' });
-  await db.put('tset22', {foo:'bar223'});
+  // await db.put('testMoni', { foo1: 'bar21231323' });
+  // await db.put('testGareth', { foo2: 'bar21dfdf231323' });
+  // await db.put('tset', { foo3: 'dfadff' });
+  // await db.put('gman1', { dd: 'dfafd' });
+  // await db.put('gman2', { dfa1: 'fd2e13123123' });
+
+  const rs = diffHyperbee.createHistoryStream();
+  
+  rs.on('data', async(data) => {
+    console.log(data);
+  })
 
   startSwarm(db, topicHex);
 })();
