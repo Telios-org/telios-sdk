@@ -1,5 +1,6 @@
 const Account = require('./lib/account');
 const Crypto = require('./lib/crypto');
+const Drive = require('./lib/drive');
 const Hypercore = require('./lib/hypercore');
 const Hyperdrive = require('./lib/hyperdrive');
 const Hyperbee = require('./lib/hyperbee');
@@ -8,6 +9,7 @@ const SDK = require('dat-sdk');
 
 module.exports = {
   Account: Account,
+  Drive: Drive,
   Hypercore: Hypercore,
   Hyperdrive: Hyperdrive,
   Hyperbee: Hyperbee,

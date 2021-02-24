@@ -1,0 +1,62 @@
+
+hyperbee
+multi-hyperbee-diff
+
+
+&canWrite/2021-02-24T06:09:43.085Z-0000«{"_timestamp":"2021-02-24T06:09:43.085Z-0000","obj":{"_objectId":"canWrite"},"list":{"add":{"peers":["1f7d7f9534881a6078640e0e3b776c331f29042450a12239c61494b3e5ed792a"]}}}
+
+
+&canWrite/2021-02-24T06:10:40.069Z-0000ˆ{"_timestamp":"2021-02-24T06:10:40.069Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:09:43.085Z-0000"},"list":{}}
+
+
+&canWrite/2021-02-24T06:12:13.804Z-0000ˆ{"_timestamp":"2021-02-24T06:12:13.804Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:10:40.069Z-0000"},"list":{}}
+
+
+&canWrite/2021-02-24T06:12:59.437Z-0000ˆ{"_timestamp":"2021-02-24T06:12:59.437Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:12:13.804Z-0000"},"list":{}}
+	
+
+&canWrite/2021-02-24T06:13:22.004Z-0000ˆ{"_timestamp":"2021-02-24T06:13:22.004Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:12:59.437Z-0000"},"list":{}}
+
+
+
+&canWrite/2021-02-24T06:13:45.415Z-0000ˆ{"_timestamp":"2021-02-24T06:13:45.415Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:13:22.004Z-0000"},"list":{}}
+
+	
+&canWrite/2021-02-24T06:14:11.267Z-0000ˆ{"_timestamp":"2021-02-24T06:14:11.267Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:13:45.415Z-0000"},"list":{}}
+
+
+
+&canWrite/2021-02-24T06:15:00.859Z-0000ˆ{"_timestamp":"2021-02-24T06:15:00.859Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:14:11.267Z-0000"},"list":{}}
+
+	
+		
+
+
+
+	&canWrite/2021-02-24T06:16:01.879Z-0000ˆ{"_timestamp":"2021-02-24T06:16:01.879Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:15:00.859Z-0000"},"list":{}}
+
+	
+	
+
+
+	
+&canWrite/2021-02-24T06:17:03.703Z-0000ˆ{"_timestamp":"2021-02-24T06:17:03.703Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:16:01.879Z-0000"},"list":{}}
+
+	
+	
+
+	
+&canWrite/2021-02-24T06:17:34.493Z-0000ˆ{"_timestamp":"2021-02-24T06:17:34.493Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:17:03.703Z-0000"},"list":{}}
+
+	
+	
+	
+	
+&canWrite/2021-02-24T06:21:47.347Z-0000ˆ{"_timestamp":"2021-02-24T06:21:47.347Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:17:34.493Z-0000"},"list":{}}
+
+	
+	
+
+
+	
+&canWrite/2021-02-24T06:22:27.661Z-0000ˆ{"_timestamp":"2021-02-24T06:22:27.661Z-0000","obj":{"_objectId":"canWrite","_prevTimestamp":"2021-02-24T06:21:47.347Z-0000"},"list":{}}

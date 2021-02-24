@@ -71,6 +71,35 @@ test('Setup', async t => {
   t.end();
 });
 
+test('Mailbox - Receive hyperswarm message', async t => {
+  t.plan(1);
+
+  const hyperswarm = require('hyperswarm');
+  const crypto = require('crypto');
+
+  const swarm = hyperswarm();
+  const mailbox = await initMailbox();
+  
+  mailbox.on('newMail', msg => {
+    t.equals(msg.data, 'hello world', 'Mailbox can recieve messages from hyperswarm');
+  });
+
+  setTimeout(() => {
+    const topic = crypto.createHash('sha256')
+    .update(`${conf.ALICE_PEER_PUB_KEY}:newMail`)
+    .digest();
+
+    swarm.join(topic, {
+      lookup: true,
+      announce: false
+    });
+
+    swarm.on('connection', (socket, info) => {
+      socket.write('{ "event" : "newMail", "data": "hello world" }');
+    });
+  });
+});
+
 test('Mailbox - Encrypt raw email', async t => {
   const mailbox = await initMailbox();
 
