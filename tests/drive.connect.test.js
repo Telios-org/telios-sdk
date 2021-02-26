@@ -65,7 +65,7 @@ test('Create Seeded Drive', async t => {
 
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
   
-  const drivePath = __dirname + '/drive2';
+  const drivePath = __dirname + '/drive_cloned';
   const metaPath = __dirname + '/meta/remote/drive.meta';
 
   const drive = new Drive({
