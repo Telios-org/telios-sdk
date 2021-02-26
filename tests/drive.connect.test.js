@@ -5,6 +5,7 @@ const fs = require('fs');
 const { Drive, Account, Crypto } = require('..');
 const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
+const del = require('del');
 
 const tmp = fs.readFileSync(__dirname + '/.tmp');
 const {
@@ -51,13 +52,13 @@ test('Connect Local Drive', async t => {
   })
 
   eventEmitter.on('destroy', async (peer) => {
-    drive.plex.destroy();
+    await drive.close();
   })
 });
 
 // create a seeded drive
 test('Create Seeded Drive', async t => {
-  t.plan(2);
+  t.plan(1);
   const entries = {
     owner: false,
     file: false
@@ -87,29 +88,17 @@ test('Create Seeded Drive', async t => {
   
   drive.handShake({ announce: true, lookup: false });
 
-  // const rs = drive.db.createHistoryStream({ live: true, gte: -1 });
 
-  // rs.on('data', async (data) => {
-  //   onUpdate(data);
-  // });
+  drive.on('add', (data) => {
+    console.log(data);
+  });
 
-  // function onUpdate(data) {
-  //   if (data.key === 'owner' && !entries.owner) {
-  //     entries.owner = true;
-  //     drive.handShake({ announce: true, lookup: true });
-  //     t.ok(data.value, 'Seeded owner entry');
-  //   }
-
-  //   if (data.key === 'test.txt' && !entries.file) {
-  //     entries.file = true;
-  //     t.ok(data.value, 'Seeded test.txt entry');
-  //   }
-  // }
-
-  setTimeout(() => {
-    drive.close();
-    t.end()
-  }, 10000);
+  setTimeout(async () => {
+    await drive.close();
+    eventEmitter.emit('destroy');
+    t.ok(1);
+    t.end();
+  },2000);
 });
 
 // peer handshake
@@ -117,9 +106,5 @@ test('Create Seeded Drive', async t => {
 // get file(s)
 
 test.onFinish(async () => {
-  // Clean up session
-  fs.rmdirSync(__dirname + '/meta/local/', { recursive: true });
-  fs.rmdirSync(__dirname + '/meta/remote/', { recursive: true });
-
   process.exit(0);
 });

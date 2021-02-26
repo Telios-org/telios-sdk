@@ -22,7 +22,7 @@ const topicHex = crypto.createHash('sha256')
   };
 
   await db.ready();
-  //await db.addPeer('9f5d1bdf74fd8e87bc6cc9006598d5b9368960311ca9a0fac52f39c79e31a7ba');
+  await db.addPeer('a49938bee43aa9a17305e2cda9315f7e10b467de1c66a444edde1d56cc1eb2ed');
 
   const diffHyperbee = await db.getDiff();
   const diffFeed = diffHyperbee.feed;
@@ -31,7 +31,7 @@ const topicHex = crypto.createHash('sha256')
 
   // const owner = await db.get('testGareth');
   // const topic = await db.get('topic');
-  //await db.put('canWrite', { peers: ['9f5d1bdf74fd8e87bc6cc9006598d5b9368960311ca9a0fac52f39c79e31a7ba']});
+  await db.put('canWrite', { peers: ['a49938bee43aa9a17305e2cda9315f7e10b467de1c66a444edde1d56cc1eb2ed']});
   
   const rs = db.createHistoryStream({ live: true, gte: -1 });
   

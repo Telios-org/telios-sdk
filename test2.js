@@ -23,7 +23,7 @@ const topicHex = crypto.createHash('sha256')
   };
 
   await db.ready();
-  await db.addPeer('9f9533d4c6d4eaa7d1b2c40e0ffffe8749876bf6433cee2166a62bad7bc2ff8e');
+  await db.addPeer('c9dd4a59aec5e4ef953efbb5312ed30cf4c8413305850a5fe2379d193b338cae');
 
   const diffHyperbee = await db.getDiff();
   const diffFeed = diffHyperbee.feed;
@@ -43,6 +43,8 @@ const topicHex = crypto.createHash('sha256')
   })
 
   startSwarm(db, topicHex);
+
+  await db.close();
 })();
 
 async function startSwarm(db, topic) {
