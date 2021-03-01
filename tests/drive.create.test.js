@@ -9,27 +9,14 @@ fs.mkdirSync(__dirname + '/meta/local');
 fs.mkdirSync(__dirname + '/meta/remote');
 
 test('Create Drive', async t => {
-  t.plan(9);
-  const drivePath = __dirname + '/drive';
-  const metaPath = __dirname + '/meta/local/drive.meta';
-
+  t.plan(7);
   const { secretBoxKeypair: keypair1 } = Account.makeKeys();
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
 
-  const peers = [
-    {
-      key: keypair2.publicKey
-    }
-  ];
-
-  const drive = new Drive({
-    keypair: keypair1,
-    metaPath,
-    drivePath,
-    peers,
+  const drive = new Drive(__dirname + '/drive', null, {
+    keyPair: keypair1,
     live: true,
-    watch: true,
-    createNew: true
+    watch: true
   });
 
   await drive.ready();
@@ -39,21 +26,17 @@ test('Create Drive', async t => {
   });
 
   const owner = await drive.db.get('owner');
-  const ownerMeta = await drive.db.get(owner.value.key);
   const file = await drive.db.get('test.txt');
   const hash = await drive.db.get(file.value.hash);
 
   fs.writeFileSync(__dirname + '/.tmp', JSON.stringify({
-    keypair: keypair1,
-    publicTopic: drive.publicTopic,
-    secretTopic: drive.secretTopic,
-    ownerDiffKey: drive.diffFeed
+    keyPair: keypair1,
+    drivePubKey: drive.publicKey,
+    peerDiffKey: drive.diffFeedKey
   }));
 
   t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
-  t.ok(drive.publicTopic, `Drive has Public Topic: ${drive.publicTopic}`);
-  t.ok(drive.secretTopic, `Drive has Secret Topic: ${drive.secretTopic}`);
-  t.ok(drive.diffFeed, `Drive has diffFeed: ${drive.diffFeed}`);
+  t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
   t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
 });

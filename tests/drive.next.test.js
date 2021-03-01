@@ -13,9 +13,10 @@ test('Cleanup', async t => {
 test.onFinish(async () => {
   // Clean up session
   await del([
-    __dirname + '/drive_cloned',
+    // __dirname + '/drive_cloned',
     __dirname + '/meta',
     __dirname + '/.tmp',
+    __dirname + '/drive/.drive'
   ]);
   process.exit(0);
 });

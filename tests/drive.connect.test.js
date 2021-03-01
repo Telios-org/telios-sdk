@@ -5,106 +5,135 @@ const fs = require('fs');
 const { Drive, Account, Crypto } = require('..');
 const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
-const del = require('del');
 
 const tmp = fs.readFileSync(__dirname + '/.tmp');
 const {
-  keypair,
-  publicTopic,
-  secretTopic,
-  ownerDiffKey
+  keyPair,
+  drivePubKey,
+  peerDiffKey
 } = JSON.parse(tmp);
+
+let drive1, drive2, drive3;
 
 // Connect existing local drive
 test('Connect Local Drive', async t => {
-  const drivePath = __dirname + '/drive';
-  const metaPath = __dirname + '/meta/local/drive.meta';
+  t.plan(4);
 
-  const drive = new Drive({
-    keypair,
-    metaPath,
-    drivePath,
+  drive1 = new Drive(__dirname + '/drive', null, {
+    keyPair,
     live: true,
     watch: true
   });
 
-  await drive.ready();
-  
-  drive.handShake({ announce: true, lookup: true });
+  await drive1.ready();
 
-  const owner = await drive.db.get('owner');
-  const ownerMeta = await drive.db.get(owner.value.key);
-  const file = await drive.db.get('test.txt');
-  const hash = await drive.db.get(file.value.hash);
-
-  //const decodedSecretTopic = Crypto.decryptSBMessage(ownerMeta.value.topic, keypair.publicKey, keypair.privateKey); 
+  const owner = await drive1.db.get('owner');
+  const file = await drive1.db.get('test.txt');
+  const hash = await drive1.db.get(file.value.hash);
 
   t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
-  //t.equals(drive.secretTopic, decodedSecretTopic, `Can decipher secret topic`);
-  t.ok(drive.publicTopic, `Drive has Public Topic: ${drive.publicTopic}`);
-  t.ok(drive.secretTopic, `Drive has Secret Topic: ${drive.secretTopic}`);
-  t.ok(drive.diffFeed, `Drive has diffFeed: ${drive.diffFeed}`);
+  t.ok(drive1.diffFeedKey, `Drive has diffFeedKey: ${drive1.diffFeedKey}`);
   t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
 
   eventEmitter.on('add-peer', async (peer) => {
-    await drive.db.addPeer(peer);
-  })
-
-  eventEmitter.on('destroy', async (peer) => {
-    await drive.close();
+    await drive1.db.addPeer(peer);
+    console.log('Added Peer')
   })
 });
 
-// create a seeded drive
-test('Create Seeded Drive', async t => {
+test('Create Cloned Drive', async t => {
   t.plan(1);
-  const entries = {
-    owner: false,
-    file: false
-  }
 
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
-  
-  const drivePath = __dirname + '/drive_cloned';
-  const metaPath = __dirname + '/meta/remote/drive.meta';
-
-  const drive = new Drive({
-    keypair2,
-    metaPath,
-    drivePath,
-    network: {
-      publicTopic,
-      secretTopic,
-      peers: [ownerDiffKey] // Peer DiffFeed key
-    },
+  drive2 = new Drive(__dirname + '/drive_cloned', drivePubKey, {
+    keyPair: keypair2,
+    peers: [{
+      diffKey: peerDiffKey,
+      access: ['write']
+    }],
     live: true,
     watch: true
   });
-
-  await drive.ready();
-
-  eventEmitter.emit('add-peer', drive.diffFeed);
   
-  drive.handShake({ announce: true, lookup: false });
+  let fileCount = 0;
 
+  await drive2.ready();
+  
+  eventEmitter.emit('add-peer', drive2.diffFeedKey);
 
-  drive.on('add', (data) => {
-    console.log(data);
+  eventEmitter.on('add-peer', async (peer) => {
+    if(peer !== drive2.diffFeedKey) {
+      await drive2.db.addPeer(peer);
+    }
+  })
+
+  drive2.on('add', (data) => {
+    fileCount+=1;
+
+    if(fileCount === 3) {
+      t.ok(1);
+    }
   });
 
-  setTimeout(async () => {
-    await drive.close();
-    eventEmitter.emit('destroy');
-    t.ok(1);
-    t.end();
+});
+
+test('Create another peer', async t => {
+  t.plan(1);
+  const { secretBoxKeypair: keypair3 } = Account.makeKeys();
+  drive3 = new Drive(__dirname + '/drive_clone3', drivePubKey, {
+    keyPair: keypair3,
+    peers: [
+      {
+        diffKey: peerDiffKey,
+        access: ['write']
+      },
+      {
+        diffKey: drive2.diffFeedKey,
+        access: ['write']
+      }
+    ],
+    live: true,
+    watch: true
+  });
+  
+  let fileCount = 0;
+
+  await drive3.ready();
+  
+  setTimeout(() => {
+    eventEmitter.emit('add-peer', drive3.diffFeedKey);
+
+    drive3.on('add', (data) => {
+      fileCount+=1;
+
+      if(fileCount === 3) {
+        t.ok(1);
+      }
+    });
   },2000);
 });
 
-// peer handshake
+test('Update and Sync New Files', async t => {
+  fs.writeFileSync(__dirname + '/drive/test123.txt', 'This is a new file!');
+});
 
-// get file(s)
+test('Update and Sync Existing Files', async t => {
+  fs.writeFileSync(__dirname + '/drive/test.txt', new Date())
+});
+
+test('Delete Files', async t => {
+  fs.unlinkSync(__dirname + '/drive/test123.txt');
+});
+
+test('Delete Files', async t => {
+  // await drive1.close();
+  // await drive2.close();
+  // await drive3.close();
+});
 
 test.onFinish(async () => {
-  process.exit(0);
+  setTimeout(() => {
+    process.exit(0);
+  },2000);
 });
