@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Telios-org/telios-sdk#readme",
   "dependencies": {
+    "abstract-extension": "^3.1.1",
     "async": "^3.2.0",
     "axios": "^0.19.2",
     "chokidar": "^3.5.1",

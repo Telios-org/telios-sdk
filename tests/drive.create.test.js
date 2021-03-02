@@ -2,14 +2,34 @@ const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
 const fs = require('fs');
+const path = require('path');
 const { Drive, Account, Crypto } = require('..');
+const del = require('del');
 
-fs.mkdirSync(__dirname + '/meta');
-fs.mkdirSync(__dirname + '/meta/local');
-fs.mkdirSync(__dirname + '/meta/remote');
 
 test('Create Drive', async t => {
-  t.plan(7);
+  if(fs.existsSync(path.join(__dirname, '/drive_cloned'))) {
+    await del([
+      __dirname + '/drive_cloned'
+    ]);
+  }
+
+  if(fs.existsSync(path.join(__dirname, '/meta'))) {
+    await del([
+      __dirname + '/meta'
+    ]);
+  }
+
+  if(fs.existsSync(path.join(__dirname, '/drive/.drive'))) {
+    await del([
+      __dirname + '/drive/.drive'
+    ]);
+  }
+
+  fs.mkdirSync(__dirname + '/meta');
+  fs.mkdirSync(__dirname + '/meta/local');
+  fs.mkdirSync(__dirname + '/meta/remote');
+
   const { secretBoxKeypair: keypair1 } = Account.makeKeys();
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
 
