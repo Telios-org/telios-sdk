@@ -30,6 +30,7 @@
     "hyperswarm": "^2.15.3",
     "hypertrie": "^5.1.1",
     "jwt-decode": "^2.2.0",
+    "level": "^6.0.1",
     "mailparser": "^2.8.1",
     "memorystream": "^0.3.1",
     "moment": "^2.27.0",

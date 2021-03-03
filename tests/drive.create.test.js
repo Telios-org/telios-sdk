@@ -36,7 +36,11 @@ test('Create Drive', async t => {
   const drive = new Drive(__dirname + '/drive', null, {
     keyPair: keypair1,
     live: true,
-    watch: true
+    watch: true,
+    access: {
+      canRead: null, // null for no policy
+      canWrite: []
+    }
   });
 
   await drive.ready();
@@ -46,6 +50,7 @@ test('Create Drive', async t => {
   });
 
   const owner = await drive.db.get('owner');
+  const publicKey = await drive.db.get('__publicKey');
   const file = await drive.db.get('test.txt');
   const hash = await drive.db.get(file.value.hash);
 
@@ -56,6 +61,7 @@ test('Create Drive', async t => {
   }));
 
   t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
+  t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
   t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
   t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);

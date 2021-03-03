@@ -22,7 +22,8 @@ test('Connect Local Drive', async t => {
   drive1 = new Drive(__dirname + '/drive', null, {
     keyPair,
     live: true,
-    watch: true
+    watch: true,
+    seed: true
   });
 
   await drive1.ready();
@@ -37,7 +38,7 @@ test('Connect Local Drive', async t => {
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
 
   eventEmitter.on('add-peer', async (peer) => {
-    await drive1.db.addPeer(peer);
+    await drive1.addPeer(peer);
     console.log('Added Peer')
   })
 });
@@ -48,23 +49,27 @@ test('Create Cloned Drive', async t => {
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
   drive2 = new Drive(__dirname + '/drive_cloned', drivePubKey, {
     keyPair: keypair2,
-    peers: [{
-      diffKey: peerDiffKey,
-      access: ['write']
-    }],
     live: true,
-    watch: true
+    watch: true,
+    seed: true,
+    slave: true
   });
   
   let fileCount = 0;
 
   await drive2.ready();
   
-  eventEmitter.emit('add-peer', drive2.diffFeedKey);
+  // add drive1 as a peer to start replication
+  await drive2.addPeer({ 
+    diffKey: peerDiffKey, 
+    access: ['write'] 
+  });
+  
+  eventEmitter.emit('add-peer', { diffKey: drive2.diffFeedKey });
 
   eventEmitter.on('add-peer', async (peer) => {
-    if(peer !== drive2.diffFeedKey) {
-      await drive2.db.addPeer(peer);
+    if(peer.diffKey !== drive2.diffFeedKey) {
+      await drive2.addPeer(peer);
     }
   })
 
