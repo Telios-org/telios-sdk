@@ -38,15 +38,9 @@ test('Connect Local Drive', async t => {
   t.ok(drive1.diffFeedKey, `Drive has diffFeedKey: ${drive1.diffFeedKey}`);
   t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
-
-  eventEmitter.on('add-peer', async (peer) => {
-    await drive1.addPeer(peer);
-    console.log('Added Peer')
-  })
 });
 
 test('Create Cloned Drive', async t => {
-  t.plan(1);
 
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
   drive2 = new Drive(__dirname + '/drive_cloned', drivePubKey, {
@@ -60,35 +54,18 @@ test('Create Cloned Drive', async t => {
   let fileCount = 0;
 
   await drive2.ready();
-  
-  //add drive1 as a peer to start replication
-  await drive2.addPeer({ 
-    diffKey: peerDiffKey, 
-    access: ['write'] 
-  });
-  
-  eventEmitter.emit('add-peer', { diffKey: drive2.diffFeedKey });
-
-  eventEmitter.on('add-peer', async (peer) => {
-    if(peer.diffKey !== drive2.diffFeedKey) {
-      await drive2.addPeer(peer);
-    }
-  })
 
   drive2.on('add', (data) => {
     fileCount+=1;
 
     if(fileCount === 3) {
-      process.nextTick(() => {
-        t.ok(1);
-      });
+      t.ok(1);
     }
   });
 
 });
 
 test('Create another peer', async t => {
-  t.plan(1);
   const { secretBoxKeypair: keypair3 } = Account.makeKeys();
   drive3 = new Drive(__dirname + '/drive_clone3', drivePubKey, {
     keyPair: keypair3,
@@ -102,26 +79,11 @@ test('Create another peer', async t => {
 
   await drive3.ready();
 
-  await drive3.addPeer({ 
-    diffKey: peerDiffKey, 
-    access: ['write'] 
-  });
-
-  await drive3.addPeer({ 
-    diffKey: drive2.diffFeedKey, 
-    access: []
-  });
-  
-
-  eventEmitter.emit('add-peer', { diffKey: drive3.diffFeedKey });
-
   drive3.on('add', (data) => {
     fileCount+=1;
 
     if(fileCount === 3) {
-      process.nextTick(() => {
-        t.ok(1);
-      });
+      t.ok(1);
     }
   });
 

@@ -14,6 +14,12 @@ test('Create Drive', async t => {
     ]);
   }
 
+  if(fs.existsSync(path.join(__dirname, '/drive_clone3'))) {
+    await del([
+      __dirname + '/drive_clone3'
+    ]);
+  }
+
   if(fs.existsSync(path.join(__dirname, '/meta'))) {
     await del([
       __dirname + '/meta'
@@ -36,11 +42,7 @@ test('Create Drive', async t => {
   const drive = new Drive(__dirname + '/drive', null, {
     keyPair: keypair1,
     live: true,
-    watch: true,
-    access: {
-      canRead: null, // null for no policy
-      canWrite: []
-    }
+    watch: true
   });
 
   await drive.ready();
