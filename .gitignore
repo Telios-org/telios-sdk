@@ -108,6 +108,7 @@ dist
 drive/
 core/
 tests/storage
+tests/drive_cloned
 tests/data/meta/*
 tests/data/encrypted_tmp.email
 .tmp
