@@ -36,12 +36,11 @@ test('Connect Local Drive', async t => {
   t.ok(drive1.publicKey, `Drive has Public Key: ${drive1.discoveryKey}`);
   t.ok(drive1.discoveryKey, `Drive has Discovery Key: ${drive1.discoveryKey}`);
   t.ok(drive1.diffFeedKey, `Drive has diffFeedKey: ${drive1.diffFeedKey}`);
-  t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
+  t.ok(file.value.hash, `File test.txt has hash: ${file.value.hash}`);
   t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
 });
 
 test('Create Cloned Drive', async t => {
-
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
   drive2 = new Drive(__dirname + '/drive_cloned', drivePubKey, {
     keyPair: keypair2,
@@ -108,5 +107,8 @@ test('Create another peer', async t => {
 // });
 
 test.onFinish(async () => {
+  await drive1.close();
+  await drive2.close();
+  await drive3.close();
   process.exit(0);
 });

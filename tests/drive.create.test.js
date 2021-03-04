@@ -53,8 +53,12 @@ test('Create Drive', async t => {
 
   const owner = await drive.db.get('owner');
   const publicKey = await drive.db.get('__publicKey');
-  const file = await drive.db.get('test.txt');
-  const hash = await drive.db.get(file.value.hash);
+  const textFile = await drive.db.get('test.txt');
+  const textFileHash = await drive.db.get(textFile.value.hash);
+  const email = await drive.db.get('email.eml');
+  const emailHash = await drive.db.get(email.value.hash);
+  const docFile = await drive.db.get('doc.txt');
+  const docFileHash = await drive.db.get(docFile.value.hash);
 
   fs.writeFileSync(__dirname + '/.tmp', JSON.stringify({
     keyPair: keypair1,
@@ -65,8 +69,12 @@ test('Create Drive', async t => {
   t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
   t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
   t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
-  t.ok(file.value.hash, `File test.txt was virtualized with hash: ${file.value.hash}`);
-  t.ok(hash.value.size, `File test.txt has size: ${hash.value.size}`);
+  t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
+  t.ok(textFileHash.value.size, `File test.txt has size: ${textFileHash.value.size}`);
+  t.ok(email.value.hash, `File email.eml has hash: ${email.value.hash}`);
+  t.ok(emailHash.value.size, `File email.eml has size: ${emailHash.value.size}`);
+  t.ok(docFile.value.hash, `File doc.txt has hash: ${docFile.value.hash}`);
+  t.ok(docFileHash.value.size, `File doc.txt has size: ${docFileHash.value.size}`);
 });
 
 test.onFinish(async () => {
