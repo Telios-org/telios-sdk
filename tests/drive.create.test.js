@@ -6,8 +6,11 @@ const path = require('path');
 const { Drive, Account, Crypto } = require('..');
 const del = require('del');
 
+const { secretBoxKeypair: keyPair } = Account.makeKeys();
 
-test('Create Drive', async t => {
+test('Drive - Create', async t => {
+  t.plan(9);
+
   if(fs.existsSync(path.join(__dirname, '/drive_cloned'))) {
     await del([
       __dirname + '/drive_cloned'
@@ -32,24 +35,23 @@ test('Create Drive', async t => {
     ]);
   }
 
+  if(fs.existsSync(path.join(__dirname, '/drive/hello.txt'))) {
+    await del([
+      __dirname + '/drive/hello.txt'
+    ]);
+  }
+
   fs.mkdirSync(__dirname + '/meta');
   fs.mkdirSync(__dirname + '/meta/local');
   fs.mkdirSync(__dirname + '/meta/remote');
 
-  const { secretBoxKeypair: keypair1 } = Account.makeKeys();
-  const { secretBoxKeypair: keypair2 } = Account.makeKeys();
-
   const drive = new Drive(__dirname + '/drive', null, {
-    keyPair: keypair1,
+    keyPair,
     live: true,
     watch: true
   });
 
   await drive.ready();
-
-  drive.on('add', (data) => {
-    t.ok(data, `${data}`);
-  });
 
   const owner = await drive.db.get('owner');
   const publicKey = await drive.db.get('__publicKey');
@@ -61,7 +63,7 @@ test('Create Drive', async t => {
   const docFileHash = await drive.db.get(docFile.value.hash);
 
   fs.writeFileSync(__dirname + '/.tmp', JSON.stringify({
-    keyPair: keypair1,
+    keyPair,
     drivePubKey: drive.publicKey,
     peerDiffKey: drive.diffFeedKey
   }));
@@ -75,6 +77,43 @@ test('Create Drive', async t => {
   t.ok(emailHash.value.size, `File email.eml has size: ${emailHash.value.size}`);
   t.ok(docFile.value.hash, `File doc.txt has hash: ${docFile.value.hash}`);
   t.ok(docFileHash.value.size, `File doc.txt has size: ${docFileHash.value.size}`);
+
+  await drive.close();
+});
+
+// Connect existing local drive
+test('Drive - Connect Existing Local', async t => {
+  t.plan(9);
+
+  const drive = new Drive(__dirname + '/drive', null, {
+    keyPair,
+    live: true,
+    watch: true,
+    seed: true
+  });
+
+  await drive.ready();
+
+  const owner = await drive.db.get('owner');
+  const publicKey = await drive.db.get('__publicKey');
+  const textFile = await drive.db.get('test.txt');
+  const textFileHash = await drive.db.get(textFile.value.hash);
+  const email = await drive.db.get('email.eml');
+  const emailHash = await drive.db.get(email.value.hash);
+  const docFile = await drive.db.get('doc.txt');
+  const docFileHash = await drive.db.get(docFile.value.hash);
+
+  t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
+  t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
+  t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
+  t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
+  t.ok(textFileHash.value.size, `File test.txt has size: ${textFileHash.value.size}`);
+  t.ok(email.value.hash, `File email.eml has hash: ${email.value.hash}`);
+  t.ok(emailHash.value.size, `File email.eml has size: ${emailHash.value.size}`);
+  t.ok(docFile.value.hash, `File doc.txt has hash: ${docFile.value.hash}`);
+  t.ok(docFileHash.value.size, `File doc.txt has size: ${docFileHash.value.size}`);
+
+  await drive.close();
 });
 
 test.onFinish(async () => {

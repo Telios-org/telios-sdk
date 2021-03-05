@@ -17,7 +17,7 @@ const {
 let drive1, drive2, drive3;
 
 // Connect existing local drive
-test('Connect Local Drive', async t => {
+test('Drive - Reconnect Local', async t => {
   t.plan(9);
 
   drive1 = new Drive(__dirname + '/drive', null, {
@@ -54,14 +54,14 @@ test('Connect Local Drive', async t => {
   })
 });
 
-test('Create Cloned Drive', async t => {
+test('Drive - Clone', async t => {
   t.plan(12);
   const currentDir = path.join(__dirname, '/drive_cloned');
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
   drive2 = new Drive(currentDir, drivePubKey, {
     keyPair: keypair2,
     live: true,
-    watch: true,
+    watch: false,
     seed: true,
     slave: true
   });
@@ -84,7 +84,7 @@ test('Create Cloned Drive', async t => {
     }
   })
 
-  drive2.on('add', async (data) => {
+  drive2.on('file-add', async (data) => {
     fileCount+=1;
 
     if(fileCount === 3) {
@@ -117,7 +117,7 @@ test('Create Cloned Drive', async t => {
 
 });
 
-test('Create 3rd Cloned Drive', async t => {
+test('Drive - Create Second Clone', async t => {
   t.plan(12);
   const currentDir = path.join(__dirname, '/drive_clone3');
   const { secretBoxKeypair: keypair3 } = Account.makeKeys();
@@ -125,7 +125,7 @@ test('Create 3rd Cloned Drive', async t => {
   drive3 = new Drive(currentDir, drivePubKey, {
     keyPair: keypair3,
     live: true,
-    watch: true,
+    watch: false,
     seed: true,
     slave: true
   });
@@ -147,7 +147,7 @@ test('Create 3rd Cloned Drive', async t => {
 
   eventEmitter.emit('add-peer', { diffKey: drive3.diffFeedKey });
 
-  drive3.on('add', async (data) => {
+  drive3.on('file-add', async (data) => {
     fileCount+=1;
 
     if(fileCount === 3) {
@@ -174,33 +174,15 @@ test('Create 3rd Cloned Drive', async t => {
         t.ok(fs.existsSync(currentDir + '/doc.txt'), 'File doct.txt exists');
         t.ok(fs.existsSync(currentDir + '/email.eml'), 'File email.eml exists');
         t.ok(fs.existsSync(currentDir + '/test.txt'), 'File test.txt exists');
+
+        await drive1.close();
+        await drive2.close();
+        await drive3.close();
       });
     }
   });
-
 });
 
-// test('Update and Sync New Files', async t => {
-//   fs.writeFileSync(__dirname + '/drive/test123.txt', 'This is a new file!');
-// });
-
-// test('Update and Sync Existing Files', async t => {
-//   fs.writeFileSync(__dirname + '/drive/test.txt', new Date())
-// });
-
-// test('Delete Files', async t => {
-//   fs.unlinkSync(__dirname + '/drive/test123.txt');
-// });
-
-// test('Delete Files', async t => {
-//   // await drive1.close();
-//   // await drive2.close();
-//   // await drive3.close();
-// });
-
 test.onFinish(async () => {
-  await drive1.close();
-  await drive2.close();
-  await drive3.close();
   process.exit(0);
 });
