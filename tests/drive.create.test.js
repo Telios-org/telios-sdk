@@ -9,7 +9,7 @@ const del = require('del');
 const { secretBoxKeypair: keyPair } = Account.makeKeys();
 
 test('Drive - Create', async t => {
-  t.plan(9);
+  t.plan(8);
 
   if(fs.existsSync(path.join(__dirname, '/drive_cloned'))) {
     await del([
@@ -22,6 +22,13 @@ test('Drive - Create', async t => {
       __dirname + '/drive_clone3'
     ]);
   }
+
+  // if(fs.existsSync(path.join(__dirname, '/drive_seed'))) {
+  //   await del([
+  //     __dirname + '/drive_seed'
+  //   ]);
+  // }
+
 
   if(fs.existsSync(path.join(__dirname, '/meta'))) {
     await del([
@@ -53,7 +60,6 @@ test('Drive - Create', async t => {
 
   await drive.ready();
 
-  const owner = await drive.db.get('owner');
   const publicKey = await drive.db.get('__publicKey');
   const textFile = await drive.db.get('test.txt');
   const textFileHash = await drive.db.get(textFile.value.hash);
@@ -68,7 +74,6 @@ test('Drive - Create', async t => {
     peerDiffKey: drive.diffFeedKey
   }));
 
-  t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
   t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
   t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
   t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
@@ -83,7 +88,7 @@ test('Drive - Create', async t => {
 
 // Connect existing local drive
 test('Drive - Connect Existing Local', async t => {
-  t.plan(9);
+  t.plan(8);
 
   const drive = new Drive(__dirname + '/drive', null, {
     keyPair,
@@ -94,7 +99,6 @@ test('Drive - Connect Existing Local', async t => {
 
   await drive.ready();
 
-  const owner = await drive.db.get('owner');
   const publicKey = await drive.db.get('__publicKey');
   const textFile = await drive.db.get('test.txt');
   const textFileHash = await drive.db.get(textFile.value.hash);
@@ -103,7 +107,6 @@ test('Drive - Connect Existing Local', async t => {
   const docFile = await drive.db.get('doc.txt');
   const docFileHash = await drive.db.get(docFile.value.hash);
 
-  t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
   t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
   t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
   t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);

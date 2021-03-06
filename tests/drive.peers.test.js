@@ -18,7 +18,7 @@ let drive1, drive2, drive3;
 
 // Connect existing local drive
 test('Drive - Reconnect Local', async t => {
-  t.plan(9);
+  t.plan(8);
 
   drive1 = new Drive(__dirname + '/drive', null, {
     keyPair,
@@ -29,7 +29,6 @@ test('Drive - Reconnect Local', async t => {
 
   await drive1.ready();
 
-  const owner = await drive1.db.get('owner');
   const publicKey = await drive1.db.get('__publicKey');
   const textFile = await drive1.db.get('test.txt');
   const textFileHash = await drive1.db.get(textFile.value.hash);
@@ -37,8 +36,7 @@ test('Drive - Reconnect Local', async t => {
   const emailHash = await drive1.db.get(email.value.hash);
   const docFile = await drive1.db.get('doc.txt');
   const docFileHash = await drive1.db.get(docFile.value.hash);
-
-  t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
+  console.log('Public Key : ', keyPair.publicKey);
   t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
   t.ok(drive1.diffFeedKey, `Drive has diffFeedKey: ${drive1.diffFeedKey}`);
   t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
@@ -54,10 +52,11 @@ test('Drive - Reconnect Local', async t => {
   })
 });
 
-test('Drive - Clone', async t => {
-  t.plan(12);
+test('Drive - Clone Seed Peer', async t => {
+  t.plan(11);
   const currentDir = path.join(__dirname, '/drive_cloned');
   const { secretBoxKeypair: keypair2 } = Account.makeKeys();
+  console.log('Public Key : ', keypair2.publicKey);
   drive2 = new Drive(currentDir, drivePubKey, {
     keyPair: keypair2,
     live: true,
@@ -89,7 +88,6 @@ test('Drive - Clone', async t => {
 
     if(fileCount === 3) {
       process.nextTick(async () => {
-        const owner = await drive2.db.get('owner');
         const publicKey = await drive2.db.get('__publicKey');
         const textFile = await drive2.db.get('test.txt');
         const textFileHash = await drive2.db.get(textFile.value.hash);
@@ -98,7 +96,6 @@ test('Drive - Clone', async t => {
         const docFile = await drive2.db.get('doc.txt');
         const docFileHash = await drive2.db.get(docFile.value.hash);
 
-        t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
         t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
         t.ok(drive2.diffFeedKey, `Drive has diffFeedKey: ${drive2.diffFeedKey}`);
         t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
@@ -117,17 +114,16 @@ test('Drive - Clone', async t => {
 
 });
 
-test('Drive - Create Second Clone', async t => {
+test('Drive - Add Device 1', async t => {
   t.plan(12);
   const currentDir = path.join(__dirname, '/drive_clone3');
   const { secretBoxKeypair: keypair3 } = Account.makeKeys();
-
+  console.log('Public Key : ', keypair3.publicKey);
   drive3 = new Drive(currentDir, drivePubKey, {
     keyPair: keypair3,
     live: true,
-    watch: false,
-    seed: true,
-    slave: true
+    watch: true,
+    seed: true
   });
   
   let fileCount = 0;
@@ -143,16 +139,14 @@ test('Drive - Create Second Clone', async t => {
     diffKey: drive2.diffFeedKey, 
     access: []
   });
-  
 
-  eventEmitter.emit('add-peer', { diffKey: drive3.diffFeedKey });
+  eventEmitter.emit('add-peer', { diffKey: drive3.diffFeedKey, access: ['write'] });
 
   drive3.on('file-add', async (data) => {
     fileCount+=1;
 
     if(fileCount === 3) {
       process.nextTick(async () => {
-        const owner = await drive3.db.get('owner');
         const publicKey = await drive3.db.get('__publicKey');
         const textFile = await drive3.db.get('test.txt');
         const textFileHash = await drive3.db.get(textFile.value.hash);
@@ -160,8 +154,7 @@ test('Drive - Create Second Clone', async t => {
         const emailHash = await drive3.db.get(email.value.hash);
         const docFile = await drive3.db.get('doc.txt');
         const docFileHash = await drive3.db.get(docFile.value.hash);
-
-        t.ok(owner.value.key, `Drive has owner with key: ${owner.value.key}`);
+        console.log(await drive3.db.get('__access'));
         t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
         t.ok(drive3.diffFeedKey, `Drive has diffFeedKey: ${drive3.diffFeedKey}`);
         t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
@@ -174,10 +167,6 @@ test('Drive - Create Second Clone', async t => {
         t.ok(fs.existsSync(currentDir + '/doc.txt'), 'File doct.txt exists');
         t.ok(fs.existsSync(currentDir + '/email.eml'), 'File email.eml exists');
         t.ok(fs.existsSync(currentDir + '/test.txt'), 'File test.txt exists');
-
-        await drive1.close();
-        await drive2.close();
-        await drive3.close();
       });
     }
   });
