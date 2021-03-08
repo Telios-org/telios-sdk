@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test tape tests/*.test.js | tap-spec",
-    "test2": "cross-env NODE_ENV=test tape tests/drive.create.test.js | tap-spec && cross-env NODE_ENV=test tape tests/drive.peers.test.js | tap-spec"
+    "test2": "cross-env NODE_ENV=test tape tests/drive.create.test.js | tap-spec && cross-env NODE_ENV=test tape tests/drive.peer.test.js | tap-spec && cross-env NODE_ENV=test tape tests/drive.transact.test.js | tap-spec"
   },
   "repository": {
     "type": "git",

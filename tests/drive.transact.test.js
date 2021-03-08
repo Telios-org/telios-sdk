@@ -36,46 +36,38 @@ const drive2 = new Drive(drive2Path, drivePubKey, {
   slave: true
 });
 
-const drive3 = new Drive(drive3Path, drivePubKey, {
-  keyPair: keyPair3,
-  live: true,
-  watch: false,
-  seed: true,
-  slave: true
-});
+// const drive3 = new Drive(drive3Path, drivePubKey, {
+//   keyPair: keyPair3,
+//   live: true,
+//   watch: false,
+//   seed: true,
+//   slave: true
+// });
 
 (async () => {
   await drive1.ready();
   await drive2.ready();
-  await drive3.ready();
+  // await drive3.ready();
 
 
   test('Drive - Add New File', async t => {
-    t.plan(2);
+    t.plan(1);
 
     fs.writeFileSync(`${drive1Path}/hello.txt`, 'Hello World!', 'utf-8');
     
     drive2.on('file-add', (filePath) => {
       t.ok(filePath, 'File added on Drive 2');
     });
-
-    drive3.on('file-add', (filePath) => {
-      t.ok(filePath, 'File added on Drive 3');
-    });
   });
 
   test('Drive - Test Remove File', async t => {
-    t.plan(2);
+    t.plan(1);
 
     del([
       path.join(drive1Path,'/hello.txt'),
     ]);
 
     drive2.on('file-unlink', (filePath) => {
-      t.ok(filePath, `Deleted ${filePath}`);
-    });
-
-    drive3.on('file-unlink', (filePath) => {
       t.ok(filePath, `Deleted ${filePath}`);
     });
 
@@ -93,8 +85,7 @@ const drive3 = new Drive(drive3Path, drivePubKey, {
   test.onFinish(async () => {
     await drive1.close();
     await drive2.close();
-    await drive3.close();
-
+    
     del([
       __dirname + '/drive_cloned',
       __dirname + '/drive_clone3',

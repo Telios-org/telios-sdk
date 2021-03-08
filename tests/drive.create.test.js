@@ -7,6 +7,11 @@ const { Drive, Account, Crypto } = require('..');
 const del = require('del');
 
 const { secretBoxKeypair: keyPair } = Account.makeKeys();
+const { secretBoxKeypair: keyPair2 } = Account.makeKeys();
+const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
+
+const drive1Path = path.join(__dirname, '/drive');
+fs.writeFileSync(`${drive1Path}/doc.txt`, 'test document', 'utf-8');
 
 test('Drive - Create', async t => {
   t.plan(8);
@@ -70,6 +75,8 @@ test('Drive - Create', async t => {
 
   fs.writeFileSync(__dirname + '/.tmp', JSON.stringify({
     keyPair,
+    keyPair2,
+    keyPair3,
     drivePubKey: drive.publicKey,
     peerDiffKey: drive.diffFeedKey
   }));
