@@ -8,19 +8,12 @@ const MemoryStream = require('memorystream');
 
 const testSetup = require('./helpers/setup');
 
-let sdk = null;
 let encMeta = null;
-let driveKey = null;
 let sealedMsg = null;
 
 const metaFilePath = path.join(__dirname, './data/enc_meta.tmp.json')
 
-const storage = {
-  Hyperdrive: null
-}
-
 const conf = testSetup.conf();
-
 
 (async () => {
   const localDrive = new Drive(path.join(__dirname, '/localDrive'), null, {
