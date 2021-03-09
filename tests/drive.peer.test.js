@@ -98,12 +98,6 @@ const {
     
     eventEmitter.emit('add-peer', { diffKey: drive2.diffFeedKey });
 
-    // eventEmitter.on('add-peer', async (peer) => {
-    //   if(peer.diffKey !== drive2.diffFeedKey) {
-    //     await drive2.addPeer(peer);
-    //   }
-    // })
-
     drive2.on('file-add', async (data) => {
       fileCount+=1;
 

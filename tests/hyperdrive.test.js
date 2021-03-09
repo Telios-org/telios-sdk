@@ -1,4 +1,3 @@
-const conf = require('./conf');
 const fs = require('fs');
 const tape = require('tape');
 const _test = require('tape-promise').default;

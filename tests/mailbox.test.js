@@ -5,8 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const { Mailbox, Drive, Account, Crypto } = require('..');
 const MemoryStream = require('memorystream');
+const stream = require('stream');
 
 const testSetup = require('./helpers/setup');
+const pump = require('pump');
 
 let encMeta = null;
 let sealedMsg = null;
@@ -55,6 +57,7 @@ const conf = testSetup.conf();
     // create writestream
     const ws = fs.createWriteStream(path.join(__dirname, '/localDrive/encrypted.email'));
     const rs = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
+
     // Encrypt file and save on drive
     const { key, header } = await mailbox._encryptStream(rs, ws, { drive: localDrive });
 
@@ -229,37 +232,24 @@ const conf = testSetup.conf();
     for(meta of mailMeta) {
       Drive.download(localDrive.discoveryKey, meta.hash, { keyPair: peerKeypair })
         .then(stream => {
-          let toSkip = 24;
-          const key = Buffer.from(meta.key, 'hex');
-          let header = Buffer.from(meta.header, 'hex');
-          let message = Buffer.from([]);
-          let state = Crypto.initStreamPullState(header, key);
-          let data = [];
+          const memStream = new MemoryStream();
+          let message = '';
 
-          stream.on('data', function (chunk) {
-            if (toSkip == 0) {
-              message = Crypto.secretStreamPull(chunk, state);
-            } else if (toSkip > chunk.length) {
-              toSkip -= chunk.length;
-            } else {
-              if (toSkip !== chunk.length) {
-                message = Crypto.secretStreamPull(chunk.slice(toSkip), state);
-              }
-              
-              toSkip = 0;
-            }
+          const transform = Drive.decryptStream(stream, { key: meta.key, header: meta.header, start: 24});
+
+          pump(stream, transform, memStream, (err) => {
+            if(err) return t.error(err);
           });
-        
-          stream.on('end', async () => {
+
+          memStream.on('data', chunk => {
+            message += chunk.toString('utf-8');
+          })
+
+          memStream.on('end', () => {
             const msg = message.toString('utf8');
             const email = JSON.parse(msg);
-
-            t.ok(email.subject, 'Email has subject');
-          });
-
-          stream.on('error', async (err) => {
-            console.log(err);
-          });
+            t.ok(email.subject, `Email has subject: ${email.subject}`);
+          })
         });
     }
 
@@ -267,9 +257,6 @@ const conf = testSetup.conf();
   });
 
   test.onFinish(async () => {
-    // Clean up session
-    // await storage.Hyperdrive.drive.destroyStorage();
-    // await sdk.close();
     fs.unlinkSync(metaFilePath);
     await localDrive.close();
     process.exit(0);
