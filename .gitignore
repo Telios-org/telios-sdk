@@ -104,7 +104,7 @@ dist
 # TernJS port file
 .tern-port
 
-# Hyperdrives and Hypercores
+# Drives
 drive/
 core/
 tests/storage
