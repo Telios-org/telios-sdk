@@ -1,25 +1,16 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Account, Hypercore } = require('..');
-const conf = require('./conf');
-const SDK = require('dat-sdk');
+const { Account } = require('..');
+const testSetup = require('./helpers/setup');
+const p2plex = require('p2plex');
+//const conf = require('./conf');
+//const SDK = require('dat-sdk');
 
-let acctCore = null;
-
-test('Account - Test Setup', async t => {
-  let sdk = await SDK({ storage: __dirname + '/storage' });
-
-  let opts = {
-    name: 'Alice',
-    sdk: sdk,
-    coreOpts: {
-      persist: false
-    }
-  };
-
-  acctCore = new Hypercore(opts);
-  await acctCore.connect();
+test('Test Setup', async t => {
+  t.plan(1);
+  await testSetup.init();
+  t.ok(1);
 });
 
 test('Account - Make Keypairs', async t => {
@@ -32,13 +23,14 @@ test('Account - Make Keypairs', async t => {
   t.ok(signingKeypair.privateKey, `Signing private key: ${signingKeypair.privateKey}`);
   t.ok(signingKeypair.publicKey, `Signing public key: ${signingKeypair.publicKey}`);
 
-  t.ok(peerKeypair.privateKey, `Peer secret key: ${peerKeypair.privateKey}`);
+  t.ok(peerKeypair.secretKey, `Peer secret key: ${peerKeypair.secretKey}`);
   t.ok(peerKeypair.publicKey, `Peer public key: ${peerKeypair.publicKey}`);
 });
 
 test('Account - Init', async t => {
   t.plan(2);
 
+  const conf = testSetup.conf();
   try {
     const opts = {
       account: {
@@ -62,6 +54,8 @@ test('Account - Init', async t => {
 
 test('Account - Register', async t => {
   t.plan(1)
+
+  const conf = testSetup.conf();
   const account = new Account({
     provider: 'https://apiv1.telios.io'
   });
@@ -84,6 +78,7 @@ test('Account - Register', async t => {
 test('Account - Create auth token', async t => {
   t.plan(1);
 
+  const conf = testSetup.conf();
   const claims = {
     device_signing_key: conf.ALICE_SIG_PUB_KEY,
     sbpkey: conf.ALICE_SB_PUB_KEY,
@@ -97,9 +92,32 @@ test('Account - Create auth token', async t => {
   t.ok(payload, 'Account has authorization payload');
 });
 
-test.onFinish(async () => {
-  await storage.Hyperdrive.drive.destroyStorage();
-  await storage.Hypercore.feed.destroyStorage();
+test('Account - Join Swarm', async t => {
+  t.plan(2);
 
+  const conf = testSetup.conf();
+  const account = new Account({
+    provider: 'https://apiv1.telios.io',
+    peerKeypair: {
+      publicKey: conf.ALICE_PEER_PUB_KEY,
+      secretKey: conf.ALICE_PEER_SECRET_KEY
+    }
+  });
+
+  account.on('mail-received', data => {
+    t.ok(data.peerPubKey, `Peer public key: ${data.peerPubKey}`);
+    t.ok(data.msg, `Mail message: ${data.msg}`);
+  });
+
+  const plex = p2plex();
+
+  plex.join(Buffer.from(conf.ALICE_PEER_PUB_KEY, 'hex'), { announce: false, lookup: true });
+
+  plex.on('connection', (peer) => {
+    peer.createStream('new-mail').end(JSON.stringify({ msg: "encrypted meta message" }))
+  })
+});
+
+test.onFinish(async () => {
   process.exit(0);
 });

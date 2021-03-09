@@ -41,7 +41,7 @@ const {
   const drive2 = new Drive(drive2Path, drivePubKey, {
     keyPair: keyPair2,
     live: true,
-    watch: true,
+    watch: false,
     seed: true,
     slave: true
   });

@@ -16,7 +16,6 @@ const {
 
 const drive1Path = path.join(__dirname, '/drive');
 const drive2Path = path.join(__dirname, '/drive_cloned');
-const drive3Path = path.join(__dirname, '/drive_clone3');
 
 const { secretBoxKeypair: keyPair2 } = Account.makeKeys();
 const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
@@ -47,44 +46,34 @@ const drive2 = new Drive(drive2Path, drivePubKey, {
 (async () => {
   await drive1.ready();
   await drive2.ready();
-  // await drive3.ready();
 
 
-  test('Drive - Add New File', async t => {
+  test('Drive - Download File', async t => {
     t.plan(1);
+    const file = await drive1.db.get('email.eml');
+    const sourceFile = fs.readFileSync(path.join(__dirname, '/drive/email.eml'), 'utf-8');
+    const stream = await Drive.download(drive1.discoveryKey, file.value.hash, { keyPair: keyPair3 });
+    let fileData = '';
 
-    fs.writeFileSync(`${drive1Path}/hello.txt`, 'Hello World!', 'utf-8');
-    
-    drive2.on('file-add', (filePath) => {
-      t.ok(filePath, 'File added on Drive 2');
-    });
-  });
-
-  test('Drive - Test Remove File', async t => {
-    t.plan(1);
-
-    del([
-      path.join(drive1Path,'/hello.txt'),
-    ]);
-
-    drive2.on('file-unlink', (filePath) => {
-      t.ok(filePath, `Deleted ${filePath}`);
+    stream.on('data', chunk => {
+      fileData += chunk.toString('utf-8');
     });
 
-  });
-
-  test('Drive - Test Rename File', async t => {
-    t.end();
-  });
-
-  test('Drive - Get Stats', async t => {
-    console.log(drive1.size());
-    t.end();
+    stream.on('end', () => {
+      t.equals(fileData, sourceFile, 'Local file matches remote');
+    });
   });
 
   test.onFinish(async () => {
     await drive1.close();
     await drive2.close();
+    
+    // del([
+    //   __dirname + '/drive_cloned',
+    //   __dirname + '/meta',
+    //   __dirname + '/.tmp',
+    //   __dirname + '/drive/.drive'
+    // ]);
 
     process.exit(0);
   });

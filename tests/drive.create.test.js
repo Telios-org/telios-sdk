@@ -28,13 +28,6 @@ test('Drive - Create', async t => {
     ]);
   }
 
-  // if(fs.existsSync(path.join(__dirname, '/drive_seed'))) {
-  //   await del([
-  //     __dirname + '/drive_seed'
-  //   ]);
-  // }
-
-
   if(fs.existsSync(path.join(__dirname, '/meta'))) {
     await del([
       __dirname + '/meta'

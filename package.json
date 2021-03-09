@@ -4,8 +4,8 @@
   "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test tape tests/*.test.js | tap-spec",
-    "test2": "cross-env NODE_ENV=test tape tests/drive.create.test.js | tap-spec && cross-env NODE_ENV=test tape tests/drive.peer.test.js | tap-spec && cross-env NODE_ENV=test tape tests/drive.transact.test.js | tap-spec"
+    "test": "cross-env NODE_ENV=test_sdk tape tests/account.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/mailbox.test.js | tap-spec",
+    "test2": "cross-env NODE_ENV=test_sdk tape tests/drive.create.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.peer.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.transact.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.client.test.js | tap-spec"
   },
   "repository": {
     "type": "git",
