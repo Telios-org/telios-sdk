@@ -4,8 +4,6 @@ const test = _test(tape);
 const { Account } = require('..');
 const testSetup = require('./helpers/setup');
 const p2plex = require('p2plex');
-//const conf = require('./conf');
-//const SDK = require('dat-sdk');
 
 test('Test Setup', async t => {
   t.plan(1);
