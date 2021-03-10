@@ -82,7 +82,7 @@ async function initVars() {
   testVars.ALICE_SIG_PRIV_KEY = aliceKeys.signingKeypair.privateKey;
   testVars.ALICE_PEER_PUB_KEY = aliceKeys.peerKeypair.publicKey;
   testVars.ALICE_PEER_SECRET_KEY = aliceKeys.peerKeypair.secretKey;
-  testVars.ALICE_DEVICE_1_ID = '3410ce90-8e8d-4985-827a-2a9b65931b69';
+  testVars.ALICE_DEVICE_1_ID = '00000000-0000-0000-0000-000000000000';
 
   const opts = {
     account: {
