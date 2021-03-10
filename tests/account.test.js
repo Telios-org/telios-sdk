@@ -33,7 +33,7 @@ test('Account - Init', async t => {
     const opts = {
       account: {
         device_signing_key: conf.ALICE_SIG_PUB_KEY,
-        sbpkey: conf.ALICE_SB_PUB_KEY,
+        account_key: conf.ALICE_SB_PUB_KEY,
         peer_key: conf.ALICE_PEER_PUB_KEY,
         recovery_email: conf.ALICE_RECOVERY,
       }
@@ -54,13 +54,11 @@ test('Account - Register', async t => {
   t.plan(1)
 
   const conf = testSetup.conf();
-  const account = new Account({
-    provider: 'https://apiv1.telios.io'
-  });
+  const account = new Account('https://apiv1.telios.io');
   const payload = {
     account: {
       device_signing_key: conf.ALICE_SIG_PUB_KEY,
-      sbpkey: conf.ALICE_SB_PUB_KEY,
+      account_key: conf.ALICE_SB_PUB_KEY,
       peer_key: conf.ALICE_PEER_PUB_KEY,
       recovery_email: conf.ALICE_RECOVERY,
       device_id: conf.ALICE_DEVICE_1_ID,
@@ -79,7 +77,7 @@ test('Account - Create auth token', async t => {
   const conf = testSetup.conf();
   const claims = {
     device_signing_key: conf.ALICE_SIG_PUB_KEY,
-    sbpkey: conf.ALICE_SB_PUB_KEY,
+    account_key: conf.ALICE_SB_PUB_KEY,
     peer_key: conf.ALICE_PEER_PUB_KEY,
     device_id: conf.ALICE_DEVICE_1_ID,
     sig: conf.ALICE_ACCOUNT_SERVER_SIG
@@ -94,12 +92,9 @@ test('Account - Join Swarm', async t => {
   t.plan(2);
 
   const conf = testSetup.conf();
-  const account = new Account({
-    provider: 'https://apiv1.telios.io',
-    peerKeypair: {
-      publicKey: conf.ALICE_PEER_PUB_KEY,
-      secretKey: conf.ALICE_PEER_SECRET_KEY
-    }
+  const account = new Account('https://apiv1.telios.io', {
+    publicKey: conf.ALICE_PEER_PUB_KEY,
+    secretKey: conf.ALICE_PEER_SECRET_KEY
   });
 
   account.on('mail-received', data => {

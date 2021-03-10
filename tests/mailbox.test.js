@@ -39,7 +39,7 @@ const conf = testSetup.conf();
       auth: {
         claims: {
           device_signing_key: conf.ALICE_SIG_PUB_KEY,
-          sbpkey: conf.ALICE_SB_PUB_KEY,
+          account_key: conf.ALICE_SB_PUB_KEY,
           peer_key: conf.ALICE_PEER_PUB_KEY,
           device_id: conf.ALICE_DEVICE_1_ID
         },
@@ -87,7 +87,7 @@ const conf = testSetup.conf();
 
     const mailbox = await initMailbox();
     const privKey = conf.BOB_SB_PRIV_KEY;
-    const sbpkey = conf.ALICE_SB_PUB_KEY;
+    const accountKey = conf.ALICE_SB_PUB_KEY;
 
 
     const meta = {
@@ -97,7 +97,7 @@ const conf = testSetup.conf();
       "hash": 'test-hash'
     };
 
-    encMeta = mailbox._encryptMeta(meta, sbpkey, privKey);
+    encMeta = mailbox._encryptMeta(meta, accountKey, privKey);
 
     t.ok(encMeta, `Encrypted mail metadata => ${encMeta}`);
   });
@@ -119,7 +119,7 @@ const conf = testSetup.conf();
     
     const mailbox = await initMailbox();
     const payload = {
-      sbpkey: 'sbpkey-test',
+      account_key: 'account-key-test',
       name: 'Alice Tester',
       addr: 'test@telios.io'
     };
@@ -189,7 +189,7 @@ const conf = testSetup.conf();
     const encMsg = mailbox._sealMeta(encryptedMeta, conf.BOB_SB_PUB_KEY, conf.ALICE_SB_PUB_KEY);
 
     const encMeta = [{
-      sbpkey: conf.ALICE_SB_PUB_KEY,
+      account_key: conf.ALICE_SB_PUB_KEY,
       msg: encMsg.toString('hex'),
       _id: '5f1210b7a29fe6222f199f80'
     }];
@@ -208,11 +208,11 @@ const conf = testSetup.conf();
     
     const payload = [
       {
-        sbpkey: 'sbpkey-test1',
+        account_key: 'account-key-test1',
         msg: 'encrypted message'
       },
       {
-        sbpkey: 'sbpkey-test2',
+        account_key: 'account-key-test2',
         msg: 'encrypted message'
       }
     ];

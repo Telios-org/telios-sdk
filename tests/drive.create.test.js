@@ -55,11 +55,7 @@ const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
       ]);
     }
 
-    const drive = new Drive(__dirname + '/drive', null, {
-      keyPair,
-      live: true,
-      watch: true
-    });
+    const drive = new Drive(__dirname + '/drive', null, { keyPair });
 
     await drive.ready();
 

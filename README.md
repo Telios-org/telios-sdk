@@ -5,7 +5,7 @@
 
 ### ⚠️ This is an experimental package that is not yet intended for production use. Use at your own risk ⚠️
 
-This package provides components for building an email client using the Telios Network. Telios is an offline-capabale e2e encrypted email service built on [hypercore-protocol](https://hypercore-protocol.org/) for sending and receiving emails.
+This package provides components for building an email client using the [Telios Network](https://www.telios.io). Telios is an offline-capabale e2e encrypted email service built on [hypercore-protocol](https://hypercore-protocol.org/) for sending and receiving emails.
 
 ## What does this SDK do?
 
@@ -21,71 +21,67 @@ npm i @telios/telios-sdk
 ## Usage
 
 ``` js
-const { Account, Mailbox } = require('@telios/telios-sdk');
+const { Account, Mailbox } = require('@telios/telios-sdk')
 
 const acct = new Account({
   provider: 'https://apiv1.telios.io'
 });
 
-const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
+const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()
 
 const opts = {
   account: {
     device_signing_key: signingKeypair.publicKey,
-    sbpkey: secretBoxKeypair.publicKey,
-    discovery_key: core.key.toString('utf8'), // a hypercore public key
+    account_key: secretBoxKeypair.publicKey,
+    peer_key: peerKeypair.publicKey,
     recovery_email: recoveryEmail
   }
 };
 
-const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
+const { account, sig } = await Account.init(opts, signingKeypair.privateKey)
 
-const res = await acct.register({ account, sig });
+const res = await acct.register({ account, sig })
 ```
 
-## Account
+## API/Examples
+
+### `const account = new Account(provider)`
 The Account object handles communication with the Telios server and provides methods for creating request payloads.
 
-### Create Keypairs
-Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
+- `provider`: URL of the API provider
 
-``` js
-const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
+### `const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()`
+Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client and from other users. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
 
-const secret_box_pub_key = secretBoxKeypair.publicKey;
-const secret_box_priv_key = secretBoxKeypair.privateKey;
+#### returns
+- `secretBoxKeypair`: Public/private keys for the account
+- `signingKeypair`: Public/private signing keys for the account
+- `peerKeypair`: Public/private keys for connecting with other peers
 
-const signing_pub_key = signingKeypair.publicKey;
-const signing_priv_key = signingKeypair.privateKey;
-
-const peer_pub_key = peerKeypair.publicKey;
-const peer_priv_key = peerKeypair.privateKey;
-```
-
-### Register a New Account
+#### `const { account, sig } = await account.register(account, sig)`
 
 ```js
-const { Account, Mailbox } = require('@telios/telios-sdk');
-const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys();
+const { Account, Mailbox } = require('@telios/telios-sdk')
+const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()
 
 const account = new Account({
   provider: 'https://apiv1.telios.io'
-});
+})
 
 const opts = {
   account: {
     device_signing_key: signingKeypair.publicKey,
-    sbpkey: secretBoxKeypair.publicKey,
-    discovery_key: core.key.toString('utf8'), // a hypercore public key
+    account_key: secretBoxKeypair.publicKey,
+    peer_key: peerKeypair.publicKey,
     recovery_email: recoveryEmail
   }
-};
+}
 
-const { account, sig } = await Account.init(opts, signingKeypair.privateKey);
+const { account, sig } = await Account.init(opts, signingKeypair.privateKey)
 
 // Send the account object that was just signed to be stored and verified
 // on the server for later authentication.
-const res = await account.register({ account, sig });
+const res = await account.register(account, sig)
 ```
 
 #### Example response:
@@ -97,6 +93,50 @@ const res = await account.register({ account, sig });
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This replaces the need for requiring a username and password for authentication.
 
+## Drives
+Create a drive to be shared over the network which can be replicated and seeded by other peers.
+
+```js
+// Create a new local drive. If any files exist in this drive
+// they will automatically be added over the network
+const localDrive = new Drive(__dirname + '/drive', null, { keyPair })
+
+await localDrive.ready()
+
+const drivePubKey = localDrive.publicKey
+
+// Clone a remote drive
+const remoteDrive = new Drive(__dirname + '/drive_remote', drivePubKey, { keyPair })
+
+await remoteDrive.ready()
+```
+
+
+#### `const drive = new Drive(storagePath, [key], [options])`
+
+
+
+- `storagePath`: The directory where you want the drive to be created.
+- `key`: The public key of the remote drive you want to clone
+
+`options`: include:
+
+```js
+{
+  keyPair: { publicKey, secretKey }, // Peer keypair
+  ignore: /(^|[\/\\])\../, // File pattern to ignore in drivePath
+  seed: true|false, // Default true. Announce this drive and serve it's contents to requesting peers
+  watch: true|false, // Default true. Watch for local changes and notify connected peers.
+                     // Set this to false for drives that only intend to seed and not write.
+}
+```
+
+#### `drive.ready()`
+#### `drive.addPeer()`
+#### `drive.removePeer()`
+
+
+
 ## Mailbox
 The Mailbox object provides functionality needed for processing encrypted emails.
 
@@ -107,22 +147,22 @@ const mailbox = new Mailbox({
   provider: 'https://apiv1.telios.io',
   auth: {
     claims: {
-      device_signing_key: '[device_signing_key]',
-      sbpkey: '[sbpkey]',
-      discovery_key: '[discovery_key]', // a hypercore public key
+      device_signing_key: '[device_signing_public_key]',
+      account_key: '[account_public_key]',
+      peer_key: '[peer_public_key]',
       device_id: '[device_id]'
     },
     device_signing_priv_key: '[device_signing_priv_key]',
     sig: '[sig]'
   }
-});
+})
 
 const payload = {
-  sbpkey: '[secret_box_public_key]',
+  account_key: '[account_public_key]',
   addr: 'test@telios.io'
-};
+}
 
-const res = await mailbox.registerMailbox(payload);
+const res = await mailbox.registerMailbox(payload)
 ```
 
 #### Example response:
@@ -133,7 +173,7 @@ const res = await mailbox.registerMailbox(payload);
 }
 ```
 
-### Register a New Alias
+<!-- ### Register a New Alias
 `registerAlias` only requires the full alias address passed in as a string. All mail sent to this address will automatically forward to the main mailbox.
 
 ``` js
@@ -142,8 +182,8 @@ const mailbox = new Mailbox({
   auth: {
     device_signing_key: '[device_signing_key]',
     device_signing_priv_key: '[device_signing_priv_key]',
-    sbpkey: '[sbpkey]',
-    discovery_key: '[discovery_key]', // a hypercore public key
+    account_key: '[account_key]',
+    peer_key: '[peer_key]', // a hypercore public key
     device_id: '[device_id]',
     sig: '[sig]'
   }
@@ -158,9 +198,9 @@ const res = await mailbox.registerAlias('alice-netflix@telios.io');
 {
   "registered": true
 }
-```
+``` -->
 
-### Remove an Alias
+<!-- ### Remove an Alias
 
 ``` js
 const res = await mailbox.removeAlias('alice-netflix@telios.io');
@@ -172,13 +212,13 @@ const res = await mailbox.removeAlias('alice-netflix@telios.io');
 {
   "removed": true
 }
-```
+``` -->
 
 ### Retrieve Mailbox Public Keys
-A recipient's public key is required for sending encrypted emails within the Telios network. `getMailboxPubKeys` takes an array of recipient addresses and returns their corresponding public keys to be used for encrypting data sent to them.
+A recipient's account's public key is required for sending encrypted emails within the Telios network. `getMailboxPubKeys` takes an array of recipient's addresses and returns their corresponding public key.
 
 ``` js
-const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io']);
+const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io'])
 ```
 
 #### Example response:
@@ -187,11 +227,11 @@ const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.i
 [
   {
     address: 'alice@telios.io',
-    sbpkey: '[secret_box_public_key]'
+    account_key: '[account_public_key]'
   },
   {
     address: 'tester@telios.io',
-    sbpkey: '[secret_box_public_key]'
+    account_key: '[account_public_key]'
   }
 ]
 ```
@@ -199,8 +239,7 @@ const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.i
 ### Sending Emails
 
 When sending an email to multiple recipients, the recipient's email domain is checked
-for whether or not their inbox is telios.io or a provider that's using the same encryption
-protocol. In this case the email is encrypted, stored on the local drive, and an encrypted message
+if it matches telios.io. In this case the email is encrypted, stored on the local drive, and an encrypted message
 is sent that only the recipient can decipher. The deciphered metadata gives the recipient instructions
 how to to retrieve and decipher thier encrypted email.
 
@@ -248,12 +287,12 @@ const email = {
 
 const res = await mailbox.send(email, {
   // The sender's private key (Bob). Private key is only used during encryption and never sent or stored.
-  privKey: '[bob_secret_box_private_key]',
+  privKey: '[bob_account_private_key]',
 
   // The sender's public key (Bob). Public key is used for authenticity of sender
-  pubKey: '[bob_secret_box_public_key]',
+  pubKey: '[bob_account_public_key]',
 
-  // A Hyperdrive object.
+  // A Drive.
   drive: '[drive]',
 
   // This is the directory where the local drive stores it's encrypted emails. 
@@ -262,17 +301,17 @@ const res = await mailbox.send(email, {
   // added privacy. When the other recipients decode their metadata sent 
   // to them via Bob, they will use this drive/path to retrieve their email.
   drivePath: '/3ff78ec3-2964-44c5-97fe-13875f97c040.json'
-});
+})
 
 ```
 
 ### Retrieve New Emails
 
 ``` js
-const sbpkey = '[client_secretbox_private_key]';
-const privKey = '[client_secretbox_public_key]';
+const acctPubKey = '[account_public_key]'
+const acctPrivKey = '[account_private_key]'
 
-const mail = await mailbox.getNewMail(privKey, sbpkey);
+const mail = await mailbox.getNewMail(acctPrivKey, acctPubKey)
 ```
 
 #### Example response:
@@ -327,5 +366,5 @@ const mail = await mailbox.getNewMail(privKey, sbpkey);
 /**
  * Pass in an array of message IDs to be marked as read
  */
-const res = await mailbox.markAsSynced(["5f1210b7a29fe6222f199f80"]);
+const res = await mailbox.markAsSynced(["5f1210b7a29fe6222f199f80"])
 ```
