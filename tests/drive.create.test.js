@@ -92,7 +92,7 @@ const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
   //   const drive = new Drive(__dirname + '/drive', null, {
   //     keyPair,
   //     live: true,
-  //     watch: true,
+  //     writable: true,
   //     seed: true
   //   });
 

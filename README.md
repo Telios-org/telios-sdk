@@ -116,8 +116,7 @@ Options include:
   keyPair: { publicKey, secretKey }, // Peer keypair
   ignore: /(^|[\/\\])\../, // File pattern to ignore in drivePath
   seed: true|false, // Default true. Announce this drive and serve it's contents to requesting peers
-  watch: true|false, // Default true. Watch for local changes and notify connected peers.
-                     // Set this to false for drives that only intend to seed and not write.
+  writable: true|false, // Default true. Set to false for drives that only intend to seed and not write.
 }
 ```
 

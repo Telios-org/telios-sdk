@@ -35,13 +35,13 @@ const {
 
   const drive2 = new Drive(drive2Path, drivePubKey, {
     keyPair: keyPair2,
-    watch: false
+    writable: false
   });
 
   // const drive3 = new Drive(drive3Path, drivePubKey, {
   //   keyPair: keyPair3,
   //   live: true,
-  //   watch: false,
+  //   writable: false,
   //   seed: true
   // });
 

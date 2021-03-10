@@ -119,9 +119,7 @@ async function initDrives() {
 
   const drive1 = new Drive(path.join(__dirname, '../drive1'), null, {
     keyPair,
-    live: true,
-    watch: true,
-    seed: true
+    writable: true
   });
 
   await drive1.ready();
@@ -129,9 +127,7 @@ async function initDrives() {
 
   const drive2 = new Drive(path.join(__dirname, '../drive2'), drive1.publicKey, {
     keyPair: keyPair2,
-    live: true,
-    watch: true,
-    seed: true
+    writable: true,
   });
 
   

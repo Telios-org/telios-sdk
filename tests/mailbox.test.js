@@ -23,9 +23,7 @@ const conf = testSetup.conf();
       publicKey: conf.ALICE_SB_PUB_KEY,
       privateKey: conf.ALICE_SB_PRIV_KEY
     },
-    live: true,
-    watch: true,
-    seed: true
+    writable: true
   });
 
   await localDrive.ready();

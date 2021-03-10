@@ -23,12 +23,12 @@ const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
 
 const drive1 = new Drive(drive1Path, null, { keyPair });
 
-const drive2 = new Drive(drive2Path, drivePubKey, { keyPair: keyPair2, watch: false });
+const drive2 = new Drive(drive2Path, drivePubKey, { keyPair: keyPair2, writable: false });
 
 // const drive3 = new Drive(drive3Path, drivePubKey, {
 //   keyPair: keyPair3,
 //   live: true,
-//   watch: false,
+//   writable: false,
 //   seed: true
 // });
 
