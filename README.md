@@ -142,6 +142,21 @@ await remoteDrive.ready()
 
 #### `drive.removePeer()`
 
+#### `drive.size()`
+
+#### `drive.close()`
+
+#### `drive.on('file-local-add', (fileName, filePath, hash) => {})`
+
+#### `drive.on('file-remote-add', (fileName, filePath, hash) => {})`
+
+#### `drive.on('file-remote-update', (fileName, filePath, hash) => {})`
+
+#### `drive.on('file-unlink', (fileName, filePath, hash) => {})`
+
+
+
+### `const stream = await Drive.download(discoveryKey, fileHash, { keyPair });`
 
 ### `const mailbox = new Mailbox(provider, auth)`
 The Mailbox class provides functionality needed for processing encrypted emails.
