@@ -134,8 +134,8 @@ async function initDrives() {
   await drive2.ready();
   //console.log('Drive2 PubKey ', drive2.keyPair.publicKey);
 
-  await drive2.addPeer({ diffKey: drive1.diffFeedKey, access: ['write'] });
-  await drive1.addPeer({ diffKey: drive2.diffFeedKey });
+  await drive2.addPeer(drive1.diffFeedKey, ['write']);
+  await drive1.addPeer(drive2.diffFeedKey);
   
   fs.writeFileSync(path.join(__dirname, '../drive1/doc.txt'), 'test document');
   fs.writeFileSync(path.join(__dirname, '../drive1/email.email'), 'test email');

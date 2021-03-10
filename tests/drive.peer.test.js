@@ -69,8 +69,8 @@ const {
     t.ok(docFile.value.hash, `File doc.txt has hash: ${docFile.value.hash}`);
     t.ok(docFileHash.value.size, `File doc.txt has size: ${docFileHash.value.size}`);
 
-    eventEmitter.on('add-peer', async (peer) => {
-      await drive1.addPeer(peer);
+    eventEmitter.on('add-peer', async (diffFeedKey) => {
+      await drive1.addPeer(diffFeedKey);
       console.log('Added Peer')
     });
   });
@@ -83,12 +83,9 @@ const {
     let fileCount = 0;
     
     //add drive1 as a peer to start replication
-    await drive2.addPeer({ 
-      diffKey: peerDiffKey, 
-      access: ['write'] 
-    });
+    await drive2.addPeer(peerDiffKey, ['write']);
     
-    eventEmitter.emit('add-peer', { diffKey: drive2.diffFeedKey });
+    eventEmitter.emit('add-peer', drive2.diffFeedKey);
 
     drive2.on('file-add', async (data) => {
       fileCount+=1;

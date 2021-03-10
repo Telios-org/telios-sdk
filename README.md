@@ -136,24 +136,44 @@ await remoteDrive.ready()
 ```
 
 #### `await drive.ready()`
+Initialize the drive and all resources needed.
 
-#### `await drive.addPeer()`
+#### `await drive.addPeer(diffKey, [access])`
+Add a peer to a drive.
+- `diffKey`: The diffKey of the peer's drive `drive.diffFeedKey`
+- `access`: An array of strings claiming what access this peer will have on this drive. Currently `write` is the only available option.
 
-#### `await drive.removePeer()`
+Example usage:
+```js
+//add drive1 as a peer to start replication
+await drive.addPeer(peerDiffKey, ['write']);
+```
+
+#### `await drive.removePeer(diffKey)`
+Remove a peer from a drive.
+
+- `diffKey`: The diffKey of the peer's drive `drive.diffFeedKey`.
 
 #### `drive.size()`
+Returns the size of the drive in bytes.
 
 #### `await drive.close()`
+Fully close the drive and all of it's resources.
 
 #### `drive.on('file-add', (fileName, filePath, hash, source) => {})`
+Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
 
 #### `drive.on('file-update', (fileName, filePath, hash, source) => {})`
+Emitted when a file has been updated on the drive.The `source` value will return if the event came from the local or remote drive.
 
 #### `drive.on('file-unlink', (fileName, filePath, hash, source) => {})`
+Emitted when a file has been deleted on the drive. The `source` value will return if the event came from the local or remote drive.
 
-
-
-### `const stream = await Drive.download(discoveryKey, fileHash, { keyPair });`
+### `const stream = await Drive.download(discoveryKey, fileHash, [keyPair]);`
+Connects to a drive and requests a file to download. This returns a stream that can be piped to the local file system.
+- `discoveryKey`: Public key client peers will use when requesting resources from the drive. This key is a hash of the drive's public key.
+- `fileHash`: Hash of the file being requested.
+- `keyPair`: Public private peer keypair. Required if the drive is using auth and only allows certain peers to connect and request files.
 
 ### `const mailbox = new Mailbox(provider, auth)`
 The Mailbox class provides functionality needed for processing encrypted emails.
@@ -166,7 +186,7 @@ The Mailbox class provides functionality needed for processing encrypted emails.
     - `peer_key`:
     - `device_id`:
   - `device_signing_priv_key`:
-  - `sig`:
+  - `sig`: Signature sent from the Telios server when this account was registered.
 
 Example Usage:
 ``` js
