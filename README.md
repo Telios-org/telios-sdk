@@ -145,13 +145,11 @@ await remoteDrive.ready()
 
 #### `await drive.close()`
 
-#### `drive.on('file-local-add', (fileName, filePath, hash) => {})`
+#### `drive.on('file-add', (fileName, filePath, hash, source) => {})`
 
-#### `drive.on('file-remote-add', (fileName, filePath, hash) => {})`
+#### `drive.on('file-update', (fileName, filePath, hash, source) => {})`
 
-#### `drive.on('file-remote-update', (fileName, filePath, hash) => {})`
-
-#### `drive.on('file-unlink', (fileName, filePath, hash) => {})`
+#### `drive.on('file-unlink', (fileName, filePath, hash, source) => {})`
 
 
 
