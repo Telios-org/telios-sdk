@@ -21,27 +21,15 @@ const drive3Path = path.join(__dirname, '/drive_clone3');
 const { secretBoxKeypair: keyPair2 } = Account.makeKeys();
 const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
 
-const drive1 = new Drive(drive1Path, null, {
-  keyPair,
-  live: true,
-  watch: true,
-  seed: true
-});
+const drive1 = new Drive(drive1Path, null, { keyPair });
 
-const drive2 = new Drive(drive2Path, drivePubKey, {
-  keyPair: keyPair2,
-  live: true,
-  watch: false,
-  seed: true,
-  slave: true
-});
+const drive2 = new Drive(drive2Path, drivePubKey, { keyPair: keyPair2, watch: false });
 
 // const drive3 = new Drive(drive3Path, drivePubKey, {
 //   keyPair: keyPair3,
 //   live: true,
 //   watch: false,
-//   seed: true,
-//   slave: true
+//   seed: true
 // });
 
 (async () => {
