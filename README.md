@@ -136,15 +136,15 @@ const remoteDrive = new Drive(__dirname + '/drive_remote', drivePubKey, { keyPai
 await remoteDrive.ready()
 ```
 
-#### `drive.ready()`
+#### `await drive.ready()`
 
-#### `drive.addPeer()`
+#### `await drive.addPeer()`
 
-#### `drive.removePeer()`
+#### `await drive.removePeer()`
 
 #### `drive.size()`
 
-#### `drive.close()`
+#### `await drive.close()`
 
 #### `drive.on('file-local-add', (fileName, filePath, hash) => {})`
 
