@@ -70,6 +70,7 @@ Prepares an account registration payload
 
 #### `await account.register(account, sig)`
 
+Example usage:
 ```js
 const { Account, Mailbox } = require('@telios/telios-sdk')
 const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()
@@ -94,7 +95,7 @@ const { account, sig } = await Account.init(signingKeypair.privateKey, accountPa
 const res = await account.register(account, sig)
 ```
 
-#### Example response:
+Example response:
 ```js
 {
   // signature from server to be used for authentication
@@ -109,8 +110,7 @@ Create a drive to be shared over the network which can be replicated and seeded 
 - `storagePath`: The directory where you want the drive to be created.
 - `key`: The public key of the remote drive you want to clone
 
-#### Options include:
-
+Options include:
 ```js
 {
   keyPair: { publicKey, secretKey }, // Peer keypair
@@ -156,6 +156,7 @@ The Mailbox class provides functionality needed for processing encrypted emails.
   - `device_signing_priv_key`:
   - `sig`:
 
+Example Usage:
 ``` js
 const mailbox = new Mailbox({
   provider: 'https://apiv1.telios.io',
@@ -179,8 +180,7 @@ const payload = {
 const res = await mailbox.registerMailbox(payload)
 ```
 
-#### Example response:
-
+Example response:
 ```js
 {
   "registered": true
@@ -192,12 +192,12 @@ A recipient's account's public key is required for sending encrypted emails with
 
 - `addresses`: An array of email addresses
 
+Example usage:
 ``` js
 const res = await mailbox.getMailboxPubKeys(['alice@telios.io', 'tester@telios.io'])
 ```
 
-#### Example response:
-
+Example response:
 ```js
 [
   {
@@ -229,7 +229,6 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 - `drivePath`: The directory where the local drive stores it's encrypted emails.
 
 Email JSON should be in the following format:
-
 ```js
 {
   "subject": "Hello Bob",
@@ -266,6 +265,7 @@ Email JSON should be in the following format:
 }
 ```
 
+Example usage:
 ``` js
 // In this example Bob is sending an ecrypted email to two other Telios mailboxes.
 const res = await mailbox.send(email, {
@@ -293,6 +293,7 @@ const res = await mailbox.send(email, {
 - `acctPrivKey`: Your account's private key
 - `acctPubKey`: Your account's public key
 
+Example usage:
 ``` js
 const acctPubKey = '[account_public_key]'
 const acctPrivKey = '[account_private_key]'
@@ -300,8 +301,7 @@ const acctPrivKey = '[account_private_key]'
 const mail = await mailbox.getNewMail(acctPrivKey, acctPubKey)
 ```
 
-#### Example response:
-
+Example response:
 ```js
 [
   {
@@ -350,6 +350,7 @@ const mail = await mailbox.getNewMail(acctPrivKey, acctPubKey)
 
 - `ids`: an array of meta message ids on the server
 
+Example usage:
 ``` js
 /**
  * Pass in an array of message IDs to be marked as read
