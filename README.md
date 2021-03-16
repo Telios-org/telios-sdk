@@ -38,9 +38,11 @@ const opts = {
   }
 };
 
+const vcode = '1111' // Verification code sent to recovery email
+
 const { account, sig } = await Account.init(opts, signingKeypair.privateKey)
 
-const res = await acct.register({ account, sig })
+const res = await acct.register({ account, sig, vcode })
 ```
 
 ## API/Examples
@@ -68,9 +70,36 @@ Prepares an account registration payload
     - `recovery_email`: Recovery email in plaintext. This is immediately hashed and stored once sent to the backend
 - `privateKey`: Private key for the account
 
-#### `await account.register(account, sig)`
+#### `await account.register(accountPayload)`
+Registers a new account with the API server. This method requires a verification code (`vcode`) in order for the backend to create the account. Examples on how to generate verification codes are listed below.
 
-Example usage:
+- `acctPayload`: Account Object
+  - `account`
+    - `device_signing_key`: Public signing key for your device
+    - `account_key`: Public key for the account
+    - `peer_key`: Public key used for connecting to other peers over plex/hyperswarm
+    - `recovery_email`: Recovery email in plaintext. This is immediately hashed and stored once sent to the backend
+  - `sig`: Signature returned from `Account.init`
+  - `vcode`: Verification code sent to the recovery email.
+
+Example: Get verfication code - This request will send a verification code in the form of a captcha image to the recovery email listed in the request.
+```shell
+curl --location --request POST 'https://apiv1.telios.io/account/captcha' --header 'Content-Type: application/json' \
+--data-raw '{
+  "addr": "Kaylin_Farrell@email.com"
+}'
+```
+
+Example: Verifying the activation code
+```shell
+curl --location --request POST 'https://apiv1.telios.io/account/captcha/verify' \
+--data-raw '{
+  "vcode": "Xf1sP4"
+}'
+```
+
+
+Account registration example usage:
 ```js
 const { Account, Mailbox } = require('@telios/telios-sdk')
 const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()
@@ -79,20 +108,25 @@ const account = new Account({
   provider: 'https://apiv1.telios.io'
 })
 
+const vcode = '1111' // Verification code sent to the recovery email
+
+const { account, sig } = await Account.init(signingKeypair.privateKey, accountPayload)
+
 const accountPayload = {
   account: {
     device_signing_key: signingKeypair.publicKey,
     account_key: secretBoxKeypair.publicKey,
     peer_key: peerKeypair.publicKey,
     recovery_email: recoveryEmail
-  }
+  },
+  sig: sig,
+  vcode: vcode
 }
 
-const { account, sig } = await Account.init(signingKeypair.privateKey, accountPayload)
 
 // Send the account object that was just signed to be stored and verified
 // on the server for later authentication.
-const res = await account.register(account, sig)
+const res = await account.register(accountPayload)
 ```
 
 Example response:
@@ -102,7 +136,7 @@ Example response:
   _sig: '[server_signature]'
 }
 ```
-The `sig` returned will be required for authentication and should be stored and encrypted locally. This replaces the need for requiring a username and password for authentication.
+The `sig` returned will be required for authentication and should be stored and encrypted locally. This, along with the account's signing key will be used to create a unique access token for every request.
 
 ### `const drive = new Drive(storagePath, [key], [options])`
 Create a drive to be shared over the network which can be replicated and seeded by other peers.

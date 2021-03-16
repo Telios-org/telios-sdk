@@ -36,6 +36,7 @@ test('Account - Init', async t => {
         account_key: conf.ALICE_SB_PUB_KEY,
         peer_key: conf.ALICE_PEER_PUB_KEY,
         recovery_email: conf.ALICE_RECOVERY,
+        device_id: conf.ALICE_DEVICE_1_ID
       }
     };
 
@@ -63,10 +64,11 @@ test('Account - Register', async t => {
       recovery_email: conf.ALICE_RECOVERY,
       device_id: conf.ALICE_DEVICE_1_ID,
     },
-    sig: conf.ALICE_ACCOUNT_SIG
+    sig: conf.ALICE_ACCOUNT_SIG,
+    vcode: '11111'
   }
   
-  const res = await account.register(payload);
+  const res = await account.register(payload, );
   
   t.ok(res, 'Account can register');
 });
