@@ -22,28 +22,39 @@ npm i @telios/telios-sdk
 
 ``` js
 const { Account, Mailbox } = require('@telios/telios-sdk')
-
-const acct = new Account({
-  provider: 'https://apiv1.telios.io'
-});
-
 const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()
 
-const opts = {
-  account: {
-    device_signing_key: signingKeypair.publicKey,
-    account_key: secretBoxKeypair.publicKey,
-    peer_key: peerKeypair.publicKey,
-    recovery_email: recoveryEmail
-  }
-};
+const account = new Account({
+  provider: 'https://apiv1.telios.io'
+})
 
-// Verification code sent to recovery email
+// Verification code sent to the recovery email
 const vcode = '1111'
 
-const { account, sig } = await Account.init(opts, signingKeypair.privateKey)
+const initPayload = {
+  account: {
+    account_key: secretBoxKeypair.publicKey,
+    peer_key: peerKeypair.publicKey,
+    recovery_email: recoveryEmail,
+    device_signing_key: signingKeypair.publicKey,
+    device_drive_key: driveKey,
+    device_diff_key: driveDiffKey,
+    device_id: deviceId
+  }
+}
 
-const res = await acct.register({ account, sig, vcode })
+const { account, sig } = await Account.init(signingKeypair.privateKey, initPayload)
+
+const registerPayload = {
+  ...account,
+  sig: sig,
+  vcode: vcode
+}
+
+// Send the account object that was just signed to be stored and
+// verified on the server for later authentication.
+const res = await account.register(registerPayload)
+
 ```
 
 ## API/Examples
@@ -91,18 +102,12 @@ Registers a new account with the API server. This method requires a verification
 
 Example: Get verfication code - This request will send a verification code in the form of a captcha image to the recovery email listed in the request.
 ```shell
-curl --location --request POST 'https://apiv1.telios.io/account/captcha' --header 'Content-Type: application/json' \
---data-raw '{
-  "addr": "Kaylin_Farrell@email.com"
-}'
+curl --location --request POST 'https://apiv1.telios.io/account/captcha' --data-raw '{ "addr": "Kaylin_Farrell@email.com" }'
 ```
 
 Example: Verifying the activation code
 ```shell
-curl --location --request POST 'https://apiv1.telios.io/account/captcha/verify' \
---data-raw '{
-  "vcode": "Xf1sP4"
-}'
+curl --location --request POST 'https://apiv1.telios.io/account/captcha/verify' --data-raw '{ "vcode": "Xf1sP4" }'
 ```
 
 
