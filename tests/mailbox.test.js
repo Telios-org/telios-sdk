@@ -73,7 +73,7 @@ const conf = testSetup.conf();
       privKey: conf.BOB_SB_PRIV_KEY,
       pubKey: conf.BOB_SB_PUB_KEY,
       drive: localDrive,
-      filePath: '/'
+      filePath: '/test-email.json'
     });
 
     t.ok(res, `Sent mail to Telios recipient`);
@@ -90,8 +90,10 @@ const conf = testSetup.conf();
     const meta = {
       "key": "test-key",
       "header": "test-header",
-      "drive": localDrive.publicKey,
-      "hash": 'test-hash'
+      "drive_key": localDrive.publicKey,
+      "hash": 'test-hash',
+      "name": 'test-email.json',
+      "size": 100
     };
 
     encMeta = mailbox._encryptMeta(meta, accountKey, privKey);

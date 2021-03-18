@@ -225,10 +225,10 @@ Returns the size of the drive in bytes.
 #### `await drive.close()`
 Fully close the drive and all of it's resources.
 
-#### `drive.on('file-add', (fileName, filePath, hash, source) => {})`
+#### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
 Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
 
-#### `drive.on('file-update', (fileName, filePath, hash, source) => {})`
+#### `drive.on('file-update', (fileName, filePath, hash, size, source) => {})`
 Emitted when a file has been updated on the drive.The `source` value will return if the event came from the local or remote drive.
 
 #### `drive.on('file-unlink', (fileName, filePath, hash, source) => {})`
@@ -344,7 +344,7 @@ Example response:
 ]
 ```
 
-#### `mailbox.send(email, { privKey, pubKey, drive, drivePath })`
+#### `mailbox.send(email, { privKey, pubKey, drive, filePath })`
 When sending an email to multiple recipients, the recipient's email domain is checked
 if it matches telios.io. In this case the email is encrypted, stored on the local drive, and an encrypted message
 is sent that only the recipient can decipher. The deciphered metadata gives the recipient instructions
@@ -359,7 +359,7 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 - `privKey`: The sender's private key (Bob). Private key is only used during encryption and never sent or stored.
 - `pubKey`: The sender's public key (Bob). Public key is used for authenticity of sender
 - `drive`: A shared drive
-- `drivePath`: The directory where the local drive stores it's encrypted emails.
+- `filePath`: Path to the file on the local drive
 
 Email JSON should be in the following format:
 ```js
@@ -404,19 +404,12 @@ Example usage:
 const res = await mailbox.send(email, {
   // The sender's private key (Bob). Private key is only used during encryption and never sent or stored.
   privKey: '[bob_account_private_key]',
-
   // The sender's public key (Bob). Public key is used for authenticity of sender
   pubKey: '[bob_account_public_key]',
-
   // A Shared Drive.
   drive: '[drive]',
-
-  // This is the directory where the local drive stores it's encrypted emails. 
-  // In the example below, the sender (Bob) placed an email file named 3ff78ec3-2964-44c5-97fe-13875f97c040.json
-  // in the root of the referenced hyperdrive. Each email is dynamically named with a guid for 
-  // added privacy. When the other recipients decode their metadata sent 
-  // to them via Bob, they will use this drive/path to retrieve their email.
-  drivePath: '/3ff78ec3-2964-44c5-97fe-13875f97c040.json'
+  // Path to the file on the local drive
+  filePath: '/email.json'
 })
 
 ```
