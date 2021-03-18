@@ -60,6 +60,7 @@ const res = await account.register(registerPayload)
 ## API/Examples
 
 ### `const account = new Account(provider)`
+---
 The Account class handles communication with the Telios server and provides methods for creating request payloads.
 
 - `provider`: Base URL of the API provider
@@ -158,6 +159,7 @@ Example response:
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This, along with the account's signing key will be used to create a unique access token for every request.
 
 ### `const drive = new Drive(storagePath, [key], [options])`
+---
 Create a drive to be shared over the network which can be replicated and seeded by other peers.
 
 - `storagePath`: The directory where you want the drive to be created.
@@ -235,6 +237,7 @@ Emitted when a file has been updated on the drive.The `source` value will return
 Emitted when a file has been deleted on the drive. The `source` value will return if the event came from the local or remote drive.
 
 ### `const fileRequest = Drive.download(discoveryKey, files, [keyPair]);`
+---
 Connects to a remote drive and requests files to download and save locally.
 
 - `discoveryKey`: Public key client peers will use when requesting resources from the drive. This key is a hash of the drive's public key.
@@ -277,6 +280,7 @@ Emitted when all files have finished downloading and saving locally
 Emitted when there has been an error downloading from the remote drive
 
 ### `const mailbox = new Mailbox(provider, auth)`
+---
 The Mailbox class provides functionality needed for processing encrypted emails.
 
 - `provider`: Base URL of the API provider
