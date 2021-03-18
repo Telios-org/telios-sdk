@@ -71,8 +71,8 @@ const drive2 = new Drive(drive2Path, drivePubKey, { keyPair: keyPair2, writable:
   });
 
   test.onFinish(async () => {
-    await drive1.close();
-    await drive2.close();
+    // await drive1.close();
+    // await drive2.close();
 
     process.exit(0);
   });

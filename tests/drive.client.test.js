@@ -41,32 +41,33 @@ const drive2 = new Drive(drive2Path, drivePubKey, {
 
 
   test('Drive - Download File', async t => {
-    t.plan(1);
+    t.plan(4);
     const file = await drive1.db.get('email.eml');
+    const dest = path.join(__dirname, '/data/email.eml');
     const sourceFile = fs.readFileSync(path.join(__dirname, '/drive/email.eml'), 'utf-8');
-    const stream = await Drive.download(drive1.discoveryKey, file.value.hash, { keyPair: keyPair3 });
-    let fileData = '';
 
-    stream.on('data', chunk => {
-      fileData += chunk.toString('utf-8');
+    const files = [
+      {
+        dest,
+        hash: file.value.hash
+      }
+    ];
+
+    const request = Drive.download(drive1.discoveryKey, files, { keyPair: keyPair3 });
+
+    request.on('file-download', (file) => {
+      t.ok(file.path, `File has path ${file.path}`);
+      t.ok(file.hash, `File has hash ${file.hash}`);
+      t.ok(file.source, `File has source ${file.source}`);
     });
 
-    stream.on('end', () => {
-      t.equals(fileData, sourceFile, 'Local file matches remote');
+    request.on('finished', () => {
+      t.ok(fs.existsSync(dest), 'File downloaded and exists in set destination');
     });
+
   });
 
   test.onFinish(async () => {
-    await drive1.close();
-    await drive2.close();
-    
-    // del([
-    //   __dirname + '/drive_cloned',
-    //   __dirname + '/meta',
-    //   __dirname + '/.tmp',
-    //   __dirname + '/drive/.drive'
-    // ]);
-
     process.exit(0);
   });
 })();

@@ -34,6 +34,12 @@ async function cleanup() {
     ]);
   }
 
+  if(fs.existsSync(path.join(__dirname, '../data/email.eml'))) {
+    await del([
+      path.join(__dirname, '../data/email.eml')
+    ]);
+  }
+
   if(fs.existsSync(path.join(__dirname, '../data/enc_meta.tmp.json'))) {
     await del([
       path.join(__dirname, '../data/enc_meta.tmp.json')
@@ -82,14 +88,18 @@ async function initVars() {
   testVars.ALICE_SIG_PRIV_KEY = aliceKeys.signingKeypair.privateKey;
   testVars.ALICE_PEER_PUB_KEY = aliceKeys.peerKeypair.publicKey;
   testVars.ALICE_PEER_SECRET_KEY = aliceKeys.peerKeypair.secretKey;
+  testVars.ALICE_DRIVE_KEY = '00000000000000000000000000000000';
+  testVars.ALICE_DIFF_KEY= '11111111111111111111111111111111';
   testVars.ALICE_DEVICE_1_ID = '00000000-0000-0000-0000-000000000000';
 
   const opts = {
     account: {
-      device_signing_key: testVars.ALICE_SIG_PUB_KEY,
       account_key: testVars.ALICE_SB_PUB_KEY,
       peer_key: testVars.ALICE_PEER_PUB_KEY,
       recovery_email: testVars.ALICE_RECOVERY,
+      device_signing_key: testVars.ALICE_SIG_PUB_KEY,
+      device_drive_key: testVars.ALICE_DRIVE_KEY,
+      device_diff_key: testVars.ALICE_DIFF_KEY,
       device_id: testVars.ALICE_DEVICE_1_ID
     }
   };
@@ -98,7 +108,7 @@ async function initVars() {
 
   testVars.ALICE_ACCOUNT_SIG = sig;
   testVars.ALICE_DEVICE_1_ID = account.device_id;
-  testVars.ALICE_ACCOUNT_SERVER_SIG = 't';
+  testVars.ALICE_ACCOUNT_SERVER_SIG = '1010101100110101010101001101010';
   
   // Create Bob key bundle
   const bobKeys = Account.makeKeys();

@@ -5,7 +5,6 @@ const fs = require('fs');
 const path = require('path');
 const { Mailbox, Drive, Account, Crypto } = require('..');
 const MemoryStream = require('memorystream');
-const stream = require('stream');
 
 const testSetup = require('./helpers/setup');
 const pump = require('pump');
@@ -221,37 +220,52 @@ const conf = testSetup.conf();
   });
 
   test('Mailbox - Retrieve unread mail and decrypt', async t => {
-    t.plan(2);
+    t.plan(5);
 
     const mailbox = await initMailbox();
     const mailMeta = await mailbox.getNewMail(conf.ALICE_SB_PRIV_KEY, conf.ALICE_SB_PUB_KEY);
     const { peerKeypair } = Account.makeKeys();
+    const files = [];
 
     for(meta of mailMeta) {
-      Drive.download(localDrive.discoveryKey, meta.hash, { keyPair: peerKeypair })
-        .then(stream => {
-          const memStream = new MemoryStream();
-          let message = '';
+      files.push({
+        hash: meta.hash,
+        dest: path.join(__dirname, `./data/email.eml`)
+      });
+    }  
 
-          const transform = Drive.decryptStream(stream, { key: meta.key, header: meta.header, start: 24});
+    const request = Drive.download(localDrive.discoveryKey, files, { keyPair: peerKeypair });
 
-          pump(stream, transform, memStream, (err) => {
-            if(err) return t.error(err);
-          });
+    request.on('file-download', (file) => {
+      t.ok(file.path, `File has path ${file.path}`);
+      t.ok(file.hash, `File has hash ${file.hash}`);
+      t.ok(file.source, `File has source ${file.source}`);
+    });
 
-          memStream.on('data', chunk => {
-            message += chunk.toString('utf-8');
-          })
+    request.on('finished', () => {
+      const memStream = new MemoryStream();
+      const readStream = fs.createReadStream(path.join(__dirname, `./data/email.eml`));
+      
+      let message = '';
 
-          memStream.on('end', () => {
-            const msg = message.toString('utf8');
-            const email = JSON.parse(msg);
-            t.ok(email.subject, `Email has subject: ${email.subject}`);
-          })
-        });
-    }
+      const transform = Crypto.decryptStream(meta.key, meta.header, { start: 24 });
 
-    t.equals(1, mailMeta.length, '1 Email meta message was retrieved');
+      pump(readStream, transform, memStream, (err) => {
+        if(err) return t.error(err);
+      });
+
+      memStream.on('data', chunk => {
+        message += chunk.toString('utf-8');
+      })
+
+      memStream.on('end', () => {
+        const msg = message.toString('utf8');
+        const email = JSON.parse(msg);
+        t.ok(email.subject, `Email has subject: ${email.subject}`);
+      })
+
+      t.equals(1, mailMeta.length, '1 Email meta message was retrieved');
+    });
   });
 
   test.onFinish(async () => {

@@ -32,10 +32,12 @@ test('Account - Init', async t => {
   try {
     const opts = {
       account: {
-        device_signing_key: conf.ALICE_SIG_PUB_KEY,
         account_key: conf.ALICE_SB_PUB_KEY,
         peer_key: conf.ALICE_PEER_PUB_KEY,
         recovery_email: conf.ALICE_RECOVERY,
+        device_signing_key: conf.ALICE_SIG_PUB_KEY,
+        device_drive_key: conf.ALICE_DRIVE_KEY,
+        device_diff_key: conf.ALICE_DIFF_KEY,
         device_id: conf.ALICE_DEVICE_1_ID
       }
     };
@@ -58,11 +60,13 @@ test('Account - Register', async t => {
   const account = new Account('https://apiv1.telios.io');
   const payload = {
     account: {
-      device_signing_key: conf.ALICE_SIG_PUB_KEY,
       account_key: conf.ALICE_SB_PUB_KEY,
       peer_key: conf.ALICE_PEER_PUB_KEY,
       recovery_email: conf.ALICE_RECOVERY,
-      device_id: conf.ALICE_DEVICE_1_ID,
+      device_signing_key: conf.ALICE_SIG_PUB_KEY,
+      device_drive_key: conf.ALICE_DRIVE_KEY,
+      device_diff_key: conf.ALICE_DIFF_KEY,
+      device_id: conf.ALICE_DEVICE_1_ID
     },
     sig: conf.ALICE_ACCOUNT_SIG,
     vcode: '11111'
