@@ -228,7 +228,7 @@ Fully close the drive and all of it's resources.
 #### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
 Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
 
-### `drive.on('file-add', (fileName, filePath, hash, source) => {})`
+### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
 Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
 
 ### `drive.on('file-update', (fileName, filePath, hash, source) => {})`
@@ -347,7 +347,7 @@ Example response:
 ]
 ```
 
-### `mailbox.send(email, { privKey, pubKey, drive, drivePath })`
+### `mailbox.send(email, { privKey, pubKey, drive, filePath })`
 When sending an email to multiple recipients, the recipient's email domain is checked
 if it matches telios.io. In this case the email is encrypted, stored on the local drive, and an encrypted message
 is sent that only the recipient can decipher. The deciphered metadata gives the recipient instructions
