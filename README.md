@@ -246,6 +246,8 @@ Connects to a remote drive and requests files to download and save locally.
 Example Usage:
 
 ```js
+const { Drive } = require('@telios/telios-sdk')
+
 const files = [];
 
 files.push({
@@ -273,9 +275,6 @@ Emitted when all files have finished downloading and saving locally
 
 #### `fileRequest.on('error', (err) => {})`
 Emitted when there has been an error downloading from the remote drive
-
-
-
 
 ### `const mailbox = new Mailbox(provider, auth)`
 The Mailbox class provides functionality needed for processing encrypted emails.
