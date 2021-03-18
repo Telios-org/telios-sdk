@@ -29,7 +29,7 @@ const account = new Account({
 })
 
 // Verification code sent to the recovery email
-const vcode = '1111'
+const vcode = 'Xf1sP4'
 
 const initPayload = {
   account: {
@@ -121,7 +121,7 @@ const account = new Account({
 })
 
 // Verification code sent to the recovery email
-const vcode = '1111'
+const vcode = 'Xf1sP4'
 
 const initPayload = {
   account: {
