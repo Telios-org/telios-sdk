@@ -225,13 +225,10 @@ Returns the size of the drive in bytes.
 ### `await drive.close()`
 Fully close the drive and all of it's resources.
 
-#### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
-Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
-
 ### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
 Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
 
-### `drive.on('file-update', (fileName, filePath, hash, source) => {})`
+### `drive.on('file-update', (fileName, filePath, hash, size, source) => {})`
 Emitted when a file has been updated on the drive.The `source` value will return if the event came from the local or remote drive.
 
 ### `drive.on('file-unlink', (fileName, filePath, hash, source) => {})`
