@@ -29,7 +29,7 @@ const account = new Account({
 })
 
 // Verification code sent to the recovery email
-const vcode = '1111'
+const vcode = 'Xf1sP4'
 
 const initPayload = {
   account: {
@@ -57,21 +57,21 @@ const res = await account.register(registerPayload)
 
 ```
 
-## API/Examples
+# API/Examples
 
-### `const account = new Account(provider)`
+## `const account = new Account(provider)`
 The Account class handles communication with the Telios server and provides methods for creating request payloads.
 
 - `provider`: Base URL of the API provider
 
-#### `const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()`
+### `const { secretBoxKeypair, signingKeypair, peerKeypair } = Account.makeKeys()`
 Keypairs will need to be initially created before any other actions can be taken. These keys will be used for encrypting/decrypting data on the client and from other users. The private keys should be stored somewhere safe (and encrypted) and never shared. The public keys generated will be used for encrypting a recipient's data and can be shared publicly.
 
 - `secretBoxKeypair`: Public/private keys for the account
 - `signingKeypair`: Public/private signing keys for the account
 - `peerKeypair`: Public/private keys for connecting with other peers
 
-#### `Account.init(acctPayload, privateKey)`
+### `Account.init(acctPayload, privateKey)`
 Prepares an account registration payload
 
 - `acctPayload`: Account Object to be signed for registration
@@ -85,7 +85,7 @@ Prepares an account registration payload
     - `device_id`: UUID for this device
 - `privateKey`: Private key for the account
 
-#### `await account.register(accountPayload)`
+### `await account.register(accountPayload)`
 Registers a new account with the API server. This method requires a verification code (`vcode`) in order for the backend to create the account. Examples on how to generate verification codes are listed below.
 
 - `acctPayload`: Account Object
@@ -121,7 +121,7 @@ const account = new Account({
 })
 
 // Verification code sent to the recovery email
-const vcode = '1111'
+const vcode = 'Xf1sP4'
 
 const initPayload = {
   account: {
@@ -157,7 +157,7 @@ Example response:
 ```
 The `sig` returned will be required for authentication and should be stored and encrypted locally. This, along with the account's signing key will be used to create a unique access token for every request.
 
-### `const drive = new Drive(storagePath, [key], [options])`
+## `const drive = new Drive(storagePath, [key], [options])`
 Create a drive to be shared over the network which can be replicated and seeded by other peers.
 
 - `storagePath`: The directory where you want the drive to be created.
@@ -200,10 +200,10 @@ const remoteDrive = new Drive(__dirname + '/drive_remote', drivePubKey, { keyPai
 await remoteDrive.ready()
 ```
 
-#### `await drive.ready()`
+### `await drive.ready()`
 Initialize the drive and all resources needed.
 
-#### `await drive.addPeer(diffKey, [access])`
+### `await drive.addPeer(diffKey, [access])`
 Add a peer to a drive.
 - `diffKey`: The diffKey of the peer's drive `drive.diffFeedKey`
 - `access`: An array of strings claiming what access this peer will have on this drive. Currently `write` is the only available option.
@@ -214,27 +214,30 @@ Example usage:
 await drive.addPeer(peerDiffKey, ['write']);
 ```
 
-#### `await drive.removePeer(diffKey)`
+### `await drive.removePeer(diffKey)`
 Remove a peer from a drive.
 
 - `diffKey`: The diffKey of the peer's drive `drive.diffFeedKey`.
 
-#### `drive.size()`
+### `drive.size()`
 Returns the size of the drive in bytes.
 
-#### `await drive.close()`
+### `await drive.close()`
 Fully close the drive and all of it's resources.
 
 #### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
 Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
 
-#### `drive.on('file-update', (fileName, filePath, hash, size, source) => {})`
+### `drive.on('file-add', (fileName, filePath, hash, source) => {})`
+Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
+
+### `drive.on('file-update', (fileName, filePath, hash, source) => {})`
 Emitted when a file has been updated on the drive.The `source` value will return if the event came from the local or remote drive.
 
-#### `drive.on('file-unlink', (fileName, filePath, hash, source) => {})`
+### `drive.on('file-unlink', (fileName, filePath, hash, source) => {})`
 Emitted when a file has been deleted on the drive. The `source` value will return if the event came from the local or remote drive.
 
-### `const fileRequest = Drive.download(discoveryKey, files, [keyPair]);`
+## `const fileRequest = Drive.download(discoveryKey, files, [keyPair]);`
 Connects to a remote drive and requests files to download and save locally.
 
 - `discoveryKey`: Public key client peers will use when requesting resources from the drive. This key is a hash of the drive's public key.
@@ -263,20 +266,20 @@ fileRequest.on('finished', () => {});
 
 ```
 
-#### `fileRequest.on('file-download', (file) => {})`
+### `fileRequest.on('file-download', (file) => {})`
 Emitted when a file has been downloaded from the remote drive
 
 - `file`: A file object
   - `path`: Local path the file was saved to
   - `hash`: Hash of the file
 
-#### `fileRequest.on('finished', () => {})`
+### `fileRequest.on('finished', () => {})`
 Emitted when all files have finished downloading and saving locally
 
-#### `fileRequest.on('error', (err) => {})`
+### `fileRequest.on('error', (err) => {})`
 Emitted when there has been an error downloading from the remote drive
 
-### `const mailbox = new Mailbox(provider, auth)`
+## `const mailbox = new Mailbox(provider, auth)`
 The Mailbox class provides functionality needed for processing encrypted emails.
 
 - `provider`: Base URL of the API provider
@@ -320,7 +323,7 @@ Example response:
 }
 ```
 
-#### `await mailbox.getMailboxPubKeys(addresses)`
+### `await mailbox.getMailboxPubKeys(addresses)`
 A recipient's account's public key is required for sending encrypted emails within the Telios network. `getMailboxPubKeys` takes an array of recipient's addresses and returns their corresponding public key.
 
 - `addresses`: An array of email addresses
@@ -344,7 +347,7 @@ Example response:
 ]
 ```
 
-#### `mailbox.send(email, { privKey, pubKey, drive, filePath })`
+### `mailbox.send(email, { privKey, pubKey, drive, drivePath })`
 When sending an email to multiple recipients, the recipient's email domain is checked
 if it matches telios.io. In this case the email is encrypted, stored on the local drive, and an encrypted message
 is sent that only the recipient can decipher. The deciphered metadata gives the recipient instructions
@@ -414,7 +417,7 @@ const res = await mailbox.send(email, {
 
 ```
 
-#### `await mailbox.getNewMail(acctPrivKey, acctPubKey)`
+### `await mailbox.getNewMail(acctPrivKey, acctPubKey)`
 
 - `acctPrivKey`: Your account's private key
 - `acctPubKey`: Your account's public key
@@ -472,7 +475,7 @@ Example response:
 ]
 ```
 
-#### `await mailbox.markAsSynced(ids)`
+### `await mailbox.markAsSynced(ids)`
 After an email has been pulled down onto your local devices its meta record can be safely removed from the server.
 
 - `ids`: an array of meta message ids on the server
