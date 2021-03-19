@@ -57,7 +57,12 @@ const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
 
     const drive = new Drive(__dirname + '/drive', null, { keyPair });
 
+    const rs = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
+
     await drive.ready();
+
+    await drive.writeFile('rawEmail', rs);
+    console.log(await drive.db.get('rawEmail'));
 
     const publicKey = await drive.db.get('__publicKey');
     const textFile = await drive.db.get('test.txt');
