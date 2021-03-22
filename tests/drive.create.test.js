@@ -3,129 +3,149 @@ const _test = require('tape-promise').default;
 const test = _test(tape);
 const fs = require('fs');
 const path = require('path');
-const { Drive, Account, Crypto } = require('..');
 const del = require('del');
+const { Drive, Account } = require('..');
 
 const { secretBoxKeypair: keyPair } = Account.makeKeys();
 const { secretBoxKeypair: keyPair2 } = Account.makeKeys();
-const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
 
-(async () => {
+let drive;
+let drive2;
+let encKey;
+let encHeader;
+
+test('Drive - Create', async t => {
+
   if(fs.existsSync(path.join(__dirname, '/drive'))) {
     await del([
-      __dirname + '/drive'
-    ]);
+      path.join(__dirname, '/drive')
+    ])
   }
 
-  fs.mkdirSync((path.join(__dirname, '/drive')))
-  fs.writeFileSync(path.join(__dirname, '/drive/doc.txt'), 'test document');
-  fs.writeFileSync(path.join(__dirname, '/drive/email.eml'), 'test email');
-  fs.writeFileSync(path.join(__dirname, '/drive/test.txt'), 'test text');
+  if(fs.existsSync(path.join(__dirname, '/peer-drive'))) {
+    await del([
+      path.join(__dirname, '/peer-drive')
+    ])
+  }
 
-  test('Drive - Create', async t => {
-    t.plan(8);
+  drive = new Drive(__dirname + '/drive', null, null, { keyPair });
+  let dbKey;
 
-    if(fs.existsSync(path.join(__dirname, '/drive_cloned'))) {
-      await del([
-        __dirname + '/drive_cloned'
-      ]);
-    }
-
-    if(fs.existsSync(path.join(__dirname, '/drive_clone3'))) {
-      await del([
-        __dirname + '/drive_clone3'
-      ]);
-    }
-
-    if(fs.existsSync(path.join(__dirname, '/meta'))) {
-      await del([
-        __dirname + '/meta'
-      ]);
-    }
-
-    if(fs.existsSync(path.join(__dirname, '/drive/.drive'))) {
-      await del([
-        __dirname + '/drive/.drive'
-      ]);
-    }
-
-    if(fs.existsSync(path.join(__dirname, '/drive/hello.txt'))) {
-      await del([
-        __dirname + '/drive/hello.txt'
-      ]);
-    }
-
-    const drive = new Drive(__dirname + '/drive', null, { keyPair });
-
-    const rs = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
-
+  try {
     await drive.ready();
+    dbKey = await drive.db.get('__publicKey');
+  } catch(e) {
+    t.error(e);
+  }
 
-    await drive.writeFile('rawEmail', rs);
-    console.log(await drive.db.get('rawEmail'));
+  t.ok(drive.publicKey, `Drive has public key ${drive.publicKey}`);
+  t.ok(drive.keyPair, `Drive has peer keypair`);
+  t.ok(drive.db, `Drive has Hyperbee DB`);
+  t.ok(drive.drivePath, `Drive has path ${drive.drivePath}`);
+  t.ok(dbKey.value, `Drive public key has been set in Hyperbee ${dbKey.value.key}`);
+  t.equals(dbKey.value.key, drive.publicKey, `Public key in Drive and Hyperbee matches`);
+  t.equals(true, drive.opened, `Drive is open`);
 
-    const publicKey = await drive.db.get('__publicKey');
-    const textFile = await drive.db.get('test.txt');
-    const textFileHash = await drive.db.get(textFile.value.hash);
-    const email = await drive.db.get('email.eml');
-    const emailHash = await drive.db.get(email.value.hash);
-    const docFile = await drive.db.get('doc.txt');
-    const docFileHash = await drive.db.get(docFile.value.hash);
+  t.end();
+});
 
-    fs.writeFileSync(__dirname + '/.tmp', JSON.stringify({
-      keyPair,
-      keyPair2,
-      keyPair3,
-      drivePubKey: drive.publicKey,
-      peerDiffKey: drive.diffFeedKey
-    }));
+test('Drive - Upload Local Encrypted File', async t => {
+  t.plan(6);
 
-    t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
-    t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
-    t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
-    t.ok(textFileHash.value.size, `File test.txt has size: ${textFileHash.value.size}`);
-    t.ok(email.value.hash, `File email.eml has hash: ${email.value.hash}`);
-    t.ok(emailHash.value.size, `File email.eml has size: ${emailHash.value.size}`);
-    t.ok(docFile.value.hash, `File doc.txt has hash: ${docFile.value.hash}`);
-    t.ok(docFileHash.value.size, `File doc.txt has size: ${docFileHash.value.size}`);
-  });
+  try {
 
-  // // Connect existing local drive
-  // test('Drive - Connect Existing Local', async t => {
-  //   t.plan(8);
+    drive.on('file-add', (file, opts) => {
+      t.ok(file, 'Emitted file-add with file obj');
+      t.ok(opts, 'Emitted file-add with encryption obj');
+    });
 
-  //   const drive = new Drive(__dirname + '/drive', null, {
-  //     keyPair,
-  //     live: true,
-  //     writable: true,
-  //     seed: true
-  //   });
-
-  //   await drive.ready();
-
-  //   const publicKey = await drive.db.get('__publicKey');
-  //   const textFile = await drive.db.get('test.txt');
-  //   const textFileHash = await drive.db.get(textFile.value.hash);
-  //   const email = await drive.db.get('email.eml');
-  //   const emailHash = await drive.db.get(email.value.hash);
-  //   const docFile = await drive.db.get('doc.txt');
-  //   const docFileHash = await drive.db.get(docFile.value.hash);
-
-  //   t.ok(publicKey.value.key, `Drive has publicKey: ${publicKey.value.key}`);
-  //   t.ok(drive.diffFeedKey, `Drive has diffFeedKey: ${drive.diffFeedKey}`);
-  //   t.ok(textFile.value.hash, `File test.txt has hash: ${textFile.value.hash}`);
-  //   t.ok(textFileHash.value.size, `File test.txt has size: ${textFileHash.value.size}`);
-  //   t.ok(email.value.hash, `File email.eml has hash: ${email.value.hash}`);
-  //   t.ok(emailHash.value.size, `File email.eml has size: ${emailHash.value.size}`);
-  //   t.ok(docFile.value.hash, `File doc.txt has hash: ${docFile.value.hash}`);
-  //   t.ok(docFileHash.value.size, `File doc.txt has size: ${docFileHash.value.size}`);
-
-  //   await drive.close();
-  // });
-
-  test.onFinish(async () => {
-    // Clean up session
+    const readStream = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
+    let { key, header, file } = await drive.writeFile({
+                                  corePath: '/email/rawEmailEncrypted.eml', 
+                                  readStream, 
+                                  encrypted: true 
+                                });
     
-    process.exit(0);
+    encKey = key;
+    encHeader = header;
+
+    t.ok(key, `File was encrypted with key`);
+    t.ok(header, `File was encrypted with header`);
+    t.ok(file.hash, `Hash of file was returned ${file.hash}`);
+    t.ok(file.size, `Size of file in bytes was returned ${file.size}`);
+  } catch(e) {
+    t.error(e);
+  }
+});
+
+test('Drive - Read Local Encrypted File', async t => {
+  t.plan(1);
+  const stream = await drive.readFile('/email/rawEmailEncrypted.eml');
+  let encryptedMessage = '';
+
+  stream.on('data', chunk => {
+    encryptedMessage += chunk.toString('utf-8');
   });
-})();
+
+  stream.on('end', () => {
+    t.ok(encryptedMessage.length, 'Returned encrypted data');
+  })
+});
+
+test('Drive - Read and Decipher Encrypted File', async t => {
+  t.plan(1);
+  const origFile = fs.readFileSync(path.join(__dirname, '/data/raw.email'), { encoding: 'utf-8' });
+  const stream = await drive.readFile('/email/rawEmailEncrypted.eml', { key: encKey, header: encHeader });
+  let decrypted = '';
+
+  stream.on('data', chunk => {
+    decrypted += chunk.toString('utf-8');
+  });
+
+  stream.on('end', () => {
+    t.equals(origFile, decrypted, 'Decrypted file matches original');
+  })
+});
+
+test('Drive - Create Seed Peer', async t => {
+  t.plan(1);
+
+  drive2 = new Drive(__dirname + '/peer-drive', drive.publicKey, drive.db.feed.key.toString('hex'), { keyPair: keyPair2 });
+  await drive2.ready();
+
+  drive2.on('file-update', file => {
+    // Audit the file to validate the hash matches what was downloaded vs the db
+    console.log('File Update!');
+    t.ok(file);
+  });
+});
+
+test('Drive - Serve Local Files to Remote Peer', async t => {
+  t.end()
+});
+
+test('Drive - Fetch Files from Remote Drive', async t => {
+  t.end()
+});
+
+test('Drive - Validate Downloaded File from Remote', async t => {
+  t.end()
+});
+
+test('Drive - Unlink Local File', async t => {
+  t.plan(2);
+
+  drive.on('file-unlink', path => {
+    t.ok(path, `File ${path} deleted`);
+  });
+
+  drive2.on('file-unlink', path => {
+    t.ok(path, `File ${path} removed from remote`);
+  })
+
+  await drive.unlink('/email/rawEmailEncrypted.eml');
+});
+
+test.onFinish(async () => {
+  process.exit(0);
+});
