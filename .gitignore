@@ -111,7 +111,7 @@ tests/storage
 tests/localDrive
 tests/drive1
 tests/drive2
-tests/drive_cloned
+tests/peer-drive
 tests/data/meta/*
 tests/data/email.eml
 tests/data/enc_meta.tmp.json
