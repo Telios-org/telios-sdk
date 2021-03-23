@@ -61,7 +61,7 @@ test('Drive - Upload Local Encrypted File', async t => {
 
     const readStream = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
     let { key, header, file } = await drive.writeFile({
-                                  corePath: '/email/rawEmailEncrypted.eml', 
+                                  filePath: '/email/rawEmailEncrypted.eml', 
                                   readStream, 
                                   encrypted: true 
                                 });
