@@ -4,7 +4,7 @@
   "description": "SDK for the Telios platform",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test_sdk tape tests/setup.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/hypercore.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/hyperdrive.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/hyperbee.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.create.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.peer.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.transact.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.client.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/account.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/mailbox.test.js | tap-spec",
+    "test": "cross-env NODE_ENV=test_sdk tape tests/setup.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/hypercore.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/hyperdrive.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/hyperbee.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/drive.create.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/account.test.js | tap-spec && cross-env NODE_ENV=test_sdk tape tests/mailbox.test.js | tap-spec",
     "test2": "cross-env NODE_ENV=test_sdk tape tests/drive.create.test.js | tap-spec"
   },
   "repository": {
@@ -22,6 +22,7 @@
     "axios": "^0.21.1",
     "chokidar": "^3.5.1",
     "dat-sdk": "^2.8.1",
+    "hyper-sdk": "^3.0.7",
     "hyperbee": "^1.5.3",
     "hypercore": "^9.9.1",
     "hypercore-peer-auth": "git+https://github.com/Frando/hypercore-peer-auth.git",

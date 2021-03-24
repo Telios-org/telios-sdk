@@ -63,6 +63,18 @@ async function cleanup() {
       path.join(__dirname, '../drive2')
     ]);
   }
+
+  if(fs.existsSync(path.join(__dirname, '../drive'))) {
+    await del([
+      path.join(__dirname, '../drive')
+    ]);
+  }
+
+  if(fs.existsSync(path.join(__dirname, '../peer-drive'))) {
+    await del([
+      path.join(__dirname, '../peer-drive')
+    ]);
+  }
 }
 
 async function initVars() {
@@ -127,27 +139,16 @@ async function initDrives() {
   //const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
 
   const drive1 = new Drive(path.join(__dirname, '../drive1'), null, {
-    keyPair,
-    writable: true
+    keyPair
   });
 
   await drive1.ready();
-  //console.log('Drive1 PubKey ', drive1.keyPair.publicKey);
 
   const drive2 = new Drive(path.join(__dirname, '../drive2'), drive1.publicKey, {
-    keyPair: keyPair2,
-    writable: true,
+    keyPair: keyPair2
   });
 
   
 
   await drive2.ready();
-  //console.log('Drive2 PubKey ', drive2.keyPair.publicKey);
-
-  await drive2.addPeer(drive1.diffFeedKey, ['write']);
-  await drive1.addPeer(drive2.diffFeedKey);
-  
-  fs.writeFileSync(path.join(__dirname, '../drive1/doc.txt'), 'test document');
-  fs.writeFileSync(path.join(__dirname, '../drive1/email.email'), 'test email');
-  fs.writeFileSync(path.join(__dirname, '../drive1/test.txt'), 'test text');
 }
