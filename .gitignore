@@ -109,11 +109,9 @@ drive/
 core/
 tests/storage
 tests/localDrive
-tests/drive1
-tests/drive2
+tests/drive*
 tests/peer-drive
 tests/data/meta/*
-tests/data/email.eml
 tests/data/enc_meta.tmp.json
 tests/vars.tmp.json
 tests/data/encrypted_tmp.email
