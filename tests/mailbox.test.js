@@ -21,8 +21,7 @@ const conf = testSetup.conf();
     keyPair: {
       publicKey: conf.ALICE_SB_PUB_KEY,
       privateKey: conf.ALICE_SB_PRIV_KEY
-    },
-    writable: true
+    }
   });
 
   await localDrive.ready();
@@ -47,21 +46,6 @@ const conf = testSetup.conf();
 
     return mailbox;
   }
-
-  test('Mailbox - Encrypt raw email', async t => {
-    const mailbox = await initMailbox();
-
-    // create writestream
-    const ws = fs.createWriteStream(path.join(__dirname, '/localDrive/encrypted.email'));
-    const rs = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
-
-    // Encrypt file and save on drive
-    const { key, header } = await mailbox._encryptStream(rs, ws, { drive: localDrive });
-
-    t.ok(key, `Key was created ${key}`);
-    t.ok(header, `Header was created ${header}`);
-    t.end();
-  });
 
   test('Mailbox - Send mail', async t => {
     t.plan(1);
@@ -168,15 +152,12 @@ const conf = testSetup.conf();
     t.plan(1);
     
     const mailbox = await initMailbox();
-    const email = conf.TEST_EMAIL;
 
-    const location = `/35bdbc1c-063f-4595-a001-05dd070b6123`;
-    const writeStream = fs.createWriteStream(path.join(localDrive.drivePath, location));
-    const stream = new MemoryStream();
+    const rs = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
 
-    stream.end(JSON.stringify(email));
+    // Encrypt file and save on drive
+    let { key, header, file } = await localDrive.writeFile('/email/rawEmailEncrypted.eml', { readStream: rs , encrypted: true });
 
-    const { file, key, header } = await mailbox._encryptStream(stream, writeStream, { drive: localDrive });
     const meta = {
       "key": key,
       "header": header,
@@ -222,51 +203,47 @@ const conf = testSetup.conf();
   });
 
   test('Mailbox - Retrieve unread mail and decrypt', async t => {
-    t.plan(5);
+    t.plan(3);
 
     const mailbox = await initMailbox();
     const mailMeta = await mailbox.getNewMail(conf.ALICE_SB_PRIV_KEY, conf.ALICE_SB_PUB_KEY);
     const { peerKeypair } = Account.makeKeys();
     const files = [];
+    const drive2 = new Drive(__dirname + '/drive2', null, { keyPair: peerKeypair });
+    
+    await drive2.ready();
 
     for(meta of mailMeta) {
       files.push({
-        hash: meta.hash,
-        dest: path.join(__dirname, `./data/email.eml`)
+        hash: meta.hash
       });
-    }  
+    }
 
-    const request = Drive.download(localDrive.discoveryKey, files, { keyPair: peerKeypair });
+    drive2.download(localDrive.discoveryKey, files, { keyPair: peerKeypair });
 
-    request.on('file-download', (file) => {
-      t.ok(file.path, `File has path ${file.path}`);
-      t.ok(file.hash, `File has hash ${file.hash}`);
-      t.ok(file.source, `File has source ${file.source}`);
-    });
+    drive2.on('file-download', async (err, file) => {
+      for(meta of mailMeta) {
+        if(file.hash === meta.hash) {
+          t.ok(file.path, `File has path ${file.path}`);
+          t.ok(file.hash, `File has hash ${file.hash}`);
 
-    request.on('finished', () => {
-      const memStream = new MemoryStream();
-      const readStream = fs.createReadStream(path.join(__dirname, `./data/email.eml`));
-      
-      let message = '';
+          if(file.encrypted) {
+            const stream = await drive2.readFile(file.path, { key: meta.key, header: meta.header });
 
-      const transform = Crypto.decryptStream(meta.key, meta.header, { start: 24 });
+            let decrypted = '';
 
-      pump(readStream, transform, memStream, (err) => {
-        if(err) return t.error(err);
-      });
+            stream.on('data', chunk => {
+              decrypted += chunk.toString('utf-8');
+            });
 
-      memStream.on('data', chunk => {
-        message += chunk.toString('utf-8');
-      })
-
-      memStream.on('end', () => {
-        const msg = message.toString('utf8');
-        const email = JSON.parse(msg);
-        t.ok(email.subject, `Email has subject: ${email.subject}`);
-      })
-
-      t.equals(1, mailMeta.length, '1 Email meta message was retrieved');
+            stream.on('end', () => {
+              t.ok(decrypted.length);
+            })
+          } else {
+            t.ok(file, `${JSON.stringify(file)}`);
+          }
+      }
+    }
     });
   });
 

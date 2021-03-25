@@ -63,11 +63,7 @@ test('Drive - Upload Local Encrypted File', async t => {
     });
 
     const readStream = fs.createReadStream(path.join(__dirname, '/data/raw.email'));
-    let { key, header, file } = await drive.writeFile({
-                                  filePath: '/email/rawEmailEncrypted.eml', 
-                                  readStream, 
-                                  encrypted: true 
-                                });
+    let { key, header, file } = await drive.writeFile('/email/rawEmailEncrypted.eml', { readStream, encrypted: true });
     
     encKey = key;
     encHeader = header;
@@ -118,10 +114,7 @@ test('Drive - Create Seed Peer', async t => {
   await drive2.ready();
 
   const readStream = fs.createReadStream(path.join(__dirname, '/data/test.doc'));
-  await drive.writeFile({
-    filePath: '/email/test.doc', 
-    readStream
-  });
+  await drive.writeFile('/email/test.doc', { readStream });
 
   drive2.on('file-download', async (err, file) => {
     if(err) return t.error(err);

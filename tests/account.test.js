@@ -37,7 +37,6 @@ test('Account - Init', async t => {
         recovery_email: conf.ALICE_RECOVERY,
         device_signing_key: conf.ALICE_SIG_PUB_KEY,
         device_drive_key: conf.ALICE_DRIVE_KEY,
-        device_diff_key: conf.ALICE_DIFF_KEY,
         device_id: conf.ALICE_DEVICE_1_ID
       }
     };
@@ -65,7 +64,6 @@ test('Account - Register', async t => {
       recovery_email: conf.ALICE_RECOVERY,
       device_signing_key: conf.ALICE_SIG_PUB_KEY,
       device_drive_key: conf.ALICE_DRIVE_KEY,
-      device_diff_key: conf.ALICE_DIFF_KEY,
       device_id: conf.ALICE_DEVICE_1_ID
     },
     sig: conf.ALICE_ACCOUNT_SIG,
@@ -90,7 +88,6 @@ test('Account - Create auth token', async t => {
   };
   
   const payload = Account.createAuthToken(claims, conf.ALICE_SIG_PRIV_KEY);
-  console.log(payload);
   t.ok(payload, 'Account has authorization payload');
 });
 

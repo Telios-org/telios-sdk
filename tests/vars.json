@@ -5,7 +5,6 @@
   "ALICE_SIG_PRIV_KEY": "",
   "ALICE_PEER_PUB_KEY": "",
   "ALICE_DRIVE_KEY": "",
-  "ALICE_DIFF_KEY": "",
   "ALICE_PEER_SECRET_KEY": "",
   "ALICE_RECOVERY": "alice@mail.com",
   "ALICE_MAILBOX": "alice@telios.io",
