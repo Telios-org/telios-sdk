@@ -1,9 +1,8 @@
 const tape = require('tape');
 const _test = require('tape-promise').default;
 const test = _test(tape);
-const { Crypto, Hypercore, Hyperbee } = require('..');
-const SDK = require('dat-sdk');
-const ram = require('random-access-memory');
+const { Crypto, Hyperbee } = require('..');
+const Hypercore = require('hypercore');
 
 let hyperbee = null;
 const keypair = Crypto.generateSBKeypair();
@@ -12,9 +11,11 @@ test('Hyperbee - Create new db', async t => {
   t.plan(1);
 
   try {
-    hyperbee = new Hyperbee('./tests/storage/MultiB', null);
-    await hyperbee.db.ready();
-    t.ok(hyperbee.db.feed.key.toString('hex'));
+    const feed = Hypercore('./tests/storage')
+    hyperbee = new Hyperbee(feed);
+    feed.on('ready', () => {
+      t.ok(hyperbee.db.feed.key.toString('hex'));
+    });
   } catch (err) {
     console.log('ERROR: ', err);
     t.error(err);

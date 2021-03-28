@@ -106,10 +106,10 @@ async function initVars() {
   const opts = {
     account: {
       account_key: testVars.ALICE_SB_PUB_KEY,
-      peer_key: testVars.ALICE_PEER_PUB_KEY,
       recovery_email: testVars.ALICE_RECOVERY,
       device_signing_key: testVars.ALICE_SIG_PUB_KEY,
       device_drive_key: testVars.ALICE_DRIVE_KEY,
+      device_peer_key: testVars.ALICE_PEER_PUB_KEY,
       device_id: testVars.ALICE_DEVICE_1_ID
     }
   };

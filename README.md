@@ -34,11 +34,10 @@ const vcode = 'Xf1sP4'
 const initPayload = {
   account: {
     account_key: secretBoxKeypair.publicKey,
-    peer_key: peerKeypair.publicKey,
     recovery_email: recoveryEmail,
     device_signing_key: signingKeypair.publicKey,
     device_drive_key: driveKey,
-    device_diff_key: driveDiffKey,
+    device_peer_key: peerKeypair.publicKey,
     device_id: deviceId
   }
 }
@@ -77,11 +76,10 @@ Prepares an account registration payload
 - `acctPayload`: Account Object to be signed for registration
   - `account`
     - `account_key`: Public key for the account
-    - `peer_key`: Public key used for connecting to other peers over plex/hyperswarm
     - `recovery_email`: Recovery email in plaintext. This is immediately hashed and stored once sent to the backend
     - `device_signing_key`: Public signing key for your device
     - `device_drive_key`: Public key of the drive created for the device `drive.publicKey`
-    - `device_diff_key`: Diff key of the drives diff database `drive.diffFeedKey`
+    - `device_peer_key`: Public key used for connecting to other peers over plex/hyperswarm
     - `device_id`: UUID for this device
 - `privateKey`: Private key for the account
 
@@ -91,11 +89,10 @@ Registers a new account with the API server. This method requires a verification
 - `acctPayload`: Account Object
   - `account`
     - `account_key`: Public key for the account
-    - `peer_key`: Public key used for connecting to other peers over plex/hyperswarm
     - `recovery_email`: Recovery email in plaintext. This is immediately hashed and stored once sent to the backend
     - `device_signing_key`: Public signing key for your device
     - `device_drive_key`: Public key of the drive created for the device `drive.publicKey`
-    - `device_diff_key`: Diff key of the drives diff database `drive.diffFeedKey`
+    - `device_peer_key`: Public key used for connecting to other peers over plex/hyperswarm
     - `device_id`: UUID for this device
   - `sig`: Signature returned from `Account.init`
   - `vcode`: Verification code sent to the recovery email.
@@ -126,11 +123,10 @@ const vcode = 'Xf1sP4'
 const initPayload = {
   account: {
     account_key: secretBoxKeypair.publicKey,
-    peer_key: peerKeypair.publicKey,
     recovery_email: recoveryEmail,
     device_signing_key: signingKeypair.publicKey,
     device_drive_key: driveKey,
-    device_diff_key: driveDiffKey,
+    device_peer_key: peerKeypair.publicKey,
     device_id: deviceId
   }
 }
@@ -167,32 +163,18 @@ Options include:
 ```js
 {
   // Peer keypair from Account.makeKeys()
-  keyPair: { publicKey, secretKey },
-  // Pattern to ignore certain files or directories in drivePath
-  ignore: /(^|[\/\\])\../,
-  // Defaults to true. 
-  // Set ephemeral to false if hosting this drive from a server in conjunction with
-  // a lot of other drives. This will prevent hyperswarm from joining and creating
-  // event listeners for each drive and instead provide the option for the server to
-  // define how it connects and listens to the network.
-  ephemeral: true|false,
-  // Default true. Set to false for drives that only intend to seed and not write.
-  writable: true|false
+  keyPair: { publicKey, secretKey }
 }
 ```
 
 ```js
-// Create a new local drive. If any files exist in this drive
-// they will automatically be added over the network
+// Create a new local drive.
 const localDrive = new Drive(__dirname + '/drive', null, { keyPair })
 
 await localDrive.ready()
 
 // Key to be shared with other devices or services that want to seed this drive
 const drivePubKey = localDrive.publicKey
-
-// Diff key used for connecting other peers to this drive
-const diffKey = localDrive.diffFeedKey
 
 // Clone a remote drive
 const remoteDrive = new Drive(__dirname + '/drive_remote', drivePubKey, { keyPair })
@@ -203,44 +185,13 @@ await remoteDrive.ready()
 ### `await drive.ready()`
 Initialize the drive and all resources needed.
 
-### `await drive.addPeer(diffKey, [access])`
-Add a peer to a drive.
-- `diffKey`: The diffKey of the peer's drive `drive.diffFeedKey`
-- `access`: An array of strings claiming what access this peer will have on this drive. Currently `write` is the only available option.
+### `await drive.download(discoveryKey, files, [keyPair]);`
 
-Example usage:
-```js
-//add drive1 as a peer to start replication
-await drive.addPeer(peerDiffKey, ['write']);
-```
-
-### `await drive.removePeer(diffKey)`
-Remove a peer from a drive.
-
-- `diffKey`: The diffKey of the peer's drive `drive.diffFeedKey`.
-
-### `drive.size()`
-Returns the size of the drive in bytes.
-
-### `await drive.close()`
-Fully close the drive and all of it's resources.
-
-### `drive.on('file-add', (fileName, filePath, hash, size, source) => {})`
-Emitted when a new file has been added to the drive. The `source` value will return if the event came from the local or remote drive.
-
-### `drive.on('file-update', (fileName, filePath, hash, size, source) => {})`
-Emitted when a file has been updated on the drive.The `source` value will return if the event came from the local or remote drive.
-
-### `drive.on('file-unlink', (fileName, filePath, hash, size, source) => {})`
-Emitted when a file has been deleted on the drive. The `source` value will return if the event came from the local or remote drive.
-
-## `const fileRequest = Drive.download(discoveryKey, files, [keyPair]);`
 Connects to a remote drive and requests files to download and save locally.
 
-- `discoveryKey`: Public key client peers will use when requesting resources from the drive. This key is a hash of the drive's public key.
+- `discoveryKey`: Remote drive's discovery key `drive.discoveryKey` which is used by peers to request resources from the drive.
 - `files`: An array of file objects with the following structure
   - `hash`: The hash of the file
-  - `dest`: Local directory path to save the file to
 - `keyPair`: Public private peer keypair. Required if the drive is using auth and only allows certain peers to connect and request files.
 
 Example Usage:
@@ -248,32 +199,56 @@ Example Usage:
 ```js
 const { Drive } = require('@telios/telios-sdk')
 
-const files = [];
+const files = [
+  { hash: fileHash }
+]
 
-files.push({
-  hash: fileHash,
-  dest: path.join(__dirname, `/documents/file.txt`)
-});
+const localDrive = new Drive(__dirname + '/drive', null, { keyPair })
 
-const fileRequest = Drive.download(discoveryKey, files, { keyPair: peerKeypair });
+localDrive.download(remoteDriveDiscoveryKey, files, {
+  keyPair: peerKeypair
+})
 
-fileRequest.on('file-download', (file) => {});
+localDrive.on('file-download', (err, file) => {
+  // File has finished syncing a file from remote to localDrive
+})
 
-fileRequest.on('finished', () => {});
+localDrive.on('download-finished', () => {
+  // All files passed to download() have finished syncing
+})
+
+localDrive.on('download-error', (err) => {
+  // There's been an error syncing with the remote drive
+})
+
 
 ```
 
-### `fileRequest.on('file-download', (file) => {})`
-Emitted when a file has been downloaded from the remote drive
+
+### `await drive.close()`
+Fully close the drive and all of it's resources.
+
+### `drive.on('file-add', (file, enc) => {})`
+Emitted when a new file has been added to a local drive.
 
 - `file`: A file object
-  - `path`: Local path the file was saved to
+  - `path`: drive path the file was saved to
   - `hash`: Hash of the file
+- `enc`: Passes back properties needed to decrypt the file
+  - `key`: Key needed to decrypt the file
+  - `header`: Needed for validated encrypted stream during decryption
 
-### `fileRequest.on('finished', () => {})`
+
+### `drive.on('file-unlink', (file) => {})`
+Emitted when a file has been deleted on the drive.
+
+### `drive.on('file-download', (err, file) => {})`
+Emitted when a file has been downloaded from the remote drive
+
+### `drive.on('finished', () => {})`
 Emitted when all files have finished downloading and saving locally
 
-### `fileRequest.on('error', (err) => {})`
+### `drive.on('error', (err) => {})`
 Emitted when there has been an error downloading from the remote drive
 
 ## `const mailbox = new Mailbox(provider, auth)`
@@ -284,7 +259,7 @@ The Mailbox class provides functionality needed for processing encrypted emails.
   - `claims`
     - `device_signing_key`:
     - `account_key`:
-    - `peer_key`:
+    - `device_peer_key`:
     - `device_id`:
   - `device_signing_priv_key`:
   - `sig`: Signature sent from the Telios server when this account was registered.
@@ -297,7 +272,7 @@ const mailbox = new Mailbox({
     claims: {
       device_signing_key: signingKeypair.publicKey,
       account_key: secretBoxKeypair.publicKey,
-      peer_key: peerKeypair.publicKey,
+      device_peer_key: peerKeypair.publicKey,
       device_id: '[device_id]'
     },
     device_signing_priv_key: signingKeypair.privateKey,
@@ -359,7 +334,7 @@ be encrypted at rest when picked up by the mailserver for Telios recipients.
 - `privKey`: The sender's private key (Bob). Private key is only used during encryption and never sent or stored.
 - `pubKey`: The sender's public key (Bob). Public key is used for authenticity of sender
 - `drive`: A shared drive
-- `filePath`: Path to the file on the local drive
+- `dest`: File destination path on the local drive
 
 Email JSON should be in the following format:
 ```js
@@ -408,8 +383,8 @@ const res = await mailbox.send(email, {
   pubKey: '[bob_account_public_key]',
   // A Shared Drive.
   drive: '[drive]',
-  // Path to the file on the local drive
-  filePath: '/email.json'
+  // Destination path of the file on the local drive
+  dest: '/email/email.json'
 })
 
 ```

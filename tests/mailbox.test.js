@@ -34,9 +34,9 @@ const conf = testSetup.conf();
       provider: 'https://apiv1.telios.io',
       auth: {
         claims: {
-          device_signing_key: conf.ALICE_SIG_PUB_KEY,
           account_key: conf.ALICE_SB_PUB_KEY,
-          peer_key: conf.ALICE_PEER_PUB_KEY,
+          device_signing_key: conf.ALICE_SIG_PUB_KEY,
+          device_peer_key: conf.ALICE_PEER_PUB_KEY,
           device_id: conf.ALICE_DEVICE_1_ID
         },
         device_signing_priv_key: conf.ALICE_SIG_PRIV_KEY,
@@ -57,7 +57,7 @@ const conf = testSetup.conf();
       privKey: conf.BOB_SB_PRIV_KEY,
       pubKey: conf.BOB_SB_PUB_KEY,
       drive: localDrive,
-      filePath: '/test-email.json'
+      dest: '/test-email.json'
     });
 
     t.ok(res, `Sent mail to Telios recipient`);
@@ -246,6 +246,18 @@ const conf = testSetup.conf();
     }
     });
   });
+
+  // test('Mailbox - Send mail directly to online recipient', async t => {
+  //   const Alice = new Account('https://apiv1.telios.io', {
+  //     publicKey: conf.ALICE_PEER_PUB_KEY,
+  //     secretKey: conf.ALICE_PEER_SECRET_KEY
+  //   });
+
+  //   const Bob = new Account('https://apiv1.telios.io', {
+  //     publicKey: conf.BOB_PEER_PUB_KEY,
+  //     secretKey: conf.BOB_PEER_SECRET_KEY
+  //   });
+  // });
 
   test.onFinish(async () => {
     fs.unlinkSync(metaFilePath);

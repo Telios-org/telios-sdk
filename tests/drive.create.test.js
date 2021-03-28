@@ -51,14 +51,16 @@ test('Drive - Create', async t => {
 });
 
 test('Drive - Upload Local Encrypted File', async t => {
-  t.plan(6);
+  t.plan(8);
 
   try {
 
-    drive.on('file-add', (file, opts) => {
-      if(file.encrypted && opts) {
+    drive.on('file-add', (file, enc) => {
+      if(file.encrypted && enc) {
         t.ok(file, 'Emitted file-add with file obj');
-        t.ok(opts, 'Emitted file-add with encryption obj');
+        t.ok(enc, 'Emitted file-add with encryption obj');
+        t.ok(enc.key, 'Has key needed for decryption');
+        t.ok(enc.header, 'Has header needed for decryption')
       }
     });
 
@@ -148,7 +150,7 @@ test('Drive - Fetch Files from Remote Drive', async t => {
 
   drive3.on('file-download', (err, file) => {
     if(err) return t.error(err);
-    
+    console.log(file)
     t.ok(file, `File downloaded from remote peer`);
   });
 
@@ -164,12 +166,12 @@ test('Drive - Fetch Files from Remote Drive', async t => {
 test('Drive - Unlink Local File', async t => {
   t.plan(2);
 
-  drive.on('file-unlink', path => {
-    t.ok(path, `Drive File deleted`);
+  drive.on('file-unlink', file => {
+    t.ok(file, `Drive File deleted`);
   });
 
-  drive2.on('file-unlink', path => {
-    t.ok(path, `Drive2 File removed from remote`);
+  drive2.on('file-unlink', file => {
+    t.ok(file, `Drive2 File removed from remote`);
   })
 
   await drive.unlink('/email/rawEmailEncrypted.eml');
