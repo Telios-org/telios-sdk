@@ -1,88 +1,70 @@
-const fs = require('fs');
-const path = require('path');
-const { Drive, Account } = require('../../');
-const del = require('del');
+const fs = require("fs");
+const path = require("path");
+const { Drive, Account } = require("../../");
+const del = require("del");
 
 module.exports.init = async () => {
   await cleanup();
   //await initDrives();
 
   return await initVars();
-}
+};
 
 module.exports.conf = () => {
-  const filePath = path.join(__dirname, '../vars.tmp.json');
+  const filePath = path.join(__dirname, "../vars.tmp.json");
 
-  if(fs.existsSync(filePath)) {
+  if (fs.existsSync(filePath)) {
     const testVars = fs.readFileSync(filePath);
     return JSON.parse(testVars);
   }
 
   return {};
-}
+};
 
 async function cleanup() {
-  if(fs.existsSync(path.join(__dirname, '../vars.tmp.json'))) {
-    await del([
-      path.join(__dirname, '../vars.tmp.json')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../vars.tmp.json"))) {
+    await del([path.join(__dirname, "../vars.tmp.json")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../data/encrypted.mail'))) {
-    await del([
-      path.join(__dirname, '../data/encrypted.mail')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../data/encrypted.mail"))) {
+    await del([path.join(__dirname, "../data/encrypted.mail")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../data/email.eml'))) {
-    await del([
-      path.join(__dirname, '../data/email.eml')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../data/email.eml"))) {
+    await del([path.join(__dirname, "../data/email.eml")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../data/enc_meta.tmp.json'))) {
-    await del([
-      path.join(__dirname, '../data/enc_meta.tmp.json')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../data/enc_meta.tmp.json"))) {
+    await del([path.join(__dirname, "../data/enc_meta.tmp.json")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../localDrive'))) {
-    await del([
-      path.join(__dirname, '../localDrive')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../localDrive"))) {
+    await del([path.join(__dirname, "../localDrive")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../drive1'))) {
-    await del([
-      path.join(__dirname, '../drive1')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../drive1"))) {
+    await del([path.join(__dirname, "../drive1")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../drive2'))) {
-    await del([
-      path.join(__dirname, '../drive2')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../drive2"))) {
+    await del([path.join(__dirname, "../drive2")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../drive'))) {
-    await del([
-      path.join(__dirname, '../drive')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../drive"))) {
+    await del([path.join(__dirname, "../drive")]);
   }
 
-  if(fs.existsSync(path.join(__dirname, '../peer-drive'))) {
-    await del([
-      path.join(__dirname, '../peer-drive')
-    ]);
+  if (fs.existsSync(path.join(__dirname, "../peer-drive"))) {
+    await del([path.join(__dirname, "../peer-drive")]);
   }
 }
 
 async function initVars() {
-  const tmpFilePath = path.join(__dirname, '../vars.tmp.json');
-  const templatePath = path.join(__dirname, '../vars.json');
+  const tmpFilePath = path.join(__dirname, "../vars.tmp.json");
+  const templatePath = path.join(__dirname, "../vars.json");
   let testVars = null;
 
-  if(fs.existsSync(tmpFilePath)) {
+  if (fs.existsSync(tmpFilePath)) {
     testVars = JSON.parse(fs.readFileSync(tmpFilePath));
   } else {
     testVars = JSON.parse(fs.readFileSync(templatePath));
@@ -100,26 +82,29 @@ async function initVars() {
   testVars.ALICE_SIG_PRIV_KEY = aliceKeys.signingKeypair.privateKey;
   testVars.ALICE_PEER_PUB_KEY = aliceKeys.peerKeypair.publicKey;
   testVars.ALICE_PEER_SECRET_KEY = aliceKeys.peerKeypair.secretKey;
-  testVars.ALICE_DRIVE_KEY = '00000000000000000000000000000000';
-  testVars.ALICE_DEVICE_1_ID = '00000000-0000-0000-0000-000000000000';
+  testVars.ALICE_DRIVE_KEY = "00000000000000000000000000000000";
+  testVars.ALICE_DEVICE_1_ID = "00000000-0000-0000-0000-000000000000";
 
   const opts = {
     account: {
       account_key: testVars.ALICE_SB_PUB_KEY,
+      account_drive_key: testVars.ALICE_DRIVE_KEY,
       recovery_email: testVars.ALICE_RECOVERY,
       device_signing_key: testVars.ALICE_SIG_PUB_KEY,
-      device_drive_key: testVars.ALICE_DRIVE_KEY,
       device_peer_key: testVars.ALICE_PEER_PUB_KEY,
-      device_id: testVars.ALICE_DEVICE_1_ID
-    }
+      device_id: testVars.ALICE_DEVICE_1_ID,
+    },
   };
 
-  const { account, sig } = await Account.init(opts, testVars.ALICE_SIG_PRIV_KEY);
+  const { account, sig } = await Account.init(
+    opts,
+    testVars.ALICE_SIG_PRIV_KEY
+  );
 
   testVars.ALICE_ACCOUNT_SIG = sig;
   testVars.ALICE_DEVICE_1_ID = account.device_id;
-  testVars.ALICE_ACCOUNT_SERVER_SIG = '1010101100110101010101001101010';
-  
+  testVars.ALICE_ACCOUNT_SERVER_SIG = "1010101100110101010101001101010";
+
   // Create Bob key bundle
   const bobKeys = Account.makeKeys();
   testVars.BOB_SB_PUB_KEY = bobKeys.secretBoxKeypair.publicKey;
@@ -136,17 +121,19 @@ async function initDrives() {
   const { secretBoxKeypair: keyPair2 } = Account.makeKeys();
   //const { secretBoxKeypair: keyPair3 } = Account.makeKeys();
 
-  const drive1 = new Drive(path.join(__dirname, '../drive1'), null, {
-    keyPair
+  const drive1 = new Drive(path.join(__dirname, "../drive1"), null, {
+    keyPair,
   });
 
   await drive1.ready();
 
-  const drive2 = new Drive(path.join(__dirname, '../drive2'), drive1.publicKey, {
-    keyPair: keyPair2
-  });
-
-  
+  const drive2 = new Drive(
+    path.join(__dirname, "../drive2"),
+    drive1.publicKey,
+    {
+      keyPair: keyPair2,
+    }
+  );
 
   await drive2.ready();
 }
